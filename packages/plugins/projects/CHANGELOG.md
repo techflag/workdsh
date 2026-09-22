@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.0-alpha.3 — 2026-09-22
+
+- 侧栏「项目」行 `order` 由 20 调整为 5：按 2026-09-22 用户要求排在「新建任务（0）」之后、「助理（10）」之前。
+- 与 `workdsh-bundle@0.1.0-alpha.51` 同批安装。
+
 ## 0.1.0-alpha.2 — Unreleased（2026-09-18）
 
 - Align with DeepSeek Harness 0.1.6-alpha.2 Client Session generations: retain the target Session (`sessions.retain` → `ready` → send → `release`) before sending a project task message, and open/switch Sessions through the official `uiWorkspace.openSession` navigation.

@@ -9,6 +9,10 @@ for (const [, name, version] of entries) {
   assert.equal(version, expected, `${name} version mismatch`);
   assert.equal(pkg.pnpm.overrides[name], expected, `${name} missing exact override`);
 }
+const resolved = new Set(entries.map(([, name]) => name));
+for (const name of Object.keys(pkg.pnpm.overrides).filter(name => name.startsWith('@deepseek-ai/dsh'))) {
+  assert.ok(resolved.has(name), `${name} override has no resolved lock entry (retired or renamed package)`);
+}
 const cordis = [...lock.matchAll(/^  '?@deepseek-ai\/cordis@([^\s:'(]+)(?:[^\n]*):$/gm)];
 assert.ok(cordis.length > 0);
 assert.deepEqual([...new Set(cordis.map(m => m[1]))], ['4.0.2']);

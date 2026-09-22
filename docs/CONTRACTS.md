@@ -1,12 +1,14 @@
 # WorkDSH 公开契约草案
 
-状态：本地 `0.1` 治理契约基线完成。`workdsh-contracts@0.1.0-alpha.5` 已实现 Host identity/access/audit 与 Session owner/runtime binding 契约；未进入该包的领域接口仍是拟定义草案，不是声称已存在的 Harness API。企业服务器与受控 Remote 见[后期企业版说明](ENTERPRISE-EDITION.md)。架构决策见 [ADR-0016](adr/0016-governance-contracts-first.md)。
+状态：本地 `0.1` 治理契约基线完成。`workdsh-contracts@0.1.0-alpha.8` 已实现 Host identity/access/audit 与 Session owner/runtime binding 契约；未进入该包的领域接口仍是拟定义草案，不是声称已存在的 Harness API。企业服务器与受控 Remote 见[后期企业版说明](ENTERPRISE-EDITION.md)。架构决策见 [ADR-0016](adr/0016-governance-contracts-first.md)。
 
 ## 已实现的本地 Skill 契约
 
 `workdsh-contracts/skills` 导出 `SkillManagementService`（`contractVersion: 1`）、管理 DTO 与 `SkillDependencyInspector`。独立 Skill Host 提供 `ctx.workdshSkills`；消费者只导入公共类型，使用 `inject: ['workdshSkills']` 声明服务依赖，并以 `ctx.effect()` 托管依赖检查注册。用法见[Skill README](../packages/plugins/skills/README.md)。
 
 它覆盖现有本地目录、完整正文/资源、冲突保存、导入/草稿发布、启停、卸载影响及恢复。官方 Connection 承载浏览器请求；同 Host 插件协作直接注入服务，不新增网络层。两个消费者共享、服务缺失/恢复和清理已有测试。
+
+`ManagedSkillSummary`/`ManagedSkillDetail` 的 `origin` 区分 `directory`（受管目录，可编辑、可移动文件）与 `plugin`（插件随包提供，文件由插件维护）。后者 `manageable: true` 但 `update`/`uninstall` 返回 `skill/plugin-owned`；启停按 [ADR-0029](adr/0029-plugin-skill-registry-suppression.md) 走注册表级抑制（`workdsh-skill-suppression`，rank 240），只改变该名称的调用面，不改写包内文件。项目层（rank 100/200）技能不进入该路径。
 
 此契约不接收客户端自报身份，也未实现全入口多用户治理；仅用于既有受信本地 Host 组合。它不提供专家所需的不可变 `SkillRevision` 或引用租约；这些仍是 D04 的明确依赖适配任务。以下尚未进入 contracts 包的领域接口仍为草案。
 
@@ -77,7 +79,7 @@ projects 增加 createFromTemplate/updateConfig/resolveTaskContext/linkAsset/cre
 
 assets 增加 proposeRevision/acceptRevision/rejectRevision/listRevisions/checkCapacity；建议修订含 baseRevision、作者、来源任务与差异。只有 accept 成功才切换当前正文，冲突拒绝静默覆盖。检索只返回当前主体有权使用的引用，读取时重查。
 
-skills 增加 discover/setEnabled/uninstall；启停配置不改资源原文；uninstall 返回依赖影响和逐项结果，保留被历史任务引用的修订。experts 增加用户最近使用/置顶偏好；偏好不属于专家公开修订。
+skills 增加 discover/setEnabled/uninstall；启停配置不改资源原文（插件随包技能只做注册表级抑制，见上文 `origin` 说明）；uninstall 返回依赖影响和逐项结果，保留被历史任务引用的修订。experts 增加用户最近使用/置顶偏好；偏好不属于专家公开修订。
 
 项目默认优先于应用默认、低于用户明确选择；组织限制和授权始终单独约束。ProjectTaskLink 仅表示归属，不能作为会话共享授权。完整语义见 [项目设计](PROJECT-DESIGN.md)。
 

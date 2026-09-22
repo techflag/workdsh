@@ -1,12 +1,14 @@
+import type { SidebarBrandMarkOwnerProps } from '@deepseek-ai/dsh-client-ui-sidebar/client';
 import * as React from 'react';
-import { LogoMark } from 'workdsh-ui';
+import { GeWordmark } from './GeWordmark.js';
 
 export function BrandName() {
-  return <span data-testid="workdsh-brand">WorkDSH</span>;
+  return <span data-testid="workdsh-brand">DSH JOB AI</span>;
 }
 
-export function BrandMark() {
-  return <LogoMark size={22} />;
+/** The owner supplies the box edge; the wordmark keeps its own aspect ratio. */
+export function BrandMark({ size }: SidebarBrandMarkOwnerProps) {
+  return <GeWordmark height={size} />;
 }
 
 export function DiagnosticsMark() {

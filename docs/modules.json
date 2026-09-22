@@ -36,9 +36,9 @@
       "src"
     ],
     "release": {
-      "version": "0.1.0-alpha.45",
+      "version": "0.1.0-alpha.48",
       "channel": "github-prerelease",
-      "date": "2026-09-15",
+      "date": "2026-09-19",
       "evidence": "docs/releases/v0.1.0-alpha.2.md"
     },
     "acceptanceNote": "精确8包Profile生命周期通过，不等于D10首期全部业务模块组合验收。"
@@ -50,6 +50,23 @@
     "phase": "P1",
     "task": "P1-01",
     "status": "implemented",
+    "directories": [
+      "src/domain",
+      "src/services",
+      "src/storage",
+      "src/tools",
+      "src/remote",
+      "src/client/components",
+      "src/harness",
+      "tests"
+    ]
+  },
+  {
+    "path": "packages/plugins/assistant",
+    "title": "助理",
+    "phase": "P1",
+    "task": "P1-12",
+    "status": "planned",
     "directories": [
       "src/domain",
       "src/services",
@@ -77,14 +94,14 @@
       "src/client/components",
       "src/harness",
       "tests",
-      "resources/skills/expert-manager",
+      "resources/skills/workdsh-expert-manager",
       "resources/templates",
       "src/services/preferences"
     ],
     "release": {
-      "version": "0.1.0-alpha.3",
+      "version": "0.1.0-alpha.4",
       "channel": "github-prerelease",
-      "date": "2026-09-15",
+      "date": "2026-09-16",
       "evidence": "docs/releases/2026-09-15-dsh-0.1.6-alpha.1.md"
     },
     "acceptanceNote": "专家作品与固定修订已组合官方 Team；专业质量、跨平台与官方 fork 历史查询缺陷仍按 alpha 边界记录。"
@@ -106,6 +123,10 @@
       "src/harness",
       "tests",
       "resources/skills/workdsh-skill-creator",
+      "resources/skills/workdsh-ppt-design",
+      "resources/skills/workdsh-word-design",
+      "resources/skills/workdsh-excel-design",
+      "resources/skills/workdsh-web-design",
       "resources/templates",
       "src/services/discovery",
       "src/services/preferences"
@@ -519,9 +540,9 @@
       "tests"
     ],
     "release": {
-      "version": "0.1.0-alpha.2",
+      "version": "0.1.0-alpha.3",
       "channel": "github-prerelease",
-      "date": "2026-09-15",
+      "date": "2026-09-16",
       "evidence": "docs/releases/2026-09-15-dsh-0.1.6-alpha.1.md"
     },
     "acceptanceNote": "官方 Team 协作栏布局与状态投影已验证；60 分钟资源收敛和跨平台长任务仍未验收。"

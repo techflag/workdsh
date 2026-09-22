@@ -81,7 +81,10 @@ try {
     tarballs.push(join(artifacts, `${manifest.name}-${manifest.version}.tgz`));
   }
   await cli('--profile', 'experts', '--from-default-profile', 'web', '--dump-config');
-  await cli('plugin', '--profile', 'experts', 'add', ...tarballs, '--offline');
+  // Exercise the same fresh-profile path used by users. Prefer the local pnpm
+  // store, but allow missing transitive packages to be fetched: a clean machine
+  // cannot satisfy a first install with --offline.
+  await cli('plugin', '--profile', 'experts', 'add', ...tarballs, '--prefer-offline');
   pass('Six independent Profile layers installed outside checkout');
   let host = await start();
   const listed = await api(host, 'list');

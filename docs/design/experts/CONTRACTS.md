@@ -1,6 +1,6 @@
 # 专家领域契约设计记录
 
-本文保存单专家最初的契约设计，**不是 Harness 官方 API**。单专家现已实现，实际名称、参数和导出以 [packages/contracts/src/experts.ts](../../../packages/contracts/src/experts.ts) 与对应 Host 测试为准；下文历史“拟新增”不能用于判断功能尚不存在，也不得直接覆盖当前实现。团队新增契约见 [实施入口](TEAM-IMPLEMENTATION-HANDOFF.md)，先建校验和契约测试，再实现 Host，最后接 UI/工具。
+本文保存单专家最初的契约设计，**不是 Harness 官方 API**。单专家现已实现，实际名称、参数和导出以 [packages/contracts/src/experts.ts](../../../packages/contracts/src/experts.ts) 与对应 Host 测试为准；下文历史“拟新增”不能用于判断功能尚不存在，也不得直接覆盖当前实现。团队新增契约的实施方案见[有限开发计划](DEVELOPMENT-PLAN.md)与[专家团方案](EXPERT-TEAMS.md)（原引用的 `TEAM-IMPLEMENTATION-HANDOFF.md` 未创建），先建校验和契约测试，再实现 Host，最后接 UI/工具。
 
 ## 1. 对象与字段
 

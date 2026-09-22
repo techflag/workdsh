@@ -62,17 +62,20 @@ export async function probeBrowser(address, sessionCookie, screenshotPath, { ins
     }
 
     // Harness stays the sole Sidebar owner; WorkDSH contributes only public slots.
-    await expect(page.getByTestId('workdsh-brand')).toHaveText('WorkDSH', { timeout: 30000 });
+    await expect(page.getByTestId('workdsh-brand')).toHaveText('DSH JOB AI', { timeout: 30000 });
     await expect(page.getByTestId('workdsh-sidebar')).toHaveCount(0);
     await expect(page.getByRole('button', { name: '专家 · 技能 · 连接器', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: '返回 WorkDSH', exact: true })).toHaveCount(0);
     const newSession = page.getByText(/新会话|New Session/, { exact: true }).first();
     await expect(newSession).toBeVisible();
-    for (const label of ['项目', '专家 · 技能 · 连接器', '资料库']) {
+    // A row is only ever contributed by the plugin that owns its `main` panel, so
+    // this profile (bundle + Skill layer, no library, no projects) must show the
+    // three not-yet-implemented entries and the capability centre, and must NOT
+    // show 资料库/项目 rows:官方 Sidebar 的行按钮直接调用 selectPanel，无页面时点击会抛错。
+    for (const label of ['助理（待开放）', '专家 · 技能 · 连接器', '定时任务（待开放）', '更多（待开放）']) {
       await expect(page.getByRole('button', { name: label, exact: true })).toBeVisible();
     }
-    // 规划中、尚无领域实现的功能不注册导航入口（用户 2026-09-17 决定先隐藏）。
-    for (const label of ['助理', '定时任务', '更多']) {
+    for (const label of ['资料库', '项目']) {
       await expect(page.getByRole('button', { name: label, exact: true })).toHaveCount(0);
     }
     await expect(nav).toBeVisible();
@@ -100,7 +103,7 @@ export async function probeBrowser(address, sessionCookie, screenshotPath, { ins
 
     await page.goto(`${address}/?diagnostics=1&workdsh-view=skills`, { waitUntil: 'domcontentloaded' });
     await expect(page.getByTestId('workdsh-skills')).toBeVisible();
-    await expect(page.getByRole('heading', { name: '技能库', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '技能市场', exact: true })).toBeVisible();
     await expect(page.getByRole('combobox', { name: '选择任务' })).toHaveCount(0);
     await expect(page.getByRole('button', { name: '专家 · 技能 · 连接器', exact: true })).toBeVisible();
     await expect(page.getByText('SkillHub', { exact: true })).toHaveCount(0);
@@ -108,10 +111,21 @@ export async function probeBrowser(address, sessionCookie, screenshotPath, { ins
     await later.waitFor({ state: 'visible', timeout: 3000 }).then(() => later.click()).catch(() => {});
     const addSkill = page.getByRole('button', { name: '＋ 添加技能', exact: true });
     await expect(addSkill).toBeEnabled();
-    await expect(page.getByRole('status', { name: /已安装 \d+ 个技能/ })).toBeVisible();
-    await expect(page.getByRole('button', { name: /我安装的/ })).toHaveCount(0);
-    for (const label of ['办公协同', '开发工具', '数据分析', '内容创作', '知识学习']) await expect(page.getByRole('button', { name: label, exact: true })).toBeDisabled();
+    await expect(page.getByText(/共 \d+ 个已安装技能/).first()).toBeVisible();
+    // 分类只来自本地技能目录：没有目录元数据时只剩「全部」，不再有凭空编造的五个分类。
+    const categoryTabs = page.getByRole('navigation', { name: '技能分类' });
+    await expect(categoryTabs.getByRole('button', { name: '全部', exact: true })).toBeVisible();
+    for (const label of ['办公协同', '开发工具', '数据分析', '内容创作', '知识学习']) await expect(categoryTabs.getByRole('button', { name: label, exact: true })).toHaveCount(0);
+    // 「我安装的」是进入已安装视图的真实按钮，不再是静态计数文本。
+    await expect(page.getByRole('button', { name: /^查看我安装的 \d+ 个技能$/ })).toBeEnabled();
+    // 外观由官方 ThemeRuntime 与用户偏好驱动：bundle 不注册也不强制第二套主题。
+    // 探针 profile 未写偏好，preference 保持官方默认 system，明暗只跟随浏览器。
+    await expect(page.locator('html')).toHaveAttribute('data-ds-theme-source', 'system');
+    await expect(page.locator('body')).not.toHaveAttribute('data-ds-dark-theme');
+    await page.emulateMedia({ colorScheme: 'dark' });
     await expect(page.locator('body')).toHaveAttribute('data-ds-dark-theme');
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect(page.locator('body')).not.toHaveAttribute('data-ds-dark-theme');
     for (const width of [1440, 1920, 390]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.screenshot({ path: screenshotPath.replace('.png', `-skills-${width}.png`), fullPage: true });
@@ -139,7 +153,7 @@ export async function probeBrowser(address, sessionCookie, screenshotPath, { ins
     await page.getByRole('button', { name: '返回概述', exact: true }).click();
     await expect(page.getByRole('button', { name: 'references/browser-check.md', exact: true })).toBeVisible();
     await page.getByRole('button', { name: '关闭', exact: true }).click();
-    await expect(page.getByRole('heading', { name: '技能库', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '技能市场', exact: true })).toBeVisible();
     await page.getByRole('switch', { name: '停用技能 workdsh-browser-fixture', exact: true }).click();
     await expect(page.getByRole('switch', { name: '启用技能 workdsh-browser-fixture', exact: true })).toBeVisible();
     await page.getByRole('switch', { name: '启用技能 workdsh-browser-fixture', exact: true }).click();
@@ -149,7 +163,7 @@ export async function probeBrowser(address, sessionCookie, screenshotPath, { ins
     await expect.poll(() => new URL(page.url()).searchParams.get('workdsh-view')).toBe('conversation');
     await expect(page.getByText('/workdsh-browser-fixture', { exact: false }).first()).toBeVisible();
     await page.getByRole('button', { name: '专家 · 技能 · 连接器', exact: true }).click();
-    await expect(page.getByRole('heading', { name: '技能库', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '技能市场', exact: true })).toBeVisible();
     await addSkill.click();
     for (const label of ['查找技能', '上传技能', '创建技能']) await expect(page.getByRole('menuitem', { name: label, exact: true })).toBeVisible();
     await page.getByRole('menuitem', { name: '查找技能', exact: true }).click();
@@ -171,11 +185,11 @@ export async function probeBrowser(address, sessionCookie, screenshotPath, { ins
     await addSkill.click();
     await page.getByRole('menuitem', { name: '创建技能', exact: true }).click();
     await expect.poll(() => new URL(page.url()).searchParams.get('workdsh-view')).toBe('conversation');
-    await expect(page.getByText('/skill-creator', { exact: false }).first()).toBeVisible();
+    await expect(page.getByText('/workdsh-skill-creator', { exact: false }).first()).toBeVisible();
     await expect(page.getByText('请帮我创建一个可以实现「……」的 skill', { exact: false }).first()).toBeVisible();
     await page.getByRole('button', { name: '专家 · 技能 · 连接器', exact: true }).click();
     await expect(page.getByTestId('workdsh-skills')).toBeVisible();
-    await expect(page.getByText('skill-creator', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(/workdsh-skill-creator/).first()).toBeVisible();
     await page.getByRole('button', { name: '管理技能 workdsh-browser-fixture', exact: true }).click();
     await page.getByRole('menuitem', { name: '卸载', exact: true }).click();
     await expect(page.getByRole('heading', { name: '卸载 workdsh-browser-fixture？', exact: true })).toBeVisible();
@@ -244,14 +258,14 @@ export async function probeProductWithoutSkills(address, sessionCookie) {
     await page.context().addCookies(sessionCookies(address, sessionCookie));
     await page.goto(`${address}/?workdsh-view=skills`);
     await dismissSetup(page);
-    await expect(page.getByTestId('workdsh-brand')).toHaveText('WorkDSH');
+    await expect(page.getByTestId('workdsh-brand')).toHaveText('DSH JOB AI');
     await expect(page.getByRole('button', { name: '专家 · 技能 · 连接器', exact: true })).toHaveCount(0);
     await expect.poll(() => new URL(page.url()).searchParams.get('workdsh-view')).toBe('conversation');
     const graph = await page.evaluate(() => window.__DSH_BOOT__.entries.map(row => row.id));
     expect(graph).toContain('workdsh-bundle');
     expect(graph).not.toContain('workdsh-plugin-skills');
-    await page.getByRole('button', { name: '项目', exact: true }).click();
-    await expect(page.getByRole('heading', { name: '项目', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: '助理（待开放）', exact: true }).click();
+    await expect(page.getByRole('heading', { name: '助理', exact: true })).toBeVisible();
     await page.getByText(/新会话|New Session/, { exact: true }).first().click();
     await expect(page.getByText(/探索未至之境|Into the Unknown/, { exact: true }).first()).toBeVisible();
     expect(errors).toEqual([]);

@@ -146,7 +146,7 @@ packages/plugins 是非包目录，skills/experts 等子目录各自拥有独立
 
 ## 跨功能执行组合：Agent preset、业务角色与工作范围
 
-依据已锁定的 @deepseek-ai/dsh-agent-presets@0.1.5-rc.1 发布包 README.zh.md 核对；以下原生行为仍需 P0-03 运行验证。
+依据已锁定的 @deepseek-ai/dsh-agent-presets@0.1.6-alpha.1 发布包 README.zh.md 核对；以下原生行为仍需 P0-03 运行验证。
 
 专家是 WorkDSH 业务对象，preset 是会话能力组装，Session 是执行实例。专家发布修订引用经过验证的能力组合，任务解析该引用后创建原生会话；不要求每位专家独立 npm 包，也不强制每位专家复制整个 preset。复用组合必须保持对象修订和实际执行配置可追溯。
 

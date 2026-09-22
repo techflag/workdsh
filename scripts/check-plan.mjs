@@ -66,21 +66,33 @@ if (order.activeSlice) {
   requirePath(slice.decision);
 }
 if (steps.size !== order.steps.length) failures.push('Duplicate delivery step');
-if (order.steps.length !== 16) failures.push('Expected D00-D15 delivery steps');
+if (order.steps.length < 16) failures.push('Expected D00-D15 delivery steps');
 for (let i = 0; i < order.steps.length; i += 1) {
   const step = order.steps[i];
   const expected = `D${String(i).padStart(2, '0')}`;
   if (step.id !== expected) failures.push(`Unexpected delivery order: ${step.id}`);
   if (!['todo', 'in_progress', 'blocked', 'completed'].includes(step.status)) failures.push(`Invalid step status: ${step.id}`);
-  const required = i === 0 ? [] : [order.steps[i - 1].id];
-  if (JSON.stringify(step.dependsOn) !== JSON.stringify(required)) failures.push(`Invalid prerequisites: ${step.id}`);
+  // 依赖是显式图，不要求线性相邻：D00 无前置，其余步骤必须声明已知且非自身的前置，
+  // 以便在保持既有编号不变的前提下表达“某步必须先于更晚编号的步骤完成”。
+  if (!Array.isArray(step.dependsOn)) failures.push(`Invalid prerequisites: ${step.id}`);
+  else {
+    if (i === 0 ? step.dependsOn.length : !step.dependsOn.length) failures.push(`Invalid prerequisites: ${step.id}`);
+    if (new Set(step.dependsOn).size !== step.dependsOn.length) failures.push(`Duplicate prerequisites: ${step.id}`);
+    for (const id of step.dependsOn) {
+      if (id === step.id) failures.push(`Self prerequisite: ${step.id}`);
+      else if (!steps.has(id)) failures.push(`Unknown prerequisite: ${step.id} -> ${id}`);
+    }
+  }
   for (const task of step.tasks) if (!ledger.includes(`| ${task} |`)) failures.push(`Missing delivery task: ${task}`);
   if (step.status !== 'todo' && step.dependsOn.some((id) => steps.get(id)?.status !== 'completed')) failures.push(`Prerequisite incomplete: ${step.id}`);
   if (step.status === 'completed' && !step.evidence.length) failures.push(`Missing delivery evidence: ${step.id}`);
   for (const evidence of step.evidence) requirePath(evidence);
 }
-const nextStep = order.steps.find((s) => s.status !== 'completed');
-if (order.currentStep !== (nextStep?.id ?? null)) failures.push('currentStep must be first unfinished delivery step');
+// 当前步骤按依赖就绪判定，而非数组位置：显式依赖图下二者可以不一致。
+const runnableStep = order.steps.find(
+  (s) => s.status !== 'completed' && s.dependsOn.every((id) => steps.get(id)?.status === 'completed'),
+);
+if (order.currentStep !== (runnableStep?.id ?? null)) failures.push('currentStep must be first runnable unfinished delivery step');
 if (order.steps.filter((s) => s.status === 'in_progress').length > 1) failures.push('Multiple active delivery steps');
 const seen = new Set();
 for (const entry of modules) {

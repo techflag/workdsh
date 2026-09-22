@@ -19,6 +19,7 @@ function publicFailure(error: unknown): ConnectionRpcResult<never> {
   const messages: Record<string, string> = {
     'skill/invalid-name': '技能名称无效。',
     'skill/not-manageable': '该技能由只读来源提供，不能修改。',
+    'skill/plugin-owned': '该技能由插件随包提供，技能库不能修改或卸载它的文件，只能在此停用或启用。',
     'skill/revision-conflict': '技能已被其他进程修改，请重新加载后再保存。',
     'skill/name-mismatch': 'SKILL.md 中的名称与当前技能不一致。',
     'skill/description-required': 'SKILL.md 必须包含 description。',

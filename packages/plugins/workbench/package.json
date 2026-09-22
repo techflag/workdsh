@@ -1,6 +1,6 @@
 {
   "name": "workdsh-plugin-workbench",
-  "version": "0.1.0-alpha.11",
+  "version": "0.1.0-alpha.15",
   "private": true,
   "type": "module",
   "exports": {
@@ -34,6 +34,7 @@
     "@deepseek-ai/dsh-client-ui-slots": "0.1.6-alpha.2",
     "@deepseek-ai/dsh-client-ui-renderer": "0.1.6-alpha.2",
     "@deepseek-ai/dsh-client-ui-sidebar": "0.1.6-alpha.2",
+    "@deepseek-ai/dsh-client-ui-workspace": "0.1.6-alpha.2",
     "workdsh-ui": "workspace:*",
     "@deepseek-ai/dsh-client-ui-session": "0.1.6-alpha.2",
     "@deepseek-ai/dsh-client-ui-chat": "0.1.6-alpha.2",

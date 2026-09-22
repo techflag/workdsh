@@ -1,36 +1,33 @@
-import {downloadPdf} from "./pdf/download.js";
-import {downloadHtml} from "./html/preview.js";
-import {createPresentationModel} from "./presentation/client-model.js";
+import { createElement, useEffect, useState, type ComponentType, type ReactElement } from "react";
 import type {} from "@deepseek-ai/dsh-client-ui-input-trigger/client";
 import { officeInputSources } from "./input.js";
 import type { Context } from "@deepseek-ai/cordis";
 import type {} from "@deepseek-ai/dsh-client-ui-renderer/client";
 import type {} from "@deepseek-ai/dsh-client-ui-sidebar-documentpreview/client";
-import { OfficeDocument } from "./OfficeDocument.js";
-import { CsvDocument } from "./csv/CsvDocument.js";
 import type {} from "@deepseek-ai/dsh-client-ui-sidebar-right/client";
 import type { ISessions } from "@deepseek-ai/dsh-api-session-controller/client";
 import type {} from "@deepseek-ai/dsh-client-ui-session/client";
-import { downloadSpreadsheet } from "./spreadsheet/xlsx.js";
-import { downloadDocument } from "./live/docx.js";
 import type { OfficeContentSnapshot } from "workdsh-contracts/office";
 import type { LibraryOriginalPreviewRegistry } from "workdsh-contracts/library";
-import { renderAsync } from "docx-preview";
-import { mountPptx } from "./presentation/native-react/editor.js";
-import nativeCss from "./presentation/native-react/native.css";
-import ribbonCss from "./presentation/native-react/ribbon.css";
-import { DocumentPage } from "./live/DocumentPage.js";
-import {
-  createDocumentModel,
-  type Rpc,
-  type OfficeClient,
-} from "./live/model.js";
+import { loadOfficeRuntime, type OfficeRuntime } from "./runtime-loader.js";
+import type { OfficeClient, Rpc } from "./live/model.js";
 declare module "@deepseek-ai/dsh-client-ui-sidebar-right/client" {
   interface SidebarRightTabParamsMap {
     "workdsh-office-live": { documentId?: string; requestId?: string };
   }
 }
 declare module "@deepseek-ai/cordis" { interface Context { workdshLibraryPreview: LibraryOriginalPreviewRegistry; } }
+/** Slot registrations take `(props: never) => ReactNode`; the shell forwards whatever the owner passes. */
+type OfficeSlotComponent = (props: any) => ReactElement | null;
+/**
+ * Office registration shell.
+ *
+ * This bundle is preloaded on every first paint, so it owns only the
+ * registration surface: slot keys, preview metadata, input sources, the RPC
+ * transport and the width of the Office client contract. Every editor
+ * implementation is deferred to the lazy runtime artifact (see runtime.tsx),
+ * which the Host serves and this shell injects when a document is opened.
+ */
 export const name = "workdsh-office-client";
 declare const __WORKDSH_WORD_ONLY__: boolean;
 // Word-only releases claim DOCX only (dist/release-scope.json); every Client
@@ -44,22 +41,43 @@ export const inject = [
   "sessions",
   "uiConversation",
   "inputTriggers",
+  // The lazy artifact is materialized through the kernel's client module table.
+  "modules",
 ];
 export function apply(ctx: Context): void {
-  ctx.inject(["workdshLibraryPreview"], scope => scope.effect(() => scope.workdshLibraryPreview.register(["docx", "pptx"], async (target, input) => {
-    target.replaceChildren();
-    if (input.kind === "docx") {
-      const style = document.createElement("style"); style.textContent = ".docx-wrapper{background:#e9ecf1!important;padding:24px!important;min-height:100%;box-sizing:border-box}.docx-wrapper>section.docx{width:min(816px,calc(100% - 20px))!important;min-height:1056px!important;margin:0 auto 20px!important;padding:72px 80px!important;box-sizing:border-box!important;box-shadow:0 2px 14px #0003}.docx-wrapper table{width:100%!important;table-layout:auto!important}.docx-wrapper td,.docx-wrapper th{min-width:72px!important;word-break:normal!important;overflow-wrap:break-word!important;white-space:normal!important}.docx-wrapper p{word-break:normal!important;overflow-wrap:break-word!important}";
-      target.append(style);
-      const host = document.createElement("div"); host.style.cssText = "height:100%;overflow:auto;background:#e9ecf1"; target.append(host);
-      await renderAsync(input.bytes.slice().buffer, host, undefined, { renderAltChunks: false });
-      return () => target.replaceChildren();
+  /** Set once the lazy artifact is materialized; every heavy entry point runs after that. */
+  let materialized: OfficeRuntime | undefined;
+  const runtime = async (): Promise<OfficeRuntime> =>
+    (materialized ??= await loadOfficeRuntime(ctx));
+  const loaded = (): OfficeRuntime => {
+    if (!materialized) throw new Error("Office 编辑器尚未加载完成，请稍候重试。");
+    return materialized;
+  };
+  /**
+   * Slot owners need a component at registration time. The wrapper keeps that
+   * contract and renders the real editor as soon as the artifact arrives.
+   */
+  const deferred = (pick: (value: OfficeRuntime) => ComponentType<any>): OfficeSlotComponent => {
+    function DeferredOfficeComponent(props: Record<string, unknown>): ReactElement | null {
+      const [state, setState] = useState<{ editor?: ComponentType<any>; failure?: string }>({});
+      useEffect(() => {
+        let active = true;
+        runtime()
+          .then(value => { if (active) setState({ editor: pick(value) }); })
+          .catch((error: unknown) => {
+            if (active) setState({ failure: error instanceof Error ? error.message : String(error) });
+          });
+        return () => { active = false; };
+      }, []);
+      if (state.failure)
+        return createElement("div", { role: "alert", style: { padding: "16px" } }, state.failure);
+      if (!state.editor)
+        return createElement("div", { role: "status", style: { padding: "16px", opacity: 0.7 } }, "正在加载 Office 编辑器…");
+      return createElement(state.editor, props);
     }
-    const style = document.createElement("style"); style.textContent = nativeCss + ribbonCss; target.append(style);
-    const host = document.createElement("div"); host.className = "workdsh-ppt-editor"; host.style.cssText = "height:100%;overflow:hidden"; target.append(host);
-    const editor = await mountPptx(host, input.bytes, input.name, () => undefined, () => undefined);
-    return () => { editor.dispose(); target.replaceChildren(); };
-  })));
+    return DeferredOfficeComponent as OfficeSlotComponent;
+  };
+  ctx.inject(["workdshLibraryPreview"], scope => scope.effect(() => scope.workdshLibraryPreview.register(["docx", "pptx"], async (target, input) => (await runtime()).mountOriginalPreview(target, input))));
   ctx.effect(() =>
     ctx.documentPreviews.register({
       id: "workdsh-office",
@@ -71,7 +89,7 @@ export function apply(ctx: Context): void {
   ctx.slots.inject("sidebar.right.tab.document", () =>
     ctx.slots.register(
       { name: "sidebar.right.tab.document", key: "workdsh-office", inject: () => ({office}) },
-      OfficeDocument,
+      deferred(value => value.OfficeDocument),
     ),
   );
   if (!wordOnlyRelease) {
@@ -87,7 +105,7 @@ export function apply(ctx: Context): void {
     ctx.slots.inject("sidebar.right.tab.document", () =>
       ctx.slots.register(
         { name: "sidebar.right.tab.document", key: "workdsh-office-csv" },
-        CsvDocument,
+        deferred(value => value.CsvDocument),
       ),
     );
   }
@@ -111,7 +129,7 @@ export function apply(ctx: Context): void {
       );
     return result.value as T;
   };
-  const activeDocuments = new Map<string, ReturnType<typeof createDocumentModel>>();
+  const activeDocuments = new Map<string, ReturnType<OfficeRuntime["createDocumentModel"]>>();
   // alpha.2: the list snapshot has no `current`; the view owner's mainView retention
   // marks the selected Session (same derivation as the official ui-session publishMain).
   const currentSessionId = () => {
@@ -120,7 +138,7 @@ export function apply(ctx: Context): void {
   };
   const office: OfficeClient = {
     request:rpc,
-    createPresentation:options=>createPresentationModel(options,rpc),
+    createPresentation:options=>(loaded().createPresentationModel(options,rpc)),
     importDocument: (sessionId, input, signal) => rpc(sessionId, {endpoint: "open", input}, signal),
     list: (sessionId, signal) => rpc(sessionId, { endpoint: "list" }, signal),
     download: async (sessionId, documentId) => {
@@ -128,16 +146,12 @@ export function apply(ctx: Context): void {
       if (current) await current.download();
       else {
         const snapshot = await rpc<OfficeContentSnapshot>(sessionId, {endpoint: "read", documentId});
-        if (snapshot.kind === "pdf") await downloadPdf(office,sessionId,snapshot);
-        else if (snapshot.kind === "html") downloadHtml(snapshot);
-        else if (snapshot.kind === "spreadsheet") await downloadSpreadsheet(snapshot);
-        else if (snapshot.kind === "document") await downloadDocument(snapshot);
-        else throw new Error("请在 PPT 编辑器中下载此演示文稿。");
+        await (await runtime()).downloadOriginal(office, sessionId, snapshot);
       }
     },
     open: (sessionId, documentId) => ctx.sidebarRight.openTabIn(sessionId as never, "workdsh-office-live", {params: {documentId}}),
     createDocument: (options) => {
-      const model = createDocumentModel(options, rpc), key = options.sessionId + ":" + options.documentId;
+      const model = loaded().createDocumentModel(options, rpc), key = options.sessionId + ":" + options.documentId;
       return {...model, attach: element => {
         activeDocuments.set(key, model);
         const dispose = model.attach(element);
@@ -171,7 +185,7 @@ export function apply(ctx: Context): void {
         key: "workdsh-office-live",
         inject: () => ({ office }),
       },
-      DocumentPage,
+      deferred(value => value.DocumentPage),
     ),
   );
   ctx.effect(() => {

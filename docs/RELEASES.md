@@ -121,11 +121,11 @@ Each release carries its own prebuilt package, checksums, and a manifest tying i
 | 模块 | 当前版本 | 本次交付方式 |
 | --- | --- | --- |
 | `workdsh-plugin-workbench` | `0.1.0-alpha.10` | 随展示 bundle 交付；没有独立安装层，不另发可安装插件包。 |
-| `workdsh-ui` | `0.1.0-alpha.4` | 共享展示组件库；需要的代码编译进各 Client 制品。 |
-| `workdsh-contracts` | `0.1.0-alpha.5` | 类型契约开发包；Skill 自包含所需声明。 |
-| `workdsh-provider-identity-local` | `0.1.0-alpha.3` | 本地身份基础服务源码和测试，未作为独立用户安装包交付。 |
-| `workdsh-plugin-access` | `0.1.0-alpha.3` | 本地授权基础服务源码和测试，未作为独立用户安装包交付。 |
-| `workdsh-plugin-audit` | `0.1.0-alpha.2` | 本地审计基础服务源码和测试，未作为独立用户安装包交付。 |
+| `workdsh-ui` | `0.1.0-alpha.6` | 共享展示组件库；需要的代码编译进各 Client 制品。 |
+| `workdsh-contracts` | `0.1.0-alpha.8` | 类型契约开发包；Skill 自包含所需声明。 |
+| `workdsh-provider-identity-local` | `0.1.0-alpha.5` | 本地身份基础服务源码和测试，未作为独立用户安装包交付。 |
+| `workdsh-plugin-access` | `0.1.0-alpha.5` | 本地授权基础服务源码和测试，未作为独立用户安装包交付。 |
+| `workdsh-plugin-audit` | `0.1.0-alpha.4` | 本地审计基础服务源码和测试，未作为独立用户安装包交付。 |
 | 连接器 / Connectors | `0.1.0-alpha.1` | 项目级 `v0.1.0-alpha.2` 附带可安装包；令牌授权已验证，OAuth 仍在规划。 |
 | 项目、资料库等 | 见 [modules.json](modules.json) | 设计/规划模块，不生成空插件发布包。 |
 

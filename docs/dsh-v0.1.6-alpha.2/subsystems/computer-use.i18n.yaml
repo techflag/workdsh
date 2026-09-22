@@ -1,6 +1,12 @@
 # Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
+<<<<<<<< HEAD:docs/dsh-v0.1.6-alpha.2/subsystems/browser-use.i18n.yaml
+#   pnpm run verify-translation-pairing --write docs/subsystems/browser-use.md
+browser-use.md: 73cedae85752b296c3f85e53d40448e25a711685
+browser-use.zh.md: 573b15962eddab154947a33e9bebe2303cb24fea
+========
 #   pnpm run verify-translation-pairing --write docs/subsystems/computer-use.md
 computer-use.md: 290df7f02e35795aa25039480c3221f754d0c024
 computer-use.zh.md: 4c6db29487a0dcf2debbd72ae047d91b1c09e008
+>>>>>>>> github/main:docs/dsh-v0.1.6-alpha.2/subsystems/computer-use.i18n.yaml

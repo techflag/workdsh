@@ -2,7 +2,7 @@
 
 > GitHub 模块制品与兼容矩阵：[发布说明](../../../docs/RELEASES.md)。当前验证 Harness **0.1.6-alpha.2 Web**；内置 **0.1.2-rc.1** 的旧桌面入口缺失尚未修复，本包不包含该兼容修复。
 
-状态：**Skill 0.1 本地面向用户的技能市场与独立安装交付完成**。当前候选制品 `workdsh-plugin-skills@0.1.0-alpha.31`，尚未发布 npm。一个插件管理多个 Skill 业务对象；用户制作技能不需要发布 npm 包。
+状态：**Skill 0.1 本地面向用户的技能市场与独立安装交付完成**。当前候选制品 `workdsh-plugin-skills@0.1.0-alpha.32`，尚未发布 npm。一个插件管理多个 Skill 业务对象；用户制作技能不需要发布 npm 包。
 
 本包提供标准 Host `apply/inject`、独立 Client `apply/inject`、`dsh.bundle` 配置 patch 和 `dsh.client` 浏览器产物。官方 Loader/Profile/Cordis 拥有加载及生命周期；不依赖 WorkDSH 总包或另一个插件框架。独立安装、默认组合、移除与重装见[实际验收](../../../docs/evidence/skills-standalone-package.md)。
 
@@ -15,7 +15,7 @@
 兼容基线：Node 22.19+、Harness `0.1.6-alpha.2`、Cordis `4.0.2`、React `19.2.4`。从已配置这些依赖的官方 Web Profile 安装本地 tgz；将以下路径替换为实际制品绝对路径：
 
 ```sh
-dsh plugin --profile <你的 Web Profile> add /absolute/path/workdsh-plugin-skills-0.1.0-alpha.30.tgz
+dsh plugin --profile <你的 Web Profile> add /absolute/path/workdsh-plugin-skills-0.1.0-alpha.32.tgz
 ```
 
 按官方流程停服修改组合，再重启该 Profile。卸载管理插件用官方 `dsh plugin --profile <Profile> remove workdsh-plugin-skills`；用户技能文件和管理数据保留，重装继续使用。插件移除与页面中“卸载某个技能对象”不同：后者进入可恢复回收站。当前未宣称完整运行中 CLI 热卸载。
@@ -33,11 +33,16 @@ corepack pnpm probe:browser
 
 产物内含所需 UI 代码和本地 DTO 声明，不要求运行时存在 `workdsh-ui` 或开发 workspace。React 由官方 renderer 共享；依赖的 Harness 服务明确声明，不把框架复制进包。
 
-可选：从本地市场镜像生成 WorkDSH 自有技能目录，页面据此展示“可安装”分区，并可用“＋”安装到官方共享技能根（默认 `$DSH_AGENTS_HOME/.workdsh-catalog`，可用 `WORKDSH_SKILL_CATALOG` 覆盖）：
+可选：从市场镜像生成 WorkDSH 自有技能目录，页面据此展示“可安装”分区，并可用“＋”安装到官方共享技能根（默认 `$DSH_AGENTS_HOME/.workdsh-catalog`，可用 `WORKDSH_SKILL_CATALOG` 覆盖）：
 
 ```sh
-node scripts/build-skill-catalog.mjs --source /path/to/skills-marketplace
+corepack pnpm catalog:build --source ~/.workbuddy/skills-marketplace --dry-run
+corepack pnpm catalog:build --source ~/.workbuddy/skills-marketplace
 ```
+
+`--source` 必须指向含 `.codebuddy-skill/marketplace.json`、`skills/<source>/SKILL.md` 与 `icons/` 的市场镜像。镜像不在 WorkBuddy 客户端浏览市场时落盘：5.5.6 的内置仓库自动下载已关闭（`BuiltinSkillMarketplaceUpdater` 只在显式 `triggerUpdate()` 时拉取），镜像来自产品配置 `builtin-recommend.skillMarketplaces[].url` 的 zip，形如 `https://download.codebuddy.cn/skill-marketplace/skill-marketplace-<uuid>.zip`，解压后根目录即含 `.codebuddy-skill/marketplace.json`。缺失镜像时目录不会自动存在；此时技能页按 `skill/catalog-missing` 如实显示诊断与路径，`scripts/probe-skills-package.mjs` 覆盖目录缺失、损坏与正常安装三条路径，不伪造空市场。
+
+2026-09-20 实测（镜像 268 条 / 115 图标 / 11 个中文分类）：产出 265 条、12 个分类（含「全部」以外的 11 个市场分类）、111 条带品牌图标，负载合计 37.6 MiB；3 条因镜像 `SKILL.md` frontmatter 的 YAML 缺陷（`workrally`、`fadada-document-sign` 解析失败，`shopify-admin-api` 缺 `name`）被跳过，`fbs-bookwriter` 因 481 个文件超过 400 上限标为不可安装——均按原因如实输出，不修补上游内容。
 
 ## 公开服务与依赖
 

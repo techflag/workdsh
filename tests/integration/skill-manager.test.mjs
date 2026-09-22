@@ -45,11 +45,36 @@ test('canonical skill paths remain manageable through a home alias without selec
     await writeFile(externalFile, document('EXTERNAL'));
     await ctx.plugin(filesystem, { providerName: 'external', includeDefaultRoots: false, customSkillDirs: [external], watch: false });
     assert.match((await ctx.skills.get(detail.name)).content, /EXTERNAL/);
+    // The plugin-provided copy is now the winner, so the managed file must stay
+    // untouched and editing must be refused instead of silently retargeting.
     const shadowed = await ctx.workdshSkills.detail(detail.name);
-    assert.equal(shadowed.state, 'readonly');
-    assert.equal(shadowed.manageable, false);
-    await assert.rejects(ctx.workdshSkills.update({ name: detail.name, document: document('WRONG'), expectedRevision: detail.revision }), /skill\/not-manageable/);
+    assert.equal(shadowed.state, 'enabled');
+    assert.equal(shadowed.manageable, true);
+    assert.equal(shadowed.origin, 'plugin');
+    assert.match(shadowed.document, /EXTERNAL/);
+    await assert.rejects(ctx.workdshSkills.update({ name: detail.name, document: document('WRONG'), expectedRevision: detail.revision }), /skill\/plugin-owned/);
     assert.match(await readFile(file, 'utf8'), /UPDATED/);
+    assert.equal(await readFile(externalFile, 'utf8'), document('EXTERNAL'));
+
+    // Disabling a plugin-provided name is a registry-level suppression (ADR-0029):
+    // the entry keeps its own files and only loses both invocation surfaces.
+    const stopped = await ctx.workdshSkills.setEnabled(detail.name, false);
+    assert.equal(stopped.state, 'disabled');
+    assert.equal(stopped.path, join(external, 'canonical-skill'));
+    const stoppedRow = (await ctx.workdshSkills.list()).find(row => row.name === detail.name);
+    assert.deepEqual([stoppedRow.state, stoppedRow.manageable, stoppedRow.origin, stoppedRow.modelInvocable], ['disabled', true, 'plugin', false]);
+    const stoppedDetail = await ctx.workdshSkills.detail(detail.name);
+    assert.equal(stoppedDetail.state, 'disabled');
+    assert.match(stoppedDetail.document, /EXTERNAL/);
+    const winner = (await ctx.skills.list()).find(skill => skill.name === detail.name);
+    assert.equal(winner.provider, 'workdsh-skill-suppression');
+    assert.deepEqual(winner.invocation, { modelInvocable: false, userInvocable: false });
+    assert.match(await readFile(file, 'utf8'), /UPDATED/);
+    assert.equal(await readFile(externalFile, 'utf8'), document('EXTERNAL'));
+
+    await ctx.workdshSkills.setEnabled(detail.name, true);
+    assert.match((await ctx.skills.get(detail.name)).content, /EXTERNAL/);
+    assert.equal((await ctx.workdshSkills.detail(detail.name)).state, 'enabled');
     assert.equal(await readFile(externalFile, 'utf8'), document('EXTERNAL'));
   } finally {
     await ctx.fiber.dispose();

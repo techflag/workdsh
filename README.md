@@ -206,7 +206,7 @@ corepack pnpm preview:install
 corepack pnpm preview
 ```
 
-The preview runs at `http://127.0.0.1:18989`; use the authenticated URL printed at startup. It has its own Profile and reads your normal `~/.agents` skills by default. Automated tests use isolated homes. See [development setup](docs/DEVELOPMENT.md).
+The preview runs at `http://127.0.0.1:3031`; use the authenticated URL printed at startup. It has its own Profile and reads your normal `~/.agents` skills by default. Automated tests use isolated homes. See [development setup](docs/DEVELOPMENT.md).
 
 ## Roadmap
 

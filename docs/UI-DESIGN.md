@@ -70,9 +70,11 @@
 
 ### 首页
 
-“新建任务”直接使用 Harness 原生 `main.conversation` 空会话与 `EmptyHero/InputBar`，不注册 WorkDSH 自建首页输入器。该入口必须原样继承 `/` 指令、`@` 文件或对话引用、附件、权限、模型、Agent preset、发送和取消管线；任何 WorkDSH 业务快捷入口只允许把内容或稳定引用交给这些公开接口，不能复制编辑器或绕过官方提交链。
+“新建任务”是任务入口，不是“新会话”的别名（2026-09-22 用户决定）：点击后由 workbench 插件在 `main` 显示「任务创建器」面板，先收集运行位置（工作空间）、项目、专家、连接器与可选任务描述，确认后生成绑定快照并回到 Harness 原生 `main.conversation` 空会话。技能、权限策略、模型与推理强度、初始附件在本版标注为待开放；不放置无效控件，也不因为对齐同类产品而先造无能力的平行入口。
 
-工作区列表位于左侧并按官方 Workspace/Session 关系分组；工作区行负责展开或收起，会话行打开已有原生 Session。点击“新建任务”清除当前 Session 后进入官方空会话，由原生 WorkspaceChip 选择工作区，因此创建前仍可切换目录。旧 `workdsh-view=home` 地址只作兼容入口并归一化为 `workdsh-view=conversation`。
+创建器只把选择结果交给公开接口：会话由官方 Session Controller 创建，专家绑定走专家插件的 `prepare-execution` / `create-execution`，项目与连接器分别走 `/api/workdsh-projects` 与 `/api/workdsh-connectors`；任务描述只作为一次性草稿交给原生输入器，绝不自动发送。落地后必须原样继承 `/` 指令、`@` 文件或对话引用、附件、权限、模型、Agent preset、发送和取消管线；不注册 WorkDSH 自建首页输入器，不复制编辑器或绕过官方提交链。
+
+工作区列表位于左侧并按官方 Workspace/Session 关系分组；工作区行负责展开或收起，会话行打开已有原生 Session。点击“新建任务”进入创建器面板，运行位置在面板内选定；确认后进入官方空会话，进入后仍可由原生 WorkspaceChip 切换工作区。旧 `workdsh-view=home` 地址只作兼容入口并归一化为 `workdsh-view=conversation`。
 
 参考图中的日常办公、代码开发、设计创意、快捷能力和案例属于后续业务发现层。只有在它们能通过公开 preset、command、skill 或 draft 接口接入同一原生编辑器后才实现，不得先放置无真实能力的平行输入框。
 

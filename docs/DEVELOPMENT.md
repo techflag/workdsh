@@ -2,7 +2,7 @@
 
 ## 本地交互预览
 
-首次运行或更新代码后，先构建并在预览 Host 停止时运行 `corepack pnpm preview:install`，通过官方 CLI 将 Skill 和产品展示包分别安装到预览 Profile。随后运行 `corepack pnpm preview` 启动 `http://127.0.0.1:18989`。该脚本默认使用项目内 `.test-runtime/preview` 作为 Harness Profile 数据目录，同时使用当前用户的 `~/.agents` 作为 `DSH_AGENTS_HOME`，因此官方 Skill 文件提供方可以发现用户原有技能。
+首次运行或更新代码后，先构建并在预览 Host 停止时运行 `corepack pnpm preview:install`，通过官方 CLI 将 Skill 和产品展示包分别安装到预览 Profile。随后运行 `corepack pnpm preview` 启动 `http://127.0.0.1:3031`。该脚本默认使用项目内 `.test-runtime/preview` 作为 Harness Profile 数据目录，同时使用当前用户的 `~/.agents` 作为 `DSH_AGENTS_HOME`，因此官方 Skill 文件提供方可以发现用户原有技能。
 
 `probe:browser`、`probe:install` 等自动化验收继续使用独立临时 `DSH_HOME` 与 Agents home，避免测试写入用户技能。不能把自动化测试的空 Agents home 用于人工预览，否则技能库只会显示 bundle 自带技能。需要显式测试另一套技能目录时，可在启动前设置 `DSH_AGENTS_HOME`。
 
@@ -63,7 +63,7 @@ P0 增加 build、typecheck、test、pack:check 和 smoke:harness；P1 增加 te
 
 ## 局域网访问限制
 
-锁定Harness 0.1.5-rc.1实际CLI拒绝`--host 0.0.0.0`，提示会暴露远程代码执行能力。预览保持127.0.0.1，不按较新文档推断当前版本支持LAN监听。可在另一台具备SSH客户端的设备上建立 `ssh -N -L 18989:127.0.0.1:18989 techflag@<本机局域网IP>`，随后在该设备访问 `http://127.0.0.1:18989/`；要求本机已开启远程登录并完成SSH认证，官方浏览器认证仍保留。该方式不是多租户远程部署。
+锁定Harness 0.1.6-alpha.1实际CLI拒绝`--host 0.0.0.0`，提示会暴露远程代码执行能力。预览保持127.0.0.1，不按较新文档推断当前版本支持LAN监听。可在另一台具备SSH客户端的设备上建立 `ssh -N -L 3031:127.0.0.1:3031 techflag@<本机局域网IP>`，随后在该设备访问 `http://127.0.0.1:3031/`；要求本机已开启远程登录并完成SSH认证，官方浏览器认证仍保留。该方式不是多租户远程部署。
 
 ## preview启动内存恢复措施（2026-09-14）
 

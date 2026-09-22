@@ -16,7 +16,7 @@ Proposed，2026-09-12。依据用户本轮对专家团需求的反馈提出，�
 
 2026-09-13再核对：官方experimental-agent-team及tool包均已发布0.1.5-rc.1。修订原先workflow唯一首选与Agent Teams固定后置的判断；TM-01优先评估官方团队公开装配，固定阶段workflow保留候选。SOP要求不变，运行方案仍未签收。
 
-实施交接已收敛到[TEAM-IMPLEMENTATION-HANDOFF](../design/experts/TEAM-IMPLEMENTATION-HANDOFF.md)：固定产品范围与领域方法，列明公开运行接点的探针和失败退出规则。TM-01通过后才补选定API的实际类型与生命周期，不再将历史one-shot/workflow候选当作已批准运行架构。当前仅设计，主线顺序未改变。
+实施交接原定收敛到 TEAM-IMPLEMENTATION-HANDOFF（该文档未创建）：固定产品范围与领域方法，列明公开运行接点的探针和失败退出规则。TM-01通过后才补选定API的实际类型与生命周期，不再将历史one-shot/workflow候选当作已批准运行架构。当前仅设计，主线顺序未改变。
 
 ## 背景
 

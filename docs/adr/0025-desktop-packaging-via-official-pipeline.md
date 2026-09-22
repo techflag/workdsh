@@ -8,7 +8,7 @@
 
 WorkDSH 预置必须走打包期种子：桌面运行时 plugin-add/update 仅接受 npm registry 包名@版本（file:/URL 被显式拒绝），本地未发布包无法运行时添加。预置范围与现有 preview profile 一致：workdsh-bundle 与 skills/access/audit/experts/office/identity-local 六包，均声明 dsh.bundle.patch 且位于内置 bundle 之后，符合官方插件管理语义。appId 使用 com.workdsh.app；本地构建自动更新通道用 production fixed origin（不执行 upload/publish）。
 
-拒绝：使用社区版桌面应用安装插件；复制上游实现或私有接口进 WorkDSH；运行时改写官方磁盘结构或第二套真源。流水线核对、门槛证据与实施记录见 [desktop-pack-test](../evidence/desktop-pack-test.md)。
+拒绝：使用社区版桌面应用安装插件；复制上游实现或私有接口进 WorkDSH；运行时改写官方磁盘结构或第二套真源。流水线核对、门槛证据与实施记录的原始记录名为 `../evidence/desktop-pack-test.md`（该证据未入库）。
 
 ## 2026-09-13 托管运行环境设计补充
 

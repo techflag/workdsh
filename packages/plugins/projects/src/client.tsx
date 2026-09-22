@@ -6,6 +6,7 @@ import type {} from '@deepseek-ai/dsh-client-ui-renderer/client';
 import type {} from '@deepseek-ai/dsh-client-ui-conversation/client';
 import type {} from '@deepseek-ai/dsh-client-ui-layout/client';
 import type {} from '@deepseek-ai/dsh-client-ui-session/client';
+import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client';
 import type {} from '@deepseek-ai/dsh-client-ui-workspace/client';
 import type {} from '@deepseek-ai/dsh-api-session-controller/client';
 import type {} from '@deepseek-ai/dsh-api-workspace-controller/client';
@@ -14,6 +15,7 @@ import type { ProjectInputRef, ProjectSnapshot } from 'workdsh-contracts/project
 import { createProjectClient } from './client/management.js';
 import { publishProjectFocus, ProjectsPanel } from './client/ProjectsPanel.js';
 import { ProjectLineageChip } from './client/components/project-lineage/ProjectLineageChip.js';
+import { Icon } from 'workdsh-ui';
 
 declare module '@deepseek-ai/dsh-api-session-controller/client' { interface SessionReferenceSourceMap { workdshProjectTaskStart: unknown; } }
 export const name = 'workdsh-projects-client';
@@ -112,4 +114,19 @@ export function apply(ctx: Context): void {
       inject: () => ({ management, focusProject }),
     }, ProjectLineageChip));
   ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: 'workdsh-projects', inject: () => ({ management, startTask, openTask }) }, ProjectsPanel));
+  ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({ name: 'sidebar.panellist', id: 'workdsh-projects', label: '项目', order: 5 }, ProjectsNavigationIcon));
+}
+
+/**
+ * 项目自持的侧栏入口。
+ *
+ * 页面所属插件同时注册 `main` 与同名的 `sidebar.panellist` 行，这样插件缺席时
+ * 不会留下「有入口、无页面」的行——官方 Sidebar 的行按钮直接调用
+ * `ctx.layout.selectPanel(id)`，对未注册的 main 会抛
+ * `layout.selectPanel: main panel "workdsh-projects" is not registered`。
+ * order 5 使项目排在「新建任务（0）」之后、「助理（10）」之前，与 UI-DESIGN
+ * 第 5 节的导航顺序一致。
+ */
+export function ProjectsNavigationIcon() {
+  return <Icon name="project" />;
 }

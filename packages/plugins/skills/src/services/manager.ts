@@ -8,6 +8,7 @@ import { parse } from 'yaml';
 import type { ManagedSkillDetail, ManagedSkillResource, ManagedSkillSummary, SkillBatchRequest, SkillBatchResult, SkillCatalogIcon, SkillCatalogSummary, SkillDependency, SkillDependencyImpact, SkillDiagnostic, SkillDraft, SkillDraftWriteRequest, SkillImportInspection, SkillImportRequest, SkillInstallScope, SkillMutationReceipt, SkillResourceWriteRequest, SkillValidationResult, SkillWriteRequest, TrashedSkillSummary } from '../shared.js';
 import { SkillImportStaging } from './import-staging.js';
 import { SkillCatalogStore } from './catalog.js';
+import { SkillSuppressionStore, suppressionProvider } from './suppression.js';
 import type { SkillManagementService, SkillDependencyInspector } from '../shared.js';
 import type { RetainedSkillRevision, SkillConsumerRef, SkillRevisionCheck, SkillRevisionRef, SkillRevisionStatus } from 'workdsh-contracts';
 
@@ -157,6 +158,12 @@ export class SkillManager extends Service implements SkillManagementService {
   private readonly draftRoot: string;
   private readonly catalogStore: SkillCatalogStore;
   private readonly dependencyInspectors = new Set<SkillDependencyInspector>();
+  /**
+   * Skills that live in an installed plugin's own files. WorkDSH must not move or
+   * rewrite them, so "disabled" is a registry-level suppression entry (ADR-0029)
+   * instead of a managed-root move.
+   */
+  readonly suppression: SkillSuppressionStore;
   readonly imports: SkillImportStaging;
 
   constructor(ctx: Context) {
@@ -177,23 +184,42 @@ export class SkillManager extends Service implements SkillManagementService {
       (source, signal) => this.inspectImport(source, signal),
       (request, signal) => this.installImport(request, signal),
     );
+    this.suppression = new SkillSuppressionStore(this.stateRoot);
+    // The suppression contributor is part of this service's own control plane:
+    // it must exist wherever the manager does, and its lifecycle is the plugin's.
+    ctx.effect(() => ctx.skills.registerProvider(control => {
+      this.suppression.bind(control);
+      return this.suppression.provider();
+    }), 'workdsh.skills.suppression');
   }
 
   async list(signal?: AbortSignal): Promise<readonly ManagedSkillSummary[]> {
     signal?.throwIfAborted();
+    await this.suppression.hydrate();
     const skills = await this.ctx.skills.list({ signal });
     const rows: ManagedSkillSummary[] = [];
     for (const skill of skills) {
-      const manageable = this.isManagedSummary(skill);
-      if (manageable) {
+      if (this.isManagedSummary(skill)) {
         const definition = await this.ctx.skills.get(skill.name, { signal });
         const path = definition?.path;
         if (!path) continue;
         try { if (!await this.isSafeManagedFile(path)) continue; }
         catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOENT' || (error as Error).message === 'skill/path-symlink') continue; throw error; }
+        rows.push({ name: skill.name, description: skill.description, whenToUse: skill.whenToUse,
+          modelInvocable: skill.invocation.modelInvocable, state: 'enabled', manageable: true, origin: 'directory' });
+        continue;
+      }
+      // Either a plugin-provided name this Host can hide through ADR-0029
+      // suppression, or one whose owner keeps exclusive control over it.
+      const directory = await this.pluginDirectory(skill);
+      if (!directory) {
+        rows.push({ name: skill.name, description: skill.description, whenToUse: skill.whenToUse,
+          modelInvocable: skill.invocation.modelInvocable, state: 'readonly', manageable: false });
+        continue;
       }
       rows.push({ name: skill.name, description: skill.description, whenToUse: skill.whenToUse,
-        modelInvocable: skill.invocation.modelInvocable, state: manageable ? 'enabled' : 'readonly', manageable });
+        modelInvocable: skill.invocation.modelInvocable,
+        state: skill.provider === suppressionProvider ? 'disabled' : 'enabled', manageable: true, origin: 'plugin' });
     }
     for (const root of this.activeRoots) {
       await mkdir(root, { recursive: true });
@@ -238,6 +264,7 @@ export class SkillManager extends Service implements SkillManagementService {
 
   private async readDetail(name: string, signal?: AbortSignal): Promise<ManagedSkillDetail | undefined> {
     this.assertName(name); signal?.throwIfAborted();
+    await this.suppression.hydrate();
     const definition = await this.ctx.skills.get(name, { signal });
     if (definition) {
       try { const detail = await this.fromDefinition(definition); if (detail) return detail; }
@@ -276,6 +303,7 @@ export class SkillManager extends Service implements SkillManagementService {
     if (typeof metadata.description !== 'string' || !metadata.description.trim()) throw new Error('skill/description-required');
     return this.withSkillLock(request.name, async () => {
       const current = await this.detail(request.name);
+      if (current?.origin === 'plugin') throw new Error('skill/plugin-owned');
       if (!current?.directoryPath || !current.revision || current.state === 'readonly') throw new Error('skill/not-manageable');
       const skillPath = current.state === 'disabled'
         ? (await this.disabledEntry(request.name))!.file
@@ -435,8 +463,16 @@ export class SkillManager extends Service implements SkillManagementService {
 
   async setEnabled(name: string, enabled: boolean): Promise<SkillMutationReceipt> {
     this.assertName(name);
+    await this.suppression.hydrate();
     return this.withSkillLock(name, async () => {
+      // A plugin-provided skill is stopped by a registry-level suppression entry
+      // instead of moving files this Host does not own (ADR-0029).
+      const suppressed = this.suppression.get(name);
       if (enabled) {
+        if (suppressed) {
+          await this.suppression.remove(name);
+          return { name, state: 'enabled', path: suppressed.directory };
+        }
         const disabled = await this.disabledEntry(name);
         if (!disabled) throw new Error('skill/not-disabled');
         if (await this.activeEntry(name)) throw new Error('skill/target-exists');
@@ -447,8 +483,24 @@ export class SkillManager extends Service implements SkillManagementService {
         await this.removeJson(this.originPath(name));
         return { name, state: 'enabled', path: target };
       }
+      if (suppressed) return { name, state: 'disabled', path: suppressed.directory };
       const current = await this.detail(name);
-      if (!current?.directoryPath || (current.state !== 'enabled' && current.state !== 'invalid')) throw new Error('skill/not-manageable');
+      if (!current?.manageable) throw new Error('skill/not-manageable');
+      if (current.origin === 'plugin') {
+        const definition = await this.ctx.skills.get(name);
+        const directory = definition ? await this.pluginDirectory(definition) : undefined;
+        if (!definition || !directory) throw new Error('skill/not-manageable');
+        await this.suppression.add({
+          name,
+          description: definition.description,
+          ...(definition.whenToUse === undefined ? {} : { whenToUse: definition.whenToUse }),
+          directory,
+          source: definition.source,
+          suppressedAt: new Date().toISOString(),
+        });
+        return { name, state: 'disabled', path: directory };
+      }
+      if (!current.directoryPath || (current.state !== 'enabled' && current.state !== 'invalid')) throw new Error('skill/not-manageable');
       const active = await this.activeEntry(name);
       if (!active) throw new Error('skill/not-manageable');
       const target = join(this.disabledRoot, basename(active.entry));
@@ -482,6 +534,7 @@ export class SkillManager extends Service implements SkillManagementService {
       if (impact.revision !== expectedImpactRevision) throw new Error('skill/dependency-impact-changed');
       if (impact.dependents.some(item => item.blocking)) throw new Error('skill/dependency-blocked');
       const current = await this.detail(name);
+      if (current?.origin === 'plugin') throw new Error('skill/plugin-owned');
       if (!current?.directoryPath || current.state === 'readonly') throw new Error('skill/not-manageable');
       const disabled = current.state === 'disabled' ? await this.disabledEntry(name) : undefined;
       const active = current.state === 'enabled' || current.state === 'invalid' ? await this.activeEntry(name) : undefined;
@@ -590,21 +643,54 @@ export class SkillManager extends Service implements SkillManagementService {
       name: definition.name, description: definition.description, whenToUse: definition.whenToUse,
       modelInvocable: definition.invocation.modelInvocable, state: 'readonly', manageable: false, resources: [],
     };
-    if (!definition.path) return readonlyDetail;
-    const active = await this.activeEntry(definition.name);
-    if (!active) return readonlyDetail;
+    const active = definition.path ? await this.activeEntry(definition.name) : undefined;
     // Harness exposes a canonical instruction path; configured roots may use
     // an OS alias (e.g. /var -> /private/var). Compare actual files only after
     // activeEntry has enforced the managed-root and symlink checks. A winning
     // external skill with the same name must never select the managed copy.
-    if (await realpath(definition.path) !== await realpath(active.file)) return readonlyDetail;
-    const document = await readFile(active.file, 'utf8');
-    const directory = dirname(active.file);
+    if (definition.path && active && await realpath(definition.path) === await realpath(active.file)) {
+      const document = await readFile(active.file, 'utf8');
+      const directory = dirname(active.file);
+      return {
+        name: definition.name, description: definition.description, whenToUse: definition.whenToUse,
+        modelInvocable: definition.invocation.modelInvocable, state: 'enabled', manageable: true,
+        document, revision: digest(document), directoryPath: directory, resources: await resourceFiles(directory),
+      };
+    }
+    // Plugin-provided: the files stay owned by the installed provider, so the
+    // detail is read-only apart from the ADR-0029 enable/disable switch.
+    const directory = await this.pluginDirectory(definition);
+    if (!directory) return readonlyDetail;
+    let document: string;
+    try { document = await readFile(join(directory, 'SKILL.md'), 'utf8'); }
+    catch { return readonlyDetail; }
+    const suppressed = definition.provider === suppressionProvider;
     return {
       name: definition.name, description: definition.description, whenToUse: definition.whenToUse,
-      modelInvocable: definition.invocation.modelInvocable, state: 'enabled', manageable: true,
-      document, revision: digest(document), directoryPath: directory, resources: await resourceFiles(directory),
+      modelInvocable: suppressed ? false : definition.invocation.modelInvocable,
+      state: suppressed ? 'disabled' : 'enabled', manageable: true, origin: 'plugin',
+      document, revision: digest(document), resources: [],
     };
+  }
+
+  /**
+   * Directory whose SKILL.md backs a plugin-provided skill, or undefined when
+   * this Host must keep the entry read-only. ADR-0029's suppression candidate
+   * only outranks runtime (250), custom (300) and packaged (600) contributions,
+   * so project-owned roots (100/200) are excluded here instead of offering a
+   * switch that could never take effect. The same check gates `list()`,
+   * `detail()` and `setEnabled()`, keeping the offered switch and the mutation
+   * it performs in agreement.
+   */
+  private async pluginDirectory(skill: SkillSummary): Promise<string | undefined> {
+    if (skill.source === 'project-dsh' || skill.source === 'project-agents') return undefined;
+    const directory = skill.resourceBase?.kind === 'directory' ? skill.resourceBase.path : undefined;
+    if (!directory) return undefined;
+    try {
+      const info = await lstat(join(directory, 'SKILL.md'));
+      if (!info.isFile() || info.isSymbolicLink()) return undefined;
+    } catch { return undefined; }
+    return directory;
   }
 
   private isManagedSummary(skill: SkillSummary): boolean {

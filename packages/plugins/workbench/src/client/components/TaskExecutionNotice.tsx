@@ -26,5 +26,5 @@ export function TaskExecutionNotice({ useSession, useProjection, useConversation
   });
   const text = taskExecutionNotice(running, unfinished, reason, error);
   if (!text) return null;
-  return <div role="status" data-testid="workdsh-task-execution-notice" style={{ padding: '6px 10px', fontSize: 12, color: 'var(--dsw-fg-muted, #a5a5a5)', lineHeight: 1.5 }}>{text}</div>;
+  return <div role="status" data-testid="workdsh-task-execution-notice" style={{ padding: '6px 10px', fontSize: 12, color: 'var(--dsw-alias-label-secondary, #a5a5a5)', lineHeight: 1.5 }}>{text}</div>;
 }

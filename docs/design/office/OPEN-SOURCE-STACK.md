@@ -10,7 +10,7 @@
 
 来源：[GenOffice](https://github.com/genspark-ai/genoffice)，本轮静态核对提交 `de139a061537bea40f0cc81ef8f09a95f77ac52a`。核对了组件清单、package.json和有关编辑/读写源文件，没有运行其应用或把代码复制进产品。目标是采用相同基础库，不以安装GenOffice桌面应用替代WorkDSH集成。
 
-**PPT选型校正（2026-09-12）：** 对方生产Slides使用自研pptx-engine和pptx-render，Konva承担画布交互；PptxGenJS仅在引擎开发依赖中，不能据此将其称为生产导出核心。我们的PPT-01组合仅是新建文字/图片导出探针。复用范围与后续顺序见[源码复核](GENOFFICE-SLIDES-REVIEW.md)，不将对方private源码包当已发布SDK直接安装。
+**PPT选型校正（2026-09-12）：** 对方生产Slides使用自研pptx-engine和pptx-render，Konva承担画布交互；PptxGenJS仅在引擎开发依赖中，不能据此将其称为生产导出核心。我们的PPT-01组合仅是新建文字/图片导出探针。复用范围与后续顺序见源码复核（`GENOFFICE-SLIDES-REVIEW.md`，该文档未创建），不将对方private源码包当已发布SDK直接安装。
 
 ## 2. 采用的组件与分工
 

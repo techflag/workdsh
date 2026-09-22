@@ -1,4 +1,16 @@
-# 0.1.0-alpha.2 — Unreleased（2026-09-18）
+# 0.1.0-alpha.3
+
+- 合并上游 `0.1.6-alpha.2` 线：适配 DeepSeek Harness 0.1.6-alpha.2——当前会话改由 `SessionSummary.retainedBy.mainView` 推导；打开会话与资料引用跳转改用官方 `uiWorkspace.openSession`；右栏资料预览继续以官方 `sidebar.right.pane.tab` 注册。
+- 版本号撞号修复：本线与上游线都发布过 `0.1.0-alpha.2`（内容不同），合并后重新定版为 `0.1.0-alpha.3`，下方两条 `alpha.2` 记录即合并前的两条线。
+- 与 `workdsh-bundle@0.1.0-alpha.50` 需同批安装：组合包自 `0.1.0-alpha.48` 起不再登记「资料库」侧栏行。
+
+# 0.1.0-alpha.2
+
+- 资料库自持侧栏入口：客户端注册 `sidebar.panellist` 行（`id: workdsh-library`、`label: 资料库`、`order: 50`），与它自己的 `main` 面板同属一个插件。
+- 修复「有入口、无页面」隐患：入口此前由组合包的工作台登记，只装组合包不装资料库时点击会抛 `layout.selectPanel: main panel "workdsh-library" is not registered`；现在插件缺席就没有入口。
+- 与 `workdsh-bundle@0.1.0-alpha.48` 需同批安装：组合包已不再登记该行。
+
+# 0.1.0-alpha.2（上游线同日版本）
 
 - 适配 DeepSeek Harness 0.1.6-alpha.2：当前会话改由 `SessionSummary.retainedBy.mainView` 推导；打开会话与资料引用跳转改用官方 `uiWorkspace.openSession`；右栏资料预览继续以官方 `sidebar.right.pane.tab` 注册。
 

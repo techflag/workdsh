@@ -62,9 +62,25 @@ function execute(args, options = {}) {
   return result;
 }
 
-// pnpm blocks dependency lifecycle scripts until the profile makes an explicit
-// decision. protobufjs only runs a version-range warning in postinstall; the
-// runtime library remains installed when this script is disabled.
+// pnpm blocks dependency lifecycle scripts until the profile records an explicit
+// decision for every package that has them. An undecided package makes pnpm write
+// the literal placeholder "set this to true or false" (pnpm #11535); the
+// placeholder stays in the profile and blocks every later approval until the entry
+// is replaced. Declare the full decision set for the pinned Harness release, and
+// repair any placeholder an earlier install left behind. `true` runs the package's
+// lifecycle scripts, `false` keeps them blocked.
+const buildDecisions = new Map([
+  // Postinstall restores the executable bit on node-pty's prebuilt spawn-helper.
+  ['@deepseek-ai/dsh-subprocess-local', true],
+  // Its only lifecycle script is a no-op echo.
+  ['@google/genai', false],
+  // The native library ships in the @koromix/koffi-<platform> optional dependency.
+  ['koffi', false],
+  // Install verifies the shipped prebuilds; postinstall tidies leftover build output.
+  ['node-pty', true],
+  // Postinstall only prints a version-range warning; the runtime library stays installed.
+  ['protobufjs', false],
+]);
 const dshHome = resolve(process.env.DSH_HOME || join(homedir(), '.dsh'));
 const versionResult = execute(['--version'], { always: true, capture: true });
 const actualHarness = versionResult?.stdout?.trim();
@@ -83,11 +99,21 @@ if (existsSync(profileManifest)) {
 const workspaceFile = join(dshHome, 'profiles', profile, 'pnpm-workspace.yaml');
 if (!dryRun && existsSync(workspaceFile)) {
   const current = readFileSync(workspaceFile, 'utf8');
-  if (!/^allowBuilds:/m.test(current)) {
-    writeFileSync(workspaceFile, `${current.trimEnd()}\n\nallowBuilds:\n  protobufjs: false\n`);
-  } else if (!/^\s{2}protobufjs:/m.test(current)) {
-    writeFileSync(workspaceFile, current.replace(/^allowBuilds:\s*$/m, 'allowBuilds:\n  protobufjs: false'));
+  // Keep approvals recorded elsewhere (for example by a marketplace plugin), merge
+  // duplicate blocks, and drop every undecided placeholder — including entries left
+  // for packages this profile no longer installs.
+  const entries = new Map();
+  for (const block of current.matchAll(/^allowBuilds:[ \t]*\n((?:[ \t]+[^\n]*\n?)*)/gm)) {
+    for (const line of block[1].split('\n')) {
+      const decided = /^[ \t]+(\S.*?)\s*:\s*(true|false)\s*$/.exec(line);
+      if (decided) entries.set(decided[1].replace(/^['"]|['"]$/g, ''), decided[2] === 'true');
+    }
   }
+  for (const [name, allowed] of buildDecisions) entries.set(name, allowed);
+  const rendered = [...entries.keys()].sort()
+    .map(name => `  ${name.startsWith('@') ? `'${name}'` : name}: ${entries.get(name)}\n`).join('');
+  const withoutBlocks = current.replace(/^allowBuilds:[ \t]*\n(?:[ \t]+[^\n]*\n?)*/gm, '').trimEnd();
+  writeFileSync(workspaceFile, `${withoutBlocks}\nallowBuilds:\n${rendered}`);
 }
 
 for (const name of installOrder) {

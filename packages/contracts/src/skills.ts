@@ -16,6 +16,14 @@ export interface SkillValidationResult {
   readonly diagnostics: readonly SkillDiagnostic[];
 }
 
+/**
+ * Where the winning entry's files live. `directory` is a skill WorkDSH owns
+ * under the managed local roots; `plugin` is contributed by an installed
+ * provider, so it can be enabled or disabled through a registry-level
+ * suppression entry but never edited, uninstalled or opened as a local folder.
+ */
+export type ManagedSkillOrigin = 'directory' | 'plugin';
+
 export interface ManagedSkillSummary {
   readonly name: string;
   readonly description: string;
@@ -23,6 +31,7 @@ export interface ManagedSkillSummary {
   readonly modelInvocable: boolean;
   readonly state: ManagedSkillState;
   readonly manageable: boolean;
+  readonly origin?: ManagedSkillOrigin;
   readonly diagnostics?: readonly SkillDiagnostic[];
   /** Present only when the local catalog owns richer metadata for this skill. */
   readonly title?: string;

@@ -58,24 +58,33 @@ const client = await build({
     {name:"pdf-worker-source",setup(builder){builder.onLoad({filter:/pdf\.worker\.min\.mjs$/},async args=>({contents:await readFile(args.path,"utf8"),loader:"text"}));}},
     nativePptPlugin(),
     spreadsheetScope,
-    {
-      name: "editor-html",
-      setup(builder) {
-        builder.onResolve({ filter: /editor\.html$/ }, () => ({
-          path: "editor",
-          namespace: "editor",
-        }));
-        builder.onLoad({ filter: /.*/, namespace: "editor" }, () => ({
-          contents: html,
-          loader: "text",
-        }));
-      },
-    },
   ],
 });
 await writeFile(
   new URL("dist/client.browser.js", root),
   `window.__ModuleLoader__.load({id:"workdsh-plugin-office",factory:function(require){const module={exports:{}};${client.outputFiles[0].text}\nreturn module.exports;}});`,
+);
+// Everything too heavy for the startup bundle: the Host serves this artifact and
+// the client shell injects it as the page-local module only when a document opens.
+const runtime = await build({
+  metafile: true,
+  entryPoints: [fileURLToPath(new URL("src/runtime.tsx", root))],
+  bundle: true,
+  write: false,
+  format: "cjs",
+  platform: "browser",
+  external: ["react", "react-dom", "react/jsx-runtime"],
+  loader:{".css":"text"},
+  define: { "process.env.NODE_ENV": '"production"', __WORKDSH_WORD_ONLY__: String(wordOnly) },
+  plugins: [
+    {name:"pdf-worker-source",setup(builder){builder.onLoad({filter:/pdf\.worker\.min\.mjs$/},async args=>({contents:await readFile(args.path,"utf8"),loader:"text"}));}},
+    nativePptPlugin(),
+    spreadsheetScope,
+  ],
+});
+await writeFile(
+  new URL("dist/office-runtime.js", root),
+  `window.__ModuleLoader__.load({id:"workdsh-office-runtime",factory:function(require){const module={exports:{}};${runtime.outputFiles[0].text}\nreturn module.exports;}});`,
 );
 const host = await build({
   metafile: true,
@@ -91,7 +100,7 @@ const host = await build({
 });
 // Ship notices from the actual bundled dependencies, including transitive SDK code.
 const packages = new Map();
-for (const result of [child, client, host])
+for (const result of [child, client, runtime, host])
   for (const input of Object.keys(result.metafile.inputs)) {
     if (!input.includes("node_modules/")) continue;
     let directory = dirname(resolve(input));

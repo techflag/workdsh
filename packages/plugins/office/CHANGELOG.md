@@ -1,9 +1,22 @@
-## 0.1.0-alpha.7 — Unreleased（2026-09-18）
+## 0.1.0-alpha.8
+
+- 合并上游 `0.1.6-alpha.2` 线：适配 DeepSeek Harness 0.1.6-alpha.2，当前会话改为按 `SessionSummary.retainedBy.mainView` 推导。
+- CSV 预览并入本线的按需产物：`CsvDocument` 从启动壳移入 `dist/office-runtime.js`，`sidebar.right.tab.document` 的 CSV 槽位改用统一的 `deferred` 包装按需取得组件，启动包继续只保留注册壳。
+- `--word-only` 精简制品不注册 CSV 表格预览与对应侧栏 Tab，客户端注册范围与 `release-scope.json` 的 `docx` 声明一致；完整制品不受影响。
+- 版本号撞号修复：本线与上游线都发布过 `0.1.0-alpha.6`（内容不同），上游另有 `0.1.0-alpha.7`，合并后重新定版为 `0.1.0-alpha.8`；下方 `alpha.6`/`alpha.7` 记录即合并前的两条线。
+
+## 0.1.0-alpha.7（上游线）
 
 - 适配 DeepSeek Harness 0.1.6-alpha.2：当前会话改为按 `SessionSummary.retainedBy.mainView` 推导；CSV 预览按官方 `DocumentContent` 新增的 `renderer` 变体显式收窄三种内容形态。
 - `--word-only` 精简制品不再注册 CSV 表格预览与对应侧栏 Tab，客户端注册范围与 `release-scope.json` 的 `docx` 声明一致；完整制品不受影响。
 
-## 0.1.0-alpha.6 — Unreleased（2026-09-17）
+## 0.1.0-alpha.6 — 2026-09-19（本线）
+
+- 编辑器运行时拆成独立的按需产物 `dist/office-runtime.js`，由插件自己的 Web 路由托管：启动包只保留注册壳（65,204,471 B → 16,677 B），打开文档时才注入脚本并取得模块表导出。
+- 旧内联编辑器页面改为按需产物 `dist/editor.html`，同样经该路由取用；URL 不带修订号，故用 ETag 重校验而不是 immutable 缓存。
+- 声明 `modules` 客户端注入：懒加载经内核模块表取产物，缺该声明时页面只报 `cannot get property "modules" without inject`。
+
+## 0.1.0-alpha.6（上游线，2026-09-17）
 
 - CSV 文件在右侧文件 Tab 以只读表格打开：单元格网格线、表头与行号、冻结表头/行号列、数字右对齐、超长内容省略并悬停查看，长行不再溢出。
 - 解析复用 PapaParse 5.7.0（MIT）的 RFC 4180 能力与分隔符识别；字节解码（UTF-8/GB18030/UTF-16 BOM）与 1500 行/120 列/24000 单元格显示上限为自有业务差异，超限时明确提示仅显示前缀。

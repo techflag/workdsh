@@ -206,6 +206,23 @@ try {
   for (const name of ['workdsh-skill-creator', 'workdsh-ppt-design', 'workdsh-word-design', 'workdsh-excel-design', 'workdsh-web-design']) {
     assert.equal(bundledSkills.filter(row => row.name === name).length, 1, `${name} is registered exactly once`);
   }
+  // A packaged skill is contributed by this plugin, so its switch is a
+  // registry-level suppression (ADR-0029): the installed files stay untouched
+  // and the official catalog only loses both invocation surfaces.
+  const packagedSkill = 'workdsh-web-design';
+  const packagedFile = join(installedRoot, `resources/skills/${packagedSkill}/SKILL.md`);
+  const packagedDocument = await readFile(packagedFile, 'utf8');
+  assert.equal(bundledSkills.find(row => row.name === packagedSkill).origin, 'plugin');
+  await page.getByRole('switch', { name: `停用技能 ${packagedSkill}`, exact: true }).click();
+  await expect(page.getByRole('switch', { name: `启用技能 ${packagedSkill}`, exact: true })).toBeVisible();
+  const stoppedPackaged = (await api(host, 'list')).value.find(row => row.name === packagedSkill);
+  assert.deepEqual([stoppedPackaged.state, stoppedPackaged.manageable, stoppedPackaged.origin, stoppedPackaged.modelInvocable], ['disabled', true, 'plugin', false]);
+  assert.equal(await readFile(packagedFile, 'utf8'), packagedDocument);
+  const stoppedDetail = (await api(host, 'detail', { name: packagedSkill })).value;
+  assert.equal(stoppedDetail.state, 'disabled');
+  assert.equal(stoppedDetail.directoryPath, undefined, 'a plugin-owned skill never exposes a write target');
+  assert.equal((await api(host, 'update', { name: packagedSkill, document: packagedDocument, expectedRevision: stoppedDetail.revision })).error.code, 'skill/plugin-owned');
+  pass('Packaged skill switch suppresses the registry entry without touching the installed plugin files');
   await page.getByRole('button', { name: `查看技能 ${fixture}`, exact: true }).click();
   await page.getByRole('button', { name: '编辑', exact: true }).click();
   const editor = page.getByRole('textbox', { name: 'SKILL.md', exact: true });
@@ -251,7 +268,15 @@ try {
   await page.getByRole('button', { name: '专家 · 技能 · 连接器', exact: true }).click();
   await expect(page.getByRole('button', { name: `查看技能 ${fixture}`, exact: true })).toHaveCount(1);
   assert.equal((await api(host, 'detail', { name: fixture })).value.document, modified);
-  pass('Reinstall and repeat install activate once and recover edited skill data');
+  // Suppression is Host-side durable state: it survives the profile rewrite and
+  // a Host restart, and the reinstalled plugin files are still untouched.
+  const stillStopped = (await api(host, 'list')).value.find(row => row.name === packagedSkill);
+  assert.deepEqual([stillStopped.state, stillStopped.origin, stillStopped.modelInvocable], ['disabled', 'plugin', false]);
+  assert.equal(await readFile(packagedFile, 'utf8'), packagedDocument);
+  await page.getByRole('switch', { name: `启用技能 ${packagedSkill}`, exact: true }).click();
+  await expect(page.getByRole('switch', { name: `停用技能 ${packagedSkill}`, exact: true })).toBeVisible();
+  assert.equal((await api(host, 'list')).value.find(row => row.name === packagedSkill).state, 'enabled');
+  pass('Packaged skill suppression survives reinstall and restart, then restores on enable');
   await page.close(); await stop();
   // Absent and corrupted catalogs report honest diagnostics and never break
   // installed-skill management or fabricate an empty marketplace.

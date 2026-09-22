@@ -60,7 +60,7 @@ WorkDSH 是基于 DeepSeek Harness 公开插件接口的 Web 工作平台，参�
 - ui 仅包含展示组件，不引入 Host、数据库、凭据或执行器。
 - 使用官方 Remote / Client model / Slots / Conversation / Sidebar 扩展；组件不持有第二套执行状态。
 - 默认开发数据必须使用隔离的测试 Harness home / Profile，不改用户其他 Profile。
-- 人工交互预览与自动化探针分开：`corepack pnpm preview` 使用项目预览 Profile，但默认读取当前用户 `~/.agents` 的官方技能目录；自动化探针使用临时 Agents home。禁止用空的探针目录启动 18989 人工预览并据此判断用户技能已丢失。
+- 人工交互预览与自动化探针分开：`corepack pnpm preview` 使用项目预览 Profile，但默认读取当前用户 `~/.agents` 的官方技能目录；自动化探针使用临时 Agents home。禁止用空的探针目录启动 3031 人工预览并据此判断用户技能已丢失。
 
 ## 数据与执行
 

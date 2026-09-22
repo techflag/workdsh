@@ -6,6 +6,7 @@ import type { ReferenceInsert } from '@deepseek-ai/dsh-client-ui-conversation/cl
 import type { InputTriggerSource } from '@deepseek-ai/dsh-client-ui-input-trigger/client';
 import type {} from '@deepseek-ai/dsh-client-ui-input-trigger/client';
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client';
+import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client';
 import type {} from '@deepseek-ai/dsh-client-ui-sidebar-right/client';
 import type {} from '@deepseek-ai/dsh-client-ui-session/client';
 import type {} from '@deepseek-ai/dsh-client-ui-workspace/client';
@@ -14,6 +15,7 @@ import type {} from '@deepseek-ai/dsh-api-session-controller/client';
 import type { ISessions } from '@deepseek-ai/dsh-api-session-controller/client';
 import type {} from '@deepseek-ai/dsh-api-workspace-controller/client';
 import { createLibraryClient } from './client/management.js';
+import { Icon } from 'workdsh-ui';
 import { LibraryPanel } from './client/LibraryPanel.js';
 import { LibraryPicker } from './client/LibraryPicker.js';
 import { LibraryReferencePage } from './client/LibraryReferencePage.js';
@@ -145,8 +147,22 @@ export function apply(ctx: Context): void {
   ctx.effect(() => ctx.sidebarRightTabs.register({ id: 'workdsh-library-preview', kind: 'workdsh-library-preview', title: () => '资料预览' }));
   ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register({ name: 'sidebar.right.pane.tab', key: 'workdsh-library-preview', inject: () => ({ management, previewRegistry }) }, LibraryReferencePage));
   ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: 'workdsh-library', inject: () => ({ management, previewRegistry, toggleNavigation: () => ctx.layout.toggleSidebar(), startConversation }) }, LibraryPanel));
+  ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({ name: 'sidebar.panellist', id: 'workdsh-library', label: '资料库', order: 50 }, LibraryNavigationIcon));
   ctx.slots.inject('conversation.input.left', () => ctx.slots.register({
     name: 'conversation.input.left', id: 'workdsh-library-picker', order: 35,
     inject: () => ({ management, openLibrary: () => ctx.layout.selectPanel('workdsh-library' as Parameters<typeof ctx.layout.selectPanel>[0]), openPicker: (sessionId: string, draft: string, draftRev: number) => { const binding = sessions.binding(sessionId as never); if (!binding) return; const offset = draft.length; ctx.inputTriggers.sessionOf(binding.ctx).toggleSource('workdsh-library', { trigger: '@', query: '', quoted: false, position: offset === 0 ? 'leading' : 'inline', span: { start: offset, end: offset, draftRev } }); } }),
   }, LibraryPicker));
+}
+
+/**
+ * 资料库自持的侧栏入口。
+ *
+ * 页面所属插件同时注册 `main` 与同名的 `sidebar.panellist` 行，这样插件缺席时
+ * 不会留下「有入口、无页面」的行——官方 Sidebar 的行按钮直接调用
+ * `ctx.layout.selectPanel(id)`，对未注册的 main 会抛
+ * `layout.selectPanel: main panel "workdsh-library" is not registered`。
+ * order 50 使资料库排在「定时任务」与「更多」之间，与 UI-DESIGN 第 5 节的导航顺序一致。
+ */
+export function LibraryNavigationIcon() {
+  return <Icon name="library" />;
 }

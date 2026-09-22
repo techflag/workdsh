@@ -94,7 +94,8 @@
         "D04"
       ],
       "status": "todo",
-      "evidence": []
+      "evidence": [],
+      "note": "本字段是步骤状态，不代表模块实现状态。连接器模块已有 0.1.0-alpha.1 实现与公开发行（见 modules.json 与 RELEASES.md），但 D05 步骤本身尚未执行与验收；两者分属不同真源，模块已发行不等于本步骤已完成。"
     },
     {
       "id": "D06",
@@ -152,7 +153,8 @@
         "P1-08"
       ],
       "dependsOn": [
-        "D09"
+        "D09",
+        "D16"
       ],
       "status": "todo",
       "evidence": []
@@ -222,6 +224,19 @@
       ],
       "status": "todo",
       "evidence": []
+    },
+    {
+      "id": "D16",
+      "title": "助理入口包",
+      "tasks": [
+        "P1-12"
+      ],
+      "dependsOn": [
+        "D08"
+      ],
+      "status": "todo",
+      "evidence": [],
+      "note": "排期介于 D08 与 D09/D10 之间：依赖 D08 完成，且 D09 之后的 D10 首期集成与组合验收依赖本步，故实际执行必须早于 D10；数组位置在末位，仅为保持 D00-D15 既有编号不变。当前步骤按依赖就绪判定，不按数组位置。"
     }
   ],
   "activeSlice": {
@@ -289,6 +304,6 @@
       ]
     }
   ],
-  "lastReconciled": "2026-09-14",
+  "lastReconciled": "2026-09-16",
   "statusGuide": "主线/切片完成、模块实现、公开发行与产品验收分别登记；STATUS顶部是当前摘要，scopeHistory只供历史追溯。"
 }

@@ -1,12 +1,31 @@
 import {ImportedPptx} from './presentation/ImportedPptx.js';
 import React, { useEffect, useRef, useState } from 'react';
 import type { DocumentPreviewProps } from '@deepseek-ai/dsh-client-ui-sidebar-documentpreview/client';
-import editorHtml from './editor.html';
+import { officeEditorDocument } from './mount.js';
+
+/**
+ * The legacy editor document is larger than the whole Office plugin bundle, so
+ * the Host serves it and this viewer fetches it once per page. Inlining it
+ * would put every byte on the first paint of the application.
+ */
+let editorDocument: Promise<string> | undefined;
+function loadEditorDocument() {
+  editorDocument ??= fetch(officeEditorDocument, { credentials: 'same-origin' }).then(async response => {
+    if (!response.ok) throw new Error(`无法加载 Office 编辑器页面（HTTP ${response.status}）。`);
+    return response.text();
+  }).catch(error => {
+    editorDocument = undefined;
+    throw error;
+  });
+  return editorDocument;
+}
 
 function LegacyOfficeDocument({ content, resourceAddress }: DocumentPreviewProps) {
   const frame = useRef<HTMLIFrameElement>(null);
+  const [error, setError] = useState('');
   useEffect(() => {
     if (content.kind !== 'bytes') return;
+    let disposed = false;
     const onMessage = (event: MessageEvent) => {
       if (event.source !== frame.current?.contentWindow || event.data?.type !== 'workdsh-office-ready') return;
       const address = decodeURIComponent(resourceAddress);
@@ -14,11 +33,18 @@ function LegacyOfficeDocument({ content, resourceAddress }: DocumentPreviewProps
       frame.current.contentWindow?.postMessage({ type: 'workdsh-office-open', extension, bytes: content.data.slice() }, '*');
     };
     window.addEventListener('message', onMessage);
+    setError('');
     // Owner changes replace the document. The editor stays isolated from the app's DOM/credentials.
-    if (frame.current) frame.current.srcdoc = editorHtml;
-    return () => window.removeEventListener('message', onMessage);
+    void loadEditorDocument().then(html => {
+      if (!disposed && frame.current) frame.current.srcdoc = html;
+    }).catch(e => {
+      if (!disposed) setError(e instanceof Error ? e.message : String(e));
+    });
+    return () => { disposed = true; window.removeEventListener('message', onMessage); };
   }, [content, resourceAddress]);
-  return <iframe ref={frame} title="Office 文档编辑" sandbox="allow-scripts allow-downloads" style={{ width: '100%', height: '100%', minHeight: 480, border: 0 }} />;
+  return <>{error
+    ? <div role="alert" className="wd-office-empty">{error}</div>
+    : <iframe ref={frame} title="Office 文档编辑" sandbox="allow-scripts allow-downloads" style={{ width: '100%', height: '100%', minHeight: 480, border: 0 }} />}</>;
 }
 import { LiveDocument } from './live/DocumentPage.js';
 import { importDocx } from './live/import-docx.js';

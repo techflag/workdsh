@@ -2,9 +2,17 @@
 
 ## 固定版本
 
-目标 `@deepseek-ai/dsh@0.1.5-rc.1`。2026-09-10 已核对 npm：dsh latest/next 为该版本；模型适配器 alpha 为 0.1.5-alpha.2、next 为 0.1.5-rc.1。不得凭单个包 latest 标签拼装版本族。
+目标 `@deepseek-ai/dsh@0.1.6-alpha.1`。2026-09-16 复核官方 npm：该版本是当前最新发布（GitHub release `dsh-v0.1.6-alpha.1`，2026-09-15 发布），对应 `alpha` 标签；`latest` 仍为 0.1.5-rc.1、`next` 为 0.1.5-rc.2。抽查 14 个关键包（dsh、dsh-web、dsh-web-app、dsh-client-ui-slots、dsh-experimental-agent-team、dsh-experimental-auto-review、dsh-computer-use、dsh-headless、dsh-mcp-resources、dsh-client-ui-sidebar-terminal、dsh-client-ui-settings-unarchive-sessions、dsh-ptc-runtime、dsh-workflow-ptc、dsh-session-projection）的 alpha 标签同为 0.1.6-alpha.1；`pnpm check:versions` 复核 495 条锁文件条目全部为 0.1.6-alpha.1、Cordis 仅 4.0.2，未出现 alpha 混搭。不得凭单个包 latest 标签拼装版本族。
 
 版本升级需更新锁文件、该表、集成测试证据与 ADR，保持与业务功能变更可区分。
+
+2026-09-16 同步记录：仓库内镜像 `docs/deepseek-harness-docs` 已与 tag `dsh-v0.1.6-alpha.1` 对齐，530 个文件逐 git blob 哈希一致（补齐 158 个缺失文件、刷新 134 个变化文件），并按上游删除 `subsystems/code-runtime.*`（该页在本版本更名为 `subsystems/ptc-runtime.*`，审查台账同步改名）。原生 preset 仍为标准／PTC／极简／创造四种，锁定包 `dsh-agent-presets@0.1.6-alpha.1` 的 README.zh.md 与 `preset.yml` 复核了复制、broken 原因、删除与漂移语义，与 ARCHITECTURE 记载一致；`dsh web --host 0.0.0.0` 在锁定 CLI 上仍按安全理由拒绝（实测原文：`--host 0.0.0.0 is intentionally not supported yet for safety`）。该版本要求适配的变更逐项核对结果：`agent/session-start` 改为异步串行 `agent/created`，experts 执行守卫与 connectors 会话选择已在用新事件；Team 统一 `spawn_teammate` 并在 Profile 停用旧 `subagent`／`subagent_fork`，见 experts `cordis.patch.yml`；PTC 包与服务统一为 `ptc-runtime` 系列，自有代码未引用旧 `dsh-code-runtime`；工作流执行器为 `dsh-workflow-ptc`；内置 E2B 后端移除，本项目未使用；Session 同步历史接口 `snapshotEvents`／`eventAt`／`ownEvents` 弃用，自有代码无引用。
+
+2026-09-16 更名清理记录：本版本族退役了 `@deepseek-ai/dsh-code-runtime`、`@deepseek-ai/dsh-code-runtime-worker-thread`、`@deepseek-ai/dsh-workflow-worker-thread` 三个包名（npm 该版本查询均 404，最后发布版本为 0.1.5-rc.2），对应新名为 `dsh-ptc-runtime`、`dsh-ptc-runtime-node`、`dsh-workflow-ptc`。仓库 `pnpm.overrides` 中残留的三个旧名条目已删除（package.json 与 pnpm-lock.yaml overrides 段同步移除），`pnpm install --frozen-lockfile` 报 `Lockfile is up to date`；锁文件解析结果本身此前已只使用新名，故运行时依赖面不变。`scripts/check-published-versions.mjs` 原有断言只校验"已解析条目必须有精确 override"，无法发现"override 指向已退役包名"，已补反向断言（DSH 命名空间的 override 必须有对应解析条目），改后 `pnpm check:versions` 仍 PASS 495 条。
+
+2026-09-16 版本引用统一：`docs/HARNESS-OFFICIAL-DEVELOPMENT.md`（2 处）、`docs/ARCHITECTURE.md`、`docs/PLAN.md`、`docs/DEVELOPMENT.md` 及产品网站 `website/index.html`、`website/zh-CN.html`（页脚上一行安装说明）中残留的 `0.1.5-rc.1` 全部改为 `0.1.6-alpha.1`；`pnpm-lock.yaml` 已无该串。
+
+2026-09-16 验证结果：`pnpm build`、`pnpm typecheck`、`pnpm test:integration`（102/102 通过）、`pnpm check:versions`（PASS 495 条）均为退出码 0；3031 预览 Host 仍在运行并返回需认证的 401。未执行：升级后的真实模型任务回归；`docs/research/deepseek-harness-review.json` 的审查范围未随镜像扩张，新文档保持待评审状态（`pnpm audit:harness-docs` 报 127/167 已评审、40 待评审，退出码 0）。
 
 ## 官方文档
 
@@ -19,7 +27,7 @@
 - [技能](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/skills)
 - [会话与输入](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/conversation)
 - [会话投影](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/session-projection)
-- [0.1.5-rc.1 发布说明](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.1.5-rc.1)
+- [0.1.6-alpha.1 发布说明](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.1.6-alpha.1)
 
 在线文档可能继续变化；以选定发布包的公开 exports/types 和可重复集成验证落实，不把其他版本或旧仓库的观察当作已验证行为。
 
