@@ -5,22 +5,11 @@
 
 WorkDSH is an open-source AI workspace built on the official DeepSeek Harness. Organize conversations, material and capabilities in projects, reuse your local Library, and review editable deliverables alongside the task.
 
-**Web/plugins v0.1.0-alpha.8 · Desktop v2.0.5 Alpha 1 · DeepSeek Harness 0.1.7-alpha.1**
+**Web/plugins v0.1.0-alpha.8 · DeepSeek Harness 0.1.7-alpha.1 · Alpha preview**
 
-[Web/plugin download](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.8) · [Desktop download](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.1) · [Release notes](docs/releases/v0.1.0-alpha.8.md) · [Quick start](#quick-start) · [Website](https://techflag.github.io/workdsh/) · [Gitee mirror](https://gitee.com/techflag/workdsh)
+[Web/plugin download](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.8) · [Release notes](docs/releases/v0.1.0-alpha.8.md) · [Quick start](#quick-start) · [Website](https://techflag.github.io/workdsh/) · [Gitee mirror](https://gitee.com/techflag/workdsh)
 
 ![WorkDSH project home — full application in dark mode](docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
-
-## Desktop preview
-
-WorkDSH Desktop packages the local Harness workspace as a native application. The current Alpha release provides a Windows x64 installer, a Windows portable archive and a macOS Universal DMG for Intel and Apple Silicon. These unsigned preview packages may trigger an operating-system security prompt.
-
-| Platform | Package |
-| --- | --- |
-| Windows x64 | [Installer and portable archive](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.1) |
-| macOS Universal | [Universal DMG](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.1) |
-
-The Desktop release contains the same Projects and local Library workflow shown below. Back up local profiles and workspace data before upgrading an Alpha build.
 
 ## What you can do
 
