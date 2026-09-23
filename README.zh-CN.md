@@ -5,11 +5,22 @@
 
 WorkDSH 是基于官方 DeepSeek Harness 的开源 AI 工作台。把对话、资料与能力组织到项目里，复用本地资料库，在任务旁查看和编辑交付成果。
 
-**v0.1.0-alpha.8 · DeepSeek Harness 0.1.7-alpha.1 · Alpha 预览版**
+**Web/插件 v0.1.0-alpha.8 · Desktop v2.0.5 Alpha 1 · DeepSeek Harness 0.1.7-alpha.1**
 
-[下载](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.8) · [更新说明](docs/releases/v0.1.0-alpha.8.md) · [快速开始](#快速开始) · [官网](https://techflag.github.io/workdsh/) · [Gitee 镜像](https://gitee.com/techflag/workdsh)
+[Web/插件下载](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.8) · [Desktop 下载](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.1) · [更新说明](docs/releases/v0.1.0-alpha.8.md) · [快速开始](#快速开始) · [官网](https://techflag.github.io/workdsh/) · [Gitee 镜像](https://gitee.com/techflag/workdsh)
 
 ![WorkDSH 深色项目主页，包含完整侧栏](docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
+
+## Desktop 预览版
+
+WorkDSH Desktop 将本地 Harness 工作台封装为原生桌面应用。当前 Alpha Release 提供 Windows x64 安装版、Windows 便携版，以及同时支持 Intel 与 Apple Silicon 的 macOS Universal DMG。预览包尚未签名，系统可能显示安全提示。
+
+| 平台 | 安装包 |
+| --- | --- |
+| Windows x64 | [安装版和便携版](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.1) |
+| macOS Universal | [Universal DMG](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.1) |
+
+Desktop 版本包含下方展示的项目与本地资料库工作流。升级 Alpha 版本前，请备份本地 Profile 和工作区数据。
 
 ## 可以做什么
 
