@@ -22,7 +22,7 @@ const artifacts = join(root, '.artifacts');
 const env = { ...process.env, DSH_HOME: home, PATH: `${join(root, 'node_modules/.bin')}:${dirname(process.execPath)}:${process.env.PATH}` };
 const exec = promisify(execFile);
 const run = async (tool, args) => {
-  await exec(process.execPath, [join(root, 'node_modules', tool), ...args], { cwd: root, env, timeout: 180_000, maxBuffer: 8 * 1024 * 1024 });
+  await exec(process.execPath, [join(root, 'node_modules', tool), ...args], { cwd: root, env, timeout: 600_000, maxBuffer: 8 * 1024 * 1024 });
 };
 await mkdir(home, { recursive: true }); await mkdir(artifacts, { recursive: true });
 const tarballs = [];
@@ -61,13 +61,25 @@ if (normalizedManifest) {
 // existing preview Profile may have been created by an older DSH release; its
 // bundle list alone does not upgrade the packages that provide newly added Web
 // surfaces such as Terminal and archived-session recovery.
-await run('@deepseek-ai/dsh/lib/bin.js', ['plugin', '--profile', 'preview', 'add', baseSpec, webAppSpec, ...tarballs]);
+const currentDependencies = JSON.parse(await readFile(previewManifestPath, 'utf8')).dependencies ?? {};
+const layersMatch = currentDependencies['@deepseek-ai/dsh-base'] === baseVersion
+  && currentDependencies['@deepseek-ai/dsh-web-app'] === webAppVersion
+  && packages.every(({ manifest }, index) => currentDependencies[manifest.name] === `file:${tarballs[index]}`);
+if (!layersMatch) {
+  await run('@deepseek-ai/dsh/lib/bin.js', ['plugin', '--profile', 'preview', 'add', baseSpec, webAppSpec, ...tarballs]);
+}
 // Boot and ConfigEditor share module-local registration in dsh-app-boot.
 // Keep the official CLI in the Profile dependency graph as well: launching the
 // workspace CLI beside separately installed Profile packages splits that state.
 // Profiles disable automatic peer installation. The platform account adapter
 // also needs its declared native account peer in this standalone runtime.
-await run('pnpm/bin/pnpm.cjs', ['--dir', join(home, 'profiles/preview'), 'add', '--save-exact', `@deepseek-ai/dsh@${cliVersion}`, `@deepseek-ai/dsh-deepseek-account@${cliVersion}`]);
+const installedVersion = async (name) => {
+  try { return JSON.parse(await readFile(join(home, 'profiles/preview/node_modules/@deepseek-ai', name, 'package.json'), 'utf8')).version; }
+  catch (error) { if (error.code === 'ENOENT') return undefined; throw error; }
+};
+if (await installedVersion('dsh') !== cliVersion || await installedVersion('dsh-deepseek-account') !== cliVersion) {
+  await run('pnpm/bin/pnpm.cjs', ['--dir', join(home, 'profiles/preview'), 'add', '--save-exact', `@deepseek-ai/dsh@${cliVersion}`, `@deepseek-ai/dsh-deepseek-account@${cliVersion}`]);
+}
 const installedBase = JSON.parse(await readFile(join(home, 'profiles/preview/node_modules/@deepseek-ai/dsh-base/package.json'), 'utf8'));
 if (installedBase.version !== baseVersion) throw new Error(`Installed @deepseek-ai/dsh-base ${installedBase.version} does not match pinned ${baseVersion}.`);
 const installedWebApp = JSON.parse(await readFile(join(home, 'profiles/preview/node_modules/@deepseek-ai/dsh-web-app/package.json'), 'utf8'));

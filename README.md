@@ -73,7 +73,7 @@ Earlier local preview showing the artifact workflow; it is not an alpha.8 accept
 
 ## Quick start
 
-Requirements: Node.js `^22.19.0 || >=24.0.0`, Corepack/pnpm and the official `dsh` CLI **0.1.7-alpha.1**.
+Requirements: Node.js `^22.19.0 || >=24.0.0`, Corepack/pnpm and the official `dsh` CLI **0.1.7-rc.2**.
 
 1. Download all 11 `.tgz` packages, `release-manifest.json`, `SHA256SUMS` and `install-workdsh.mjs` from the [alpha.9 release](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.9) into one directory.
 2. For an upgrade, stop the target Profile and keep a recoverable backup of its configuration and data.

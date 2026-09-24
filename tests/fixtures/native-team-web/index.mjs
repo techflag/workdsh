@@ -49,6 +49,7 @@ export function apply(ctx) {
     while (!await test()) { stop.throwIfAborted(); await new Promise(r => setTimeout(r, 30)); }
   };
   const history = async id => { const handle = await ctx.sessionPersistence.open(id, 'read'); try { return await handle.read(); } finally { await handle.close(); } };
+  const teamView = agent => ({ members: ctx.agentTeams.listMembers(agent), tasks: ctx.agentTeams.listTasks(agent) });
   const settle = async id => {
     await waitFor(() => requests.some(r => r.id === id));
     await waitFor(async () => (await history(id)).events.some(e => e.type === 'turn/end'));
@@ -91,10 +92,10 @@ export function apply(ctx) {
         }
         const draftTask = await ctx.agentTeams.createTask(agent, { subject: '核对测试数据', description: '实际官方任务', writeScopes: ['fixture/report.md'] });
         await ctx.agentTeams.createTask(agent, { subject: '复核测试结论', description: '依赖前一个任务', blockedBy: [draftTask.id] });
-        value = { sessionId: agent.id, expertId: draft.expertId, view: ctx.agentTeams.remoteView(agent), requests };
+        value = { sessionId: agent.id, expertId: draft.expertId, view: teamView(agent), requests };
       } else if (input.action === 'view') {
         const { agent } = await ctx.workdshSessionAccess.resolveAgent(input.sessionId, request.signal);
-        assert.ok(agent); value = ctx.agentTeams.remoteView(agent);
+        assert.ok(agent); value = teamView(agent);
       } else if (input.action === 'begin-long-task') {
         stage = 'resolve-resumed-team';
         const before = (await history(input.memberId)).events.filter(e => e.type === 'turn/end').length;
@@ -194,7 +195,7 @@ export function apply(ctx) {
         assert.notEqual(latestEnd.data.reason.kind, 'completed');
         const { agent } = await ctx.workdshSessionAccess.resolveAgent(input.sessionId, request.signal);
         assert.ok(agent);
-        value = { memberId: input.memberId, reason: latestEnd.data.reason.kind, view: ctx.agentTeams.remoteView(agent) };
+        value = { memberId: input.memberId, reason: latestEnd.data.reason.kind, view: teamView(agent) };
       } else if (input.action === 'recover-failure') {
         stage = 'resolve-failed-team-after-restart';
         const before = (await history(input.memberId)).events.filter(e => e.type === 'turn/end').length;
@@ -248,7 +249,7 @@ export function apply(ctx) {
         stage = 'read-real-model-team';
         const { agent } = await ctx.workdshSessionAccess.resolveAgent(input.sessionId, request.signal);
         assert.ok(agent);
-        const view = ctx.agentTeams.remoteView(agent);
+        const view = teamView(agent);
         const leadHistory = await history(agent.id);
         const members = ctx.agentTeams.listMembers(agent).filter(member => member.role === 'teammate');
         value = {

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 const lock = readFileSync(new URL('../pnpm-lock.yaml', import.meta.url), 'utf8');
-const expected = '0.1.7-alpha.1';
+const expected = '0.1.7-rc.2';
 const entries = [...lock.matchAll(/^  '?(@deepseek-ai\/dsh[^@\s']*)@([^\s:'(]+)(?:[^\n]*):$/gm)];
 assert.ok(entries.length > 0, 'DSH lockfile entries must exist');
 for (const [, name, version] of entries) {

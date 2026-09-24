@@ -387,5 +387,8 @@ export const expertsCss = `${modalCss}
 
 
 }
+/* The shared Modal rules are unlayered; sizing must use the same cascade layer. */
+.wd-dialog.editor-dialog{width:min(760px,calc(100vw - 56px));max-height:min(820px,calc(100dvh - 80px))}
+@media(max-width:640px){.wd-dialog.editor-dialog{width:calc(100vw - 24px);max-height:calc(100dvh - 24px)}}
 ${controlsCss}
 `;

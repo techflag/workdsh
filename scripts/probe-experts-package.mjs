@@ -160,7 +160,7 @@ try {
     await expect(draftDialog.getByRole('button', { name: '关闭', exact: true })).toHaveCount(1);
     const dialogBounds = await draftDialog.boundingBox();
     assert.ok(dialogBounds.width <= width && dialogBounds.height <= 1000);
-    if (width > 800) assert.ok(dialogBounds.width <= 800 && dialogBounds.height <= 840, 'Desktop editor stays compact');
+    if (width > 800) assert.ok(dialogBounds.width <= 800 && dialogBounds.height <= 840, `Desktop editor stays compact: ${JSON.stringify(dialogBounds)}`);
     const exampleField = page.getByRole('textbox', { name: '示例 1 内容', exact: true });
     await exampleField.scrollIntoViewIfNeeded();
     const fieldBounds = await exampleField.boundingBox();
