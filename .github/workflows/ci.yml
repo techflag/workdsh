@@ -119,6 +119,7 @@ jobs:
           path: ${{ steps.yarn-cache.outputs.dir }}
           key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock', '.yarnrc.yml') }}
       - run: yarn install --immutable
+      - run: yarn upstream:install
       - run: yarn workspace dsh-plugin-desktop check:win-package
       - name: Build Windows installer
         env:
@@ -165,6 +166,7 @@ jobs:
           path: ${{ steps.yarn-cache.outputs.dir }}
           key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock', '.yarnrc.yml') }}
       - run: yarn install --immutable
+      - run: yarn upstream:install
       - run: yarn workspace dsh-plugin-desktop check:mac-package
       - name: Build macOS smoke artifact
         env:

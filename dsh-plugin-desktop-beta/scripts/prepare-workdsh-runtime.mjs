@@ -31,9 +31,10 @@ async function installReleasedProfile() {
   const base = `https://github.com/techflag/workdsh/releases/download/v${WORKDSH_VERSION}`
   const manifestPath = join(releaseDir, 'release-manifest.json')
   await download(`${base}/release-manifest.json`, manifestPath)
+  const rawInstallerPath = join(releaseDir, 'install-workdsh.original.mjs')
   const installerPath = join(releaseDir, 'install-workdsh.mjs')
-  await download(`${base}/install-workdsh.mjs`, installerPath)
-  let installer = readFileSync(installerPath, 'utf8')
+  await download(`${base}/install-workdsh.mjs`, rawInstallerPath)
+  let installer = readFileSync(rawInstallerPath, 'utf8')
   installer = installer.replace(
     'profilePackage.packageManager = manifest.packageManager;',
     "profilePackage.packageManager = manifest.packageManager;\n  profilePackage.devEngines = { ...profilePackage.devEngines, packageManager: { name: 'pnpm', version: manifest.packageManager.slice('pnpm@'.length), onFail: 'ignore' } };",
@@ -56,9 +57,24 @@ async function installReleasedProfile() {
     }
   }
   writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n')
+  const installSpawn = process.platform === 'win32' ? 'portableSpawn' : 'spawnSync'
   installer = readFileSync(installerPath, 'utf8').replace(
     "  execute(['plugin', '--profile', profile, 'add', join(directory, item.filename)]);",
-    "  execute(['plugin', '--profile', profile, 'allow-version', `${name}@${item.version}`, '--dsh-version', expectedHarness, '--accept-risk']);\n  execute(['plugin', '--profile', profile, 'add', join(directory, item.filename)]);",
+    `  execute(['plugin', '--profile', profile, 'allow-version', \`\${name}@\${item.version}\`, '--dsh-version', expectedHarness, '--accept-risk']);
+  // The DSH plugin-manager wrapper can retain an idle pnpm process after a
+  // completed local tarball add. Use the same pinned pnpm directly; the
+  // release tarball hash and exact compatibility approval were checked above.
+  const profileDir = join(dshHome, 'profiles', profile);
+  const added = ${installSpawn}(corepack, ['--dir', profileDir, 'add', '--save-exact', join(directory, item.filename)], { stdio: 'inherit' });
+  if (added.error) throw added.error;
+  if (added.status !== 0) process.exit(added.status ?? 1);
+  if (name === 'workdsh-bundle') {
+    const profilePackage = JSON.parse(readFileSync(profileManifest, 'utf8'));
+    const bundles = profilePackage.dsh?.profile?.bundles ?? [];
+    if (!bundles.includes(name)) bundles.push(name);
+    profilePackage.dsh = { ...profilePackage.dsh, profile: { ...profilePackage.dsh?.profile, bundles } };
+    writeFileSync(profileManifest, JSON.stringify(profilePackage, null, 2) + '\\n');
+  }`,
   )
   writeFileSync(installerPath, installer)
   for (const item of manifest.packages) {
@@ -99,8 +115,8 @@ async function prepareNodeExecutable(path) {
     if (process.platform !== 'win32') chmodSync(path, 0o755)
     return
   }
-  const targetArch = process.env.WORKDSH_MAC_ARCH
-  if (targetArch !== undefined && targetArch !== 'x64' && targetArch !== 'arm64') {
+  const targetArch = process.env.WORKDSH_MAC_ARCH ?? process.arch
+  if (targetArch !== 'x64' && targetArch !== 'arm64') {
     throw new Error(`unsupported macOS target architecture: ${targetArch}`)
   }
   if (targetArch === process.arch) {
@@ -108,15 +124,14 @@ async function prepareNodeExecutable(path) {
     chmodSync(path, 0o755)
     return
   }
-  const downloadArch = targetArch ?? (process.arch === 'arm64' ? 'x64' : 'arm64')
+  const downloadArch = targetArch
   const cache = join(desktopRoot, 'build', '.workdsh-node')
   const archive = join(cache, `node-v${process.versions.node}-darwin-${downloadArch}.tar.gz`)
   const extracted = join(cache, `node-v${process.versions.node}-darwin-${downloadArch}`, 'bin', 'node')
   mkdirSync(cache, { recursive: true })
   await download(`https://nodejs.org/dist/v${process.versions.node}/node-v${process.versions.node}-darwin-${downloadArch}.tar.gz`, archive)
   if (!existsSync(extracted)) run('/usr/bin/tar', ['-xzf', archive, '-C', cache])
-  if (targetArch === undefined) run('/usr/bin/lipo', ['-create', process.execPath, extracted, '-output', path])
-  else cpSync(extracted, path)
+  cpSync(extracted, path)
   chmodSync(path, 0o755)
 }
 
@@ -132,7 +147,23 @@ const installedDshVersion = candidate => {
     return undefined
   }
 }
-const source = candidates.find(candidate => installedDshVersion(candidate) === DSH_VERSION)
+const releasePackages = [
+  'workdsh-provider-identity-local', 'workdsh-plugin-audit', 'workdsh-plugin-access',
+  'workdsh-plugin-skills', 'workdsh-plugin-experts', 'workdsh-plugin-connectors',
+  'workdsh-plugin-activity', 'workdsh-plugin-office', 'workdsh-plugin-library',
+  'workdsh-plugin-projects', 'workdsh-bundle',
+]
+const isPreparedProfile = candidate => {
+  if (installedDshVersion(candidate) !== DSH_VERSION) return false
+  if (!releasePackages.every(name => existsSync(join(candidate, 'node_modules', name, 'package.json')))) return false
+  try {
+    const profile = JSON.parse(readFileSync(join(candidate, 'package.json'), 'utf8'))
+    return profile.dsh?.profile?.bundles?.includes('workdsh-bundle') === true
+  } catch {
+    return false
+  }
+}
+const source = candidates.find(isPreparedProfile)
 
 if (source) {
   rmSync(output, { recursive: true, force: true })
@@ -141,7 +172,7 @@ if (source) {
   // Clone into a real directory; APFS copy-on-write keeps local preparation fast.
   if (process.platform === 'darwin') run('/bin/cp', ['-cR', resolve(source), destination])
   else cpSync(resolve(source), destination, { recursive: true, dereference: true })
-} else if (installedDshVersion(destination) !== DSH_VERSION || !existsSync(cli)) {
+} else if (!isPreparedProfile(destination) || !existsSync(cli)) {
   rmSync(output, { recursive: true, force: true })
   await installReleasedProfile()
 }
