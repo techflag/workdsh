@@ -30,9 +30,11 @@ test('real Playwright MCP navigation appears in its Session sidebar frame', { sk
   const { default: Attachments } = await load('@deepseek-ai/dsh-attachment-local');
 
   const root = await mkdtemp(join(tmpdir(), 'workdsh-browser-view-'));
-  const server = createServer((_request, response) => {
+  const requests = new Set();
+  const server = createServer((request, response) => {
+    requests.add(request.url);
     response.writeHead(200, { 'content-type': 'text/html' });
-    response.end('<!doctype html><title>Browser view fixture</title><h1>Browser view fixture</h1>');
+    response.end('<!doctype html><title>Browser view fixture</title><h1>Browser view fixture</h1><button style="position:fixed;left:20px;top:60px;width:160px;height:40px" onclick="this.textContent=\'Clicked\';fetch(\'/clicked\')">Click here</button>');
   });
   const ctx = new Context();
   let handler;
@@ -84,6 +86,11 @@ test('real Playwright MCP navigation appears in its Session sidebar frame', { sk
     }
     assert.equal(frame?.url, url);
     assert.match(frame?.image ?? '', /^data:image\/png;base64,/, JSON.stringify({ frame, screenshots }));
+    const click = await handler(new Request('http://localhost/api/workdsh-agent-browser', { method: 'POST', body: JSON.stringify({ sessionId: 'browser-view-real', action: { kind: 'click', x: 50, y: 80 } }) }));
+    assert.equal(click.status, 200, await click.text());
+    assert.equal(requests.has('/clicked'), true);
+    const otherSession = await handler(new Request('http://localhost/api/workdsh-agent-browser', { method: 'POST', body: JSON.stringify({ sessionId: 'not-this-session', action: { kind: 'click', x: 50, y: 80 } }) }));
+    assert.equal(otherSession.status, 400);
     await owner.dispose();
   } finally {
     await ctx.fiber.dispose();

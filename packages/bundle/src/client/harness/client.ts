@@ -26,7 +26,10 @@ const productViews: Readonly<Record<string, string>> = {
 };
 
 export function apply(ctx: Context): void {
-  ctx.effect(() => ctx.sidebarRightTabs.register({ id: agentBrowserKind, kind: agentBrowserKind, title: () => '智能体浏览器' }), 'workdsh.agent-browser.tab');
+  ctx.effect(() => ctx.sidebarRightTabs.register({
+    id: agentBrowserKind, kind: agentBrowserKind, title: () => '智能体浏览器',
+    guide: [{ id: 'agent-browser', order: 25, title: () => '智能体浏览器', description: () => '查看并操作当前会话的网页' }],
+  }), 'workdsh.agent-browser.tab');
   ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register({ name: 'sidebar.right.pane.tab', key: agentBrowserKind }, AgentBrowserPage));
   ctx.effect(() => {
     const sessions = ctx.sessions as unknown as ISessions;

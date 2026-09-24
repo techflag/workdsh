@@ -18,16 +18,46 @@ export interface BrowserViewFrame {
   error?: string;
 }
 
+interface BrowserViewAction {
+  kind: 'click' | 'scroll' | 'key' | 'type';
+  x?: number;
+  y?: number;
+  deltaY?: number;
+  key?: string;
+  text?: string;
+}
+
+function browserActionCall(value: unknown): { name: string; arguments: Record<string, unknown> } | undefined {
+  if (value === null || typeof value !== 'object' || !('kind' in value)) return undefined;
+  const action = value as BrowserViewAction;
+  if (action.kind === 'click' && Number.isFinite(action.x) && Number.isFinite(action.y)
+    && action.x! >= 0 && action.y! >= 0 && action.x! <= 10000 && action.y! <= 10000) {
+    return { name: `${browserPrefix}run_code_unsafe`, arguments: { code: `async (page) => { await page.mouse.click(${Math.round(action.x!)}, ${Math.round(action.y!)}); }` } };
+  }
+  if (action.kind === 'scroll' && Number.isFinite(action.deltaY) && Math.abs(action.deltaY!) <= 3000) {
+    return { name: `${browserPrefix}run_code_unsafe`, arguments: { code: `async (page) => { await page.mouse.wheel(0, ${Math.round(action.deltaY!)}); }` } };
+  }
+  if (action.kind === 'key' && typeof action.key === 'string' && /^[A-Za-z0-9]{1,24}$/.test(action.key)) {
+    return { name: `${browserPrefix}press_key`, arguments: { key: action.key } };
+  }
+  if (action.kind === 'type' && typeof action.text === 'string' && action.text.length > 0 && action.text.length <= 2000) {
+    return { name: `${browserPrefix}run_code_unsafe`, arguments: { code: `async (page) => { await page.keyboard.type(${JSON.stringify(action.text)}); }` } };
+  }
+  return undefined;
+}
+
 /** The image always comes from the same Session-owned MCP browser as the action. */
 export function registerBrowserView(ctx: Context): void {
   const frames = new Map<string, BrowserViewFrame>();
+  const agents = new Map<string, NonNullable<Parameters<typeof ctx.tools.execute>[0]['agent']>>();
   const queues = new Map<string, Promise<void>>();
   let disposed = false;
-  ctx.effect(() => () => { disposed = true; frames.clear(); queues.clear(); }, 'workdsh.browser-view');
+  ctx.effect(() => () => { disposed = true; frames.clear(); agents.clear(); queues.clear(); }, 'workdsh.browser-view');
 
   ctx.on('agent/created', ({ agent }) => {
     const sessionId = String(agent.session.id);
-    agent.ctx.effect(() => () => { frames.delete(sessionId); queues.delete(sessionId); }, 'workdsh.browser-view.session');
+    agents.set(sessionId, agent);
+    agent.ctx.effect(() => () => { frames.delete(sessionId); agents.delete(sessionId); queues.delete(sessionId); }, 'workdsh.browser-view.session');
     return undefined;
   });
 
@@ -89,9 +119,19 @@ export function registerBrowserView(ctx: Context): void {
     methods: ['POST'],
     requestBody: 'buffered',
     fetch: async request => {
-      const body = await request.json().catch(() => undefined) as { sessionId?: unknown; afterRevision?: unknown } | undefined;
+      const body = await request.json().catch(() => undefined) as { sessionId?: unknown; afterRevision?: unknown; action?: BrowserViewAction } | undefined;
       const sessionId = body?.sessionId;
       if (typeof sessionId !== 'string' || sessionId.length > 128) return Response.json({ error: 'Invalid session' }, { status: 400 });
+      if (body?.action !== undefined) {
+        const action = browserActionCall(body.action);
+        const agent = agents.get(sessionId);
+        if (!action || !agent || !frames.has(sessionId)) return Response.json({ error: 'Browser action unavailable' }, { status: 400 });
+        const result = await ctx.tools.execute({
+          callId: ToolCallId(`workdsh-browser-input-${randomUUID()}`), name: action.name,
+          arguments: action.arguments, agent, signal: AbortSignal.timeout(20_000),
+        });
+        if (result.isError) return Response.json({ error: 'Browser action failed' }, { status: 502 });
+      }
       const frame = frames.get(sessionId) ?? null;
       const unchanged = frame !== null && body?.afterRevision === frame.revision;
       return Response.json({ frame: unchanged ? null : frame, unchanged }, { headers: { 'cache-control': 'no-store' } });
