@@ -2068,3 +2068,6 @@ Office build/typecheck 以及 content/download/rich-editor 30 项相关测试通
 ### 2026-09-24：预览重新编译与安装
 
 用户要求重新编译发布。Node 22.23.2 下完整 `pnpm build`、`pnpm typecheck` 通过；预览 Team 去重测试 2/2、资料库插件测试 5/5 通过，`git diff --check` 通过。通过官方 Profile 安装流程重新打包并安装各 WorkDSH 插件，18989 预览重启后返回预期的登录状态 401；Profile 仅保留 `workdsh-plugin-experts` 作为 Team 装配来源。当前完成的是本机预览部署；GitHub/npm 对外发布尚未执行，`gh` 未登录且远端读取未返回，不能宣称公共发布完成。
+## 2026-09-24：WorkDSH alpha.9 与 Desktop alpha.12 发布回执
+
+资料库界面与预览 Team 去重修复已进入 Web 源码。Node 22 完整构建、类型检查、资料库 5 项和去重 2 项测试通过；11 包重新打包，清单 SHA-256 逐项核对，安装器 dry-run 通过。Web `v0.1.0-alpha.9` 已推送并发布 GitHub Release。Desktop 固定引用 alpha.9 后，由 `desktop-v2.0.5-alpha.12` 标签触发 GitHub CI；检查、Windows x64、macOS x64/arm64 与发布作业全部成功，Release 有一个 Windows 安装包、两份独立 Mac DMG 和 SHA256SUMS。仍未执行新安装包的真人安装使用测试；Mac DMG 为未签名预览包。下一步核验实际安装体验与更新已有文档中遗留的 alpha.8 状态表述。
