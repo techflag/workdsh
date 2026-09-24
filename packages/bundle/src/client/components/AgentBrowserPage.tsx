@@ -10,7 +10,10 @@ type BrowserAction =
   | { kind: 'click'; x: number; y: number }
   | { kind: 'scroll'; deltaY: number }
   | { kind: 'key'; key: string }
-  | { kind: 'type'; text: string };
+  | { kind: 'type'; text: string }
+  | { kind: 'navigate'; url: string }
+  | { kind: 'back' }
+  | { kind: 'reload' };
 
 export async function sendAgentBrowserAction(sessionId: string, action: BrowserAction): Promise<void> {
   const response = await fetch('/api/workdsh-agent-browser', {
@@ -37,9 +40,11 @@ export function AgentBrowserPage({ sessionId }: PropsRuntime<'sidebar.right.pane
   const [frame, setFrame] = useState<BrowserViewFrame | null>(null);
   const [error, setError] = useState('');
   const [input, setInput] = useState('');
+  const [address, setAddress] = useState('');
   const [sending, setSending] = useState(false);
   const [fit, setFit] = useState(true);
   const revision = useRef<number | undefined>(undefined);
+  useEffect(() => { if (frame?.url) setAddress(frame.url); }, [frame?.url]);
   const send = async (action: BrowserAction) => {
     if (sending) return;
     setSending(true);
@@ -62,9 +67,19 @@ export function AgentBrowserPage({ sessionId }: PropsRuntime<'sidebar.right.pane
     return () => { disposed = true; controller.abort(); window.clearInterval(timer); };
   }, [sessionId]);
   return <section aria-label="智能体浏览器" style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--dsw-alias-bg-base)', color: 'var(--dsw-alias-label-primary)' }}>
-    <header style={{ padding: '8px 12px', borderBottom: '1px solid var(--dsw-alias-border-l2)', display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={frame?.url}>{frame?.url ?? '智能体浏览器'}</span>
-      {frame?.image ? <button type="button" style={buttonStyle} onClick={() => setFit(value => !value)} aria-label={fit ? '查看原始大小' : '适应侧栏宽度'}>{fit ? '原始大小' : '适应宽度'}</button> : null}
+    <header style={{ padding: '8px 12px', borderBottom: '1px solid var(--dsw-alias-border-l2)', display: 'grid', gap: 6 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <strong style={{ flex: 1 }}>智能体浏览器</strong>
+        {frame?.image ? <>
+          <button type="button" style={buttonStyle} disabled={sending} onClick={() => { void send({ kind: 'back' }); }}>返回</button>
+          <button type="button" style={buttonStyle} disabled={sending} onClick={() => { void send({ kind: 'reload' }); }}>刷新</button>
+          <button type="button" style={buttonStyle} onClick={() => setFit(value => !value)} aria-label={fit ? '查看原始大小' : '适应侧栏宽度'}>{fit ? '原始大小' : '适应宽度'}</button>
+        </> : null}
+      </div>
+      {frame?.image ? <form onSubmit={event => { event.preventDefault(); if (address) void send({ kind: 'navigate', url: address }); }} style={{ display: 'flex', gap: 6 }}>
+        <input aria-label="网页地址" value={address} onChange={event => setAddress(event.target.value)} style={{ flex: 1, minWidth: 0, border: '1px solid var(--dsw-alias-border-l2)', borderRadius: 6, padding: '6px 8px', background: 'transparent', color: 'inherit' }} />
+        <button type="submit" style={buttonStyle} disabled={sending || !address}>前往</button>
+      </form> : null}
     </header>
     <div style={{ flex: 1, minHeight: 0, overflow: 'auto', display: 'grid', placeItems: frame?.image ? fit ? 'start stretch' : 'start start' : 'center' }}>
       {frame?.image ? <img src={frame.image} alt="智能体当前浏览器画面" draggable={false} style={{ width: fit ? '100%' : 'auto', maxWidth: fit ? '100%' : 'none', height: 'auto', display: 'block', cursor: sending ? 'wait' : 'pointer' }}

@@ -19,12 +19,13 @@ export interface BrowserViewFrame {
 }
 
 interface BrowserViewAction {
-  kind: 'click' | 'scroll' | 'key' | 'type';
+  kind: 'click' | 'scroll' | 'key' | 'type' | 'navigate' | 'back' | 'reload';
   x?: number;
   y?: number;
   deltaY?: number;
   key?: string;
   text?: string;
+  url?: string;
 }
 
 function browserActionCall(value: unknown): { name: string; arguments: Record<string, unknown> } | undefined {
@@ -43,6 +44,14 @@ function browserActionCall(value: unknown): { name: string; arguments: Record<st
   if (action.kind === 'type' && typeof action.text === 'string' && action.text.length > 0 && action.text.length <= 2000) {
     return { name: `${browserPrefix}run_code_unsafe`, arguments: { code: `async (page) => { await page.keyboard.type(${JSON.stringify(action.text)}); }` } };
   }
+  if (action.kind === 'navigate' && typeof action.url === 'string' && action.url.length <= 2048) {
+    try {
+      const url = new URL(action.url);
+      if (url.protocol === 'http:' || url.protocol === 'https:') return { name: `${browserPrefix}navigate`, arguments: { url: url.href } };
+    } catch { return undefined; }
+  }
+  if (action.kind === 'back') return { name: `${browserPrefix}navigate_back`, arguments: {} };
+  if (action.kind === 'reload') return { name: `${browserPrefix}run_code_unsafe`, arguments: { code: 'async (page) => { await page.reload(); }' } };
   return undefined;
 }
 
@@ -67,7 +76,8 @@ export function registerBrowserView(ctx: Context): void {
     const sessionId = String(exec.agent.session.id);
     const args = exec.arguments && typeof exec.arguments === 'object' ? exec.arguments as Record<string, unknown> : {};
     const prior = frames.get(sessionId);
-    const url = typeof args.url === 'string' ? args.url : prior?.url;
+    const pageLine = result.content.filter(block => block.type === 'text').map(block => block.text).join('\n').match(/^- Page URL: (https?:\/\/\S+)/m)?.[1];
+    const url = pageLine ?? (typeof args.url === 'string' ? args.url : prior?.url);
     const revision = (prior?.revision ?? 0) + 1;
     frames.set(sessionId, { sessionId, revision, ...(url ? { url } : {}), image: prior?.image });
     const preceding = queues.get(sessionId) ?? Promise.resolve();

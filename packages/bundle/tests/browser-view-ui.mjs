@@ -50,6 +50,13 @@ test('Web client opens the Agent browser tab and sends image clicks to its Sessi
     await panel.getByRole('img', { name: '智能体当前浏览器画面' }).click();
     assert.equal(actions.at(-1)?.kind, 'click');
     assert.ok(actions.at(-1)?.x >= 0);
+    await panel.getByRole('textbox', { name: '网页地址' }).fill('https://example.org/');
+    await panel.getByRole('button', { name: '前往' }).click();
+    assert.deepEqual(actions.at(-1), { kind: 'navigate', url: 'https://example.org/' });
+    await panel.getByRole('button', { name: '返回' }).click();
+    assert.equal(actions.at(-1)?.kind, 'back');
+    await panel.getByRole('button', { name: '刷新' }).click();
+    assert.equal(actions.at(-1)?.kind, 'reload');
     await page.close();
   } finally {
     if (browser) await browser.close();

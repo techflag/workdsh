@@ -98,6 +98,14 @@ test('real Playwright MCP navigation appears in its Session sidebar frame', { sk
     }
     assert.ok(clickedFrame?.revision > frame.revision);
     assert.notEqual(clickedFrame?.image, frame.image);
+    const nextUrl = `http://127.0.0.1:${server.address().port}/second`;
+    const navigate = await handler(new Request('http://localhost/api/workdsh-agent-browser', { method: 'POST', body: JSON.stringify({ sessionId: 'browser-view-real', action: { kind: 'navigate', url: nextUrl } }) }));
+    assert.equal(navigate.status, 200, await navigate.text());
+    assert.equal(requests.has('/second'), true);
+    const navigatedFrame = (await (await handler(new Request('http://localhost/api/workdsh-agent-browser', { method: 'POST', body: JSON.stringify({ sessionId: 'browser-view-real' }) }))).json()).frame;
+    assert.equal(navigatedFrame.url, nextUrl);
+    const invalidUrl = await handler(new Request('http://localhost/api/workdsh-agent-browser', { method: 'POST', body: JSON.stringify({ sessionId: 'browser-view-real', action: { kind: 'navigate', url: 'javascript:alert(1)' } }) }));
+    assert.equal(invalidUrl.status, 400);
     const otherSession = await handler(new Request('http://localhost/api/workdsh-agent-browser', { method: 'POST', body: JSON.stringify({ sessionId: 'not-this-session', action: { kind: 'click', x: 50, y: 80 } }) }));
     assert.equal(otherSession.status, 400);
     await owner.dispose();
