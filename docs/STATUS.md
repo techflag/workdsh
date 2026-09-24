@@ -1,3 +1,7 @@
+## 2026-09-25：rc.2 Web 全新 Profile 安装复验
+
+在独立空目录 `.test-runtime/rc2-fresh-install` 用 Node 22.23.2 / pnpm 10.34.5 执行 `corepack pnpm preview:install`，21.8 秒退出码 0。安装器核对 CLI、Base、Web App 均为 `0.1.7-rc.2`，Profile 的 11 个 WorkDSH 包入口与当前构建字节一致；另行读取已安装 Sidebar Browser 为 rc.2。原先“尚未完成全新空 Profile 安装”的缺口已补齐，详见 [升级记录](DSH-0.1.7-UPGRADE-PLAN.md)。未在该隔离 Profile 运行付费模型、长时间专家任务或跨平台浏览器验收；Agent 浏览器与用户侧栏 Browser 同页操作仍未实现。下一步继续完成 Desktop 构建和浏览器集成验证。
+
 ## 2026-09-23：alpha.8 发布准备
 
 中英文 README 去重并更新完整应用截图与安装说明。整包补齐项目/资料库，固定 Harness 0.1.7、pnpm、原生构建配置和官方必需peer。全仓构建/typecheck、集成112项，后续安装器5项、专家20项回归通过。11包隔离安装、重装、冷启动及项目/资料库浏览器冒烟通过；273个DSH模块版本一致。旧专家显式重新发布路径通过，真实旧用户数据未自动迁移。当前等待GitHub登录以完成远端发布。详见 [发布审查](evidence/release-alpha8-review.md) 和 [更新说明](releases/v0.1.0-alpha.8.md)。
