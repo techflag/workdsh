@@ -96,6 +96,20 @@ export function verifyWindowsInstaller(
 
   assertPortableExecutable(installerPath, 'Windows NSIS installer')
   assertPortableExecutable(applicationPath, 'unpacked Windows application')
+  const runtimeRoot = join(distDir, 'win-unpacked', 'resources', 'workdsh-runtime', 'primary-runtime')
+  const runtime = JSON.parse(readFileSync(join(runtimeRoot, 'runtime.json'), 'utf8')) as {
+    desktopVersion?: unknown
+    platform?: unknown
+    arch?: unknown
+    python?: unknown
+    node?: unknown
+  }
+  if (runtime.desktopVersion !== '0.1.7-rc.2' || runtime.platform !== 'win32'
+    || runtime.arch !== 'x64' || runtime.python !== '3.12.14' || runtime.node !== '24.21.0') {
+    throw new Error(`Windows installer has mismatched bundled primary runtime: ${JSON.stringify(runtime)}`)
+  }
+  assertPortableExecutable(join(runtimeRoot, 'dependencies', 'python', 'python.exe'), 'bundled Python')
+  assertPortableExecutable(join(runtimeRoot, 'dependencies', 'node', 'bin', 'node.exe'), 'bundled Node')
   return { installerPath, applicationPath }
 }
 
