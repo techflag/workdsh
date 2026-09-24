@@ -259,7 +259,7 @@ export function SkillsPanel({ toggleNavigation, management, startSkillTask, star
     </header>
     <div className="section-head"><h1>技能市场</h1><Button className="refresh" onClick={() => void refresh()} disabled={busy}>刷新</Button></div>
     <nav className="category-tabs" aria-label="技能分类"><button className={category === ALL ? 'active' : ''} aria-current={category === ALL ? 'page' : undefined} onClick={() => setCategory(ALL)}>全部</button>{categories.map(label => <button key={label} className={category === label ? 'active' : ''} aria-current={category === label ? 'page' : undefined} onClick={() => setCategory(current => current === label ? ALL : label)}>{label}</button>)}</nav>
-    {catalog && catalog.status !== 'ready' && <p className="catalog-note" role="note">{catalog.diagnostics?.[0]?.message ?? '未发现本地技能目录，仅显示已安装技能。'}</p>}
+    {catalog?.status === 'invalid' && <p className="catalog-note" role="note">技能目录暂时不可用，已安装的技能仍可使用。</p>}
     {batchMode && batchBar}
     {countsLine}
     {!busy && available.length ? <section className="market-section" aria-label="可安装技能"><div className="market-head"><h2>可安装 <span className="market-count">{available.length}</span></h2><span className="muted">来自本地技能目录，点击 ＋ 直接安装</span></div>

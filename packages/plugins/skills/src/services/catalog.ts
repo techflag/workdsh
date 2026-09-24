@@ -181,7 +181,7 @@ export class SkillCatalogStore {
       const info = await stat(file);
       signature = `${info.mtimeMs}:${info.size}`;
     } catch {
-      return { status: 'missing', diagnostics: [{ code: 'skill/catalog-missing', message: `未发现本地技能目录：${this.root}。可用 scripts/build-skill-catalog.mjs 从本地市场镜像生成。`, path: this.root }], icons: new Map() };
+      return { status: 'missing', diagnostics: [{ code: 'skill/catalog-missing', message: '本地技能目录未配置。', path: this.root }], icons: new Map() };
     }
     if (this.cache?.signature === signature) return { ...this.cache.catalog, icons: this.cache.icons };
     const catalog = await this.parse(file);

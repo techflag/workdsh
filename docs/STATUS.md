@@ -2074,3 +2074,6 @@ Office build/typecheck 以及 content/download/rich-editor 30 项相关测试通
 ## 2026-09-24：GitHub 首页增加 Desktop 下载
 
 中英文 README 顶部增加 Desktop Release 与 Windows x64、macOS arm64/x64 安装包直链，并将 Web/插件下载更新到 alpha.9。Desktop alpha.12 是预发布版，因此 GitHub 侧栏的 Latest 标识不会指向它；首页直接入口用于解决安装包难找的问题。本次仅修改文档，未重新打包；安装体验仍需实机验收。
+## 2026-09-24：技能市场未配置目录静默显示
+
+用户反馈 Windows 发布版无本地技能目录时显示内部路径与仓库脚本提示。技能市场现将 `missing` 视为正常空状态，不显示该诊断；已有技能继续可见。目录存在但无法解析时保留简短错误。技能插件构建和 typecheck 通过。此项为已发布技能插件的缺陷修复，不改变市场目录来源；Windows 资源卡片“已在文件管理器中显示”但未实际打开的问题属于 Harness 原生文件打开链路，仍待 Windows 路径和原生命令实测。
