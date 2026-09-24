@@ -5,7 +5,7 @@ import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFi
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const WORKDSH_VERSION = '0.1.0-alpha.9'
+const WORKDSH_VERSION = '0.1.0-alpha.10'
 const DSH_VERSION = '0.1.7-rc.2'
 const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const output = join(desktopRoot, 'build', 'workdsh-runtime')
