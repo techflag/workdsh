@@ -34,7 +34,7 @@ test('real Playwright MCP navigation appears in its Session sidebar frame', { sk
   const server = createServer((request, response) => {
     requests.add(request.url);
     response.writeHead(200, { 'content-type': 'text/html' });
-    response.end('<!doctype html><title>Browser view fixture</title><h1>Browser view fixture</h1><button style="position:fixed;left:20px;top:60px;width:160px;height:40px" onclick="this.textContent=\'Clicked\';fetch(\'/clicked\')">Click here</button>');
+    response.end('<!doctype html><title>Browser view fixture</title><h1>Browser view fixture</h1><button style="position:fixed;left:20px;top:60px;width:160px;height:40px" onclick="this.textContent=\'Clicked\';fetch(\'/clicked\')">Click here</button><input style="position:fixed;left:20px;top:120px;width:160px;height:40px" oninput="fetch(\'/typed?value=\'+encodeURIComponent(this.value))">');
   });
   const ctx = new Context();
   let handler;
@@ -98,6 +98,11 @@ test('real Playwright MCP navigation appears in its Session sidebar frame', { sk
     }
     assert.ok(clickedFrame?.revision > frame.revision);
     assert.notEqual(clickedFrame?.image, frame.image);
+    const focus = await handler(new Request('http://localhost/api/workdsh-agent-browser', { method: 'POST', body: JSON.stringify({ sessionId: 'browser-view-real', action: { kind: 'click', x: 50, y: 140 } }) }));
+    assert.equal(focus.status, 200, await focus.text());
+    const typed = await handler(new Request('http://localhost/api/workdsh-agent-browser', { method: 'POST', body: JSON.stringify({ sessionId: 'browser-view-real', action: { kind: 'type', text: 'abc' } }) }));
+    assert.equal(typed.status, 200, await typed.text());
+    assert.equal(requests.has('/typed?value=abc'), true);
     const nextUrl = `http://127.0.0.1:${server.address().port}/second`;
     const navigate = await handler(new Request('http://localhost/api/workdsh-agent-browser', { method: 'POST', body: JSON.stringify({ sessionId: 'browser-view-real', action: { kind: 'navigate', url: nextUrl } }) }));
     assert.equal(navigate.status, 200, await navigate.text());
