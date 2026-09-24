@@ -1,6 +1,6 @@
 /** Minimal Electron carrier for the bundled WorkDSH release profile. */
 
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, shell, type IpcMainInvokeEvent } from 'electron'
 import { spawn, type ChildProcess } from 'node:child_process'
 import {
   cpSync,
@@ -15,6 +15,7 @@ import {
 } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { WorkDSHBrowserGuests, WORKDSH_BROWSER_IPC } from './workdsh-browser-guests.ts'
 
 const PROFILE_NAME = 'workdsh'
 const RUNTIME_VERSION = '0.1.0-alpha.9+dsh-0.1.7-rc.2'
@@ -23,6 +24,8 @@ const READY_PATTERN = /dsh web:\s+(http:\/\/127\.0\.0\.1:\d+\/?\?token=[^\s]+)/u
 let runtime: ChildProcess | undefined
 let window: BrowserWindow | undefined
 let quitting = false
+let currentAppUrl: string | undefined
+const browserGuests = new WorkDSHBrowserGuests(() => currentAppUrl)
 
 function bundledProfileDirectory(): string {
   const overridden = process.env.WORKDSH_BUNDLED_PROFILE
@@ -93,7 +96,9 @@ function materializeRuntimeProfile(home: string): string {
 }
 
 function openWindow(url: string): void {
+  currentAppUrl = url
   const icon = fileURLToPath(new URL('../build/app-icon.png', import.meta.url))
+  const preload = fileURLToPath(new URL('./workdsh-browser-preload.cjs', import.meta.url))
   window = new BrowserWindow({
     width: 1440,
     height: 960,
@@ -104,10 +109,16 @@ function openWindow(url: string): void {
     backgroundColor: '#111113',
     show: false,
     webPreferences: {
+      preload,
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      webviewTag: true,
     },
+  })
+  browserGuests.bind(window, () => () => {})
+  window.webContents.on('will-navigate', (event, target) => {
+    if (!URL.canParse(target) || new URL(target).origin !== new URL(url).origin) event.preventDefault()
   })
   window.on('page-title-updated', event => {
     event.preventDefault()
@@ -189,6 +200,20 @@ if (!app.requestSingleInstanceLock()) {
     }
   })
   void app.whenReady().then(() => {
+    const authorizedSender = (event: IpcMainInvokeEvent): boolean => {
+      if (window === undefined || currentAppUrl === undefined || event.sender !== window.webContents
+        || event.senderFrame !== window.webContents.mainFrame) return false
+      return URL.canParse(event.senderFrame.url)
+        && new URL(event.senderFrame.url).origin === new URL(currentAppUrl).origin
+    }
+    ipcMain.handle(WORKDSH_BROWSER_IPC.acquire, (event, workspace: unknown) => {
+      if (!authorizedSender(event)) throw new Error('WorkDSH browser IPC sender is not the application page')
+      return browserGuests.acquire(event.sender, workspace)
+    })
+    ipcMain.handle(WORKDSH_BROWSER_IPC.release, (event, lease: unknown) => {
+      if (!authorizedSender(event)) throw new Error('WorkDSH browser IPC sender is not the application page')
+      return browserGuests.release(event.sender, lease)
+    })
     const home = runtimeHome()
     const profile = process.env.WORKDSH_DSH_HOME === home
       ? join(home, 'profiles', PROFILE_NAME)

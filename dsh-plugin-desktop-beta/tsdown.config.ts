@@ -93,7 +93,7 @@ export default defineConfig([
   },
   {
     name: `${PACKAGE_NAME}/preload`,
-    entry: { preload: 'src/preload.ts', 'compatibility-preload': 'src/compatibility-preload.ts' },
+    entry: { preload: 'src/preload.ts', 'compatibility-preload': 'src/compatibility-preload.ts', 'workdsh-browser-preload': 'src/workdsh-browser-preload.ts' },
     outDir: 'lib',
     format: 'cjs',
     platform: 'node',
