@@ -2077,3 +2077,14 @@ Office build/typecheck 以及 content/download/rich-editor 30 项相关测试通
 ## 2026-09-24：技能市场未配置目录静默显示
 
 用户反馈 Windows 发布版无本地技能目录时显示内部路径与仓库脚本提示。技能市场现将 `missing` 视为正常空状态，不显示该诊断；已有技能继续可见。目录存在但无法解析时保留简短错误。技能插件构建和 typecheck 通过。此项为已发布技能插件的缺陷修复，不改变市场目录来源；Windows 资源卡片“已在文件管理器中显示”但未实际打开的问题属于 Harness 原生文件打开链路，仍待 Windows 路径和原生命令实测。
+# 2026-09-25：Web 预览升级至 DSH 0.1.7-rc.2
+
+当前 `18989` 使用的 WorkDSH Web 预览已从 `0.1.7-alpha.1` 升级至官方 `0.1.7-rc.2`，设置页实测显示 rc.2。构建、类型检查、版本门禁和 134 项相关测试通过；11 个本地发布包与当前构建一致，官方 Base/Web/CLI 及共享 Boot/Scope 已核对。证据与未验证范围见 [rc.2 Web 升级记录](DSH-0.1.7-UPGRADE-PLAN.md#2026-09-25web-预览升级至-017-rc2)。此专项不代表 D04/D11 功能整体完成；下一步在目标功能上做真实模型和长任务验收。
+
+补充 rc.2 探针：官方 Playwright 浏览器操作的导航、快照、截图通过；连接器探针发现根脚本缺少直接声明的 credentials 依赖，补齐后工具、资源、实例及会话隔离验证通过。右侧栏 Browser 已启用，但与 Agent 浏览器实例仍为两个独立载体。
+
+专家打包浏览器探针发现编辑弹窗尺寸被共享未分层 CSS 覆盖，现已修复；专家、技能和资料库的独立打包与冷启动探针通过。上述验证仍不等于付费模型或跨平台验收。
+
+rc.2 官方 Team Web 探针已适配新公开服务 API：移除退役的 `remoteView()` 依赖，验证成员列表与任务板、长任务、浏览器重连、中断、失败及冷恢复。旧 0.1.6 组合探针仅作历史记录。
+
+Web 预览另已通过 WorkDSH bundle 启用官方右侧 Sidebar Browser：合成配置显示 `ui-sidebar-browser.disabled: false`，页面内可从右栏打开 Browser tab 并在 iframe 中加载 `https://example.com/`。官方 Browser tab 是用户侧页面，不是 Agent 的 Playwright 工具浏览器；两者尚未联动，不能把侧栏打开网页视为 Agent 浏览器操作已在侧栏呈现。

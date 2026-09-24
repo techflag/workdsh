@@ -73,7 +73,7 @@ alpha.9 整包包含 **11 个可安装模块**，项目和资料库纳入统一�
 
 ## 快速开始
 
-环境要求：Node.js `^22.19.0 || >=24.0.0`、Corepack/pnpm，以及官方 **0.1.7-alpha.1** 版本的 `dsh` CLI。
+环境要求：Node.js `^22.19.0 || >=24.0.0`、Corepack/pnpm，以及官方 **0.1.7-rc.2** 版本的 `dsh` CLI。
 
 1. 从 [alpha.9 Release](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.9) 下载全部 11 个 `.tgz`、`release-manifest.json`、`SHA256SUMS` 和 `install-workdsh.mjs`，放入同一目录。
 2. 升级已有 Profile 时，先停止运行，并保留配置和数据的可恢复备份。

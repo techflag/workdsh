@@ -20,12 +20,12 @@
   },
   "peerDependencies": {
     "react": "^19.2.4",
-    "@deepseek-ai/dsh-client-ui-primitives": "0.1.7-alpha.1"
+    "@deepseek-ai/dsh-client-ui-primitives": "0.1.7-rc.2"
   },
   "devDependencies": {
     "react": "19.2.4",
     "@types/react": "19.2.14",
-    "@deepseek-ai/dsh-client-ui-primitives": "0.1.7-alpha.1"
+    "@deepseek-ai/dsh-client-ui-primitives": "0.1.7-rc.2"
   },
   "sideEffects": false
 }
