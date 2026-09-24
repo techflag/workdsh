@@ -89,6 +89,15 @@ test('real Playwright MCP navigation appears in its Session sidebar frame', { sk
     const click = await handler(new Request('http://localhost/api/workdsh-agent-browser', { method: 'POST', body: JSON.stringify({ sessionId: 'browser-view-real', action: { kind: 'click', x: 50, y: 80 } }) }));
     assert.equal(click.status, 200, await click.text());
     assert.equal(requests.has('/clicked'), true);
+    let clickedFrame;
+    for (let i = 0; i < 100; i++) {
+      const response = await handler(new Request('http://localhost/api/workdsh-agent-browser', { method: 'POST', body: JSON.stringify({ sessionId: 'browser-view-real' }) }));
+      clickedFrame = (await response.json()).frame;
+      if (clickedFrame?.revision > frame.revision && clickedFrame.image !== frame.image) break;
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    assert.ok(clickedFrame?.revision > frame.revision);
+    assert.notEqual(clickedFrame?.image, frame.image);
     const otherSession = await handler(new Request('http://localhost/api/workdsh-agent-browser', { method: 'POST', body: JSON.stringify({ sessionId: 'not-this-session', action: { kind: 'click', x: 50, y: 80 } }) }));
     assert.equal(otherSession.status, 400);
     await owner.dispose();
