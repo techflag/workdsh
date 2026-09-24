@@ -12,6 +12,7 @@
     "beta": {
       "commit": "477b4f420553e8a52c2fbccc464d7561b239c443",
       "sourceVersion": "0.1.7-rc.2",
+      "runtimeCommit": "82a5fd61a7cf5c293cec4bdff68f455398d685e9",
       "runtimePackageVersion": "0.1.3-alpha.2",
       "runtimeSource": "vendor/dsh-runtime/0.1.3-alpha.2/manifest.json",
       "package": "dsh-plugin-desktop-beta"
