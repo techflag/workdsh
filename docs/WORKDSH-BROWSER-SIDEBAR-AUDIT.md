@@ -20,6 +20,8 @@ WorkDSH 自有 Electron 壳原先没有官方 Desktop Browser 所需的 preload�
 
 **发布阻断：**官方其他 Client 插件以 `dshDesktop` 是否存在来切换整个 Desktop 体验，而不只检查 `browser` 子接口。例如 `ui-settings-models` 会关闭 Web 凭据引导，`ui-settings-account` 会启用 Desktop onboarding。当前 WorkDSH 壳只暴露了 Browser lease，缺少完整官方 Desktop 契约；直接合并会有账号/设置回归风险。正式方案需采用官方完整 Desktop 宿主或经公开接口提供完整兼容桥，且做设置、账号、快捷键与浏览器回归。此分支应保持实验状态，不进入现有安装包发布线。
 
+另一个宿主差异：当前发布入口 `dsh-plugin-desktop/src/workdsh-main.ts` 加载带 token 的 `http://127.0.0.1` 页面；官方 `apps/desktop/src/preload-app.ts` 只向 `dsh-app://app` 主文档暴露完整 `dshDesktop`，IPC 也按该来源校验。简单移植官方 preload 或只打开 `webviewTag` 无法让现有 Web 页面获得同等能力，必须先确定受信任的应用来源和完整宿主契约。当前发布入口的 `setWindowOpenHandler` 仍将 HTTP(S) 新窗口交给系统浏览器。
+
 ## 达成用户期望还需验证
 
 1. 找到或设计符合官方扩展契约的 Session 浏览器页面共享方式，不能直接改上游或建立第二套 Agent loop。若采用 CDP attach，须先证明安全边界、会话独占、动态端点、登录态隔离和 Electron guest 可被目标 MCP 可靠控制。
