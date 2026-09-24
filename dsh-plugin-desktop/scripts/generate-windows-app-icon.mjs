@@ -37,8 +37,8 @@ const outputPath = join(packageRoot, 'build', 'app-icon.ico')
 
 /**
  * Reuse the repository's vector whale for frames where the full shaded artwork
- * loses recognizable detail. The flat dark-on-light treatment preserves the
- * stable icon's silhouette at native Windows chrome sizes.
+ * loses recognizable detail. The flat blue-on-light treatment preserves the
+ * stable icon's silhouette and brand colors at native Windows chrome sizes.
  * @returns {Promise<Buffer>} Self-contained SVG for small Windows frames.
  */
 async function loadSmallFrameArtwork() {
@@ -49,12 +49,10 @@ async function loadSmallFrameArtwork() {
   const mark = source
     .replace(/^<svg[^>]*>\s*/u, '')
     .replace(/<\/svg>\s*$/u, '')
-    .replaceAll(BRAND_BLUE, '#000000')
-    .replaceAll(BRAND_CYAN, '#000000')
   return Buffer.from(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">'
-    + '<rect width="50" height="50" rx="11" fill="#FFFFFF"/>'
-    + `<g transform="translate(5 5) scale(0.8)">${mark}</g>`
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">'
+    + '<rect width="256" height="256" rx="52" fill="#FFFFFF"/>'
+    + `<g transform="translate(18 18) scale(0.86)">${mark}</g>`
     + '</svg>',
   )
 }
