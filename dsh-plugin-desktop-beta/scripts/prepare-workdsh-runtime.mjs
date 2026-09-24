@@ -20,9 +20,24 @@ function run(command, args, options = {}) {
 
 async function download(url, path) {
   if (existsSync(path)) return
-  const response = await fetch(url, { redirect: 'follow' })
-  if (!response.ok) throw new Error(`Failed to download ${url}: ${response.status}`)
-  writeFileSync(path, Buffer.from(await response.arrayBuffer()))
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      const response = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(60_000) })
+      if (response.ok) {
+        writeFileSync(path, Buffer.from(await response.arrayBuffer()))
+        return
+      }
+      if (response.status !== 429 && response.status < 500) {
+        throw new Error(`Failed to download ${url}: ${response.status}`)
+      }
+      if (attempt === 4) throw new Error(`Failed to download ${url}: ${response.status} after 5 attempts`)
+      console.warn(`Download returned ${response.status}; retrying ${url} (${attempt + 1}/4)`)
+    } catch (error) {
+      if (attempt === 4 || (error instanceof Error && /^Failed to download .*: 4\d\d$/.test(error.message))) throw error
+      console.warn(`Download interrupted; retrying ${url} (${attempt + 1}/4): ${error}`)
+    }
+    await new Promise(resolve => setTimeout(resolve, 1_000 * 2 ** attempt))
+  }
 }
 
 async function installReleasedProfile() {
