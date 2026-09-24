@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process';
 import { access, copyFile, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
+import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
@@ -19,6 +20,9 @@ const cliVersion = JSON.parse(await readFile(join(root, 'node_modules/@deepseek-
 if (cliVersion !== baseVersion) throw new Error('Preview CLI and Base must use the same pinned version.');
 const home = resolve(process.env.WORKDSH_PREVIEW_HOME ?? join(root, '.test-runtime/preview'));
 const artifacts = join(root, '.artifacts');
+// pnpm includes local archive paths in its store index filename. Keep the
+// immutable archive path short even when this checkout is a nested worktree.
+const previewPacks = resolve(process.env.WORKDSH_PREVIEW_PACKS_HOME ?? join(homedir(), '.cache/workdsh-preview-packs'));
 const env = { ...process.env, DSH_HOME: home, PATH: `${join(root, 'node_modules/.bin')}:${dirname(process.execPath)}:${process.env.PATH}` };
 const exec = promisify(execFile);
 const run = async (tool, args) => {
@@ -36,7 +40,7 @@ for (const directory of ['packages/providers/identity-local', 'packages/plugins/
   // address lets the package manager reuse an older archive, even after pack.
   // Keep official CLI installation, but address each archive by its content.
   const digest = createHash('sha256').update(await readFile(packed)).digest('hex');
-  const destination = join(artifacts, 'preview', digest);
+  const destination = join(previewPacks, digest.slice(0, 16));
   await mkdir(destination, { recursive: true });
   const immutableArchive = join(destination, `${manifest.name}-${manifest.version}.tgz`);
   await copyFile(packed, immutableArchive);
