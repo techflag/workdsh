@@ -2071,3 +2071,6 @@ Office build/typecheck 以及 content/download/rich-editor 30 项相关测试通
 ## 2026-09-24：WorkDSH alpha.9 与 Desktop alpha.12 发布回执
 
 资料库界面与预览 Team 去重修复已进入 Web 源码。Node 22 完整构建、类型检查、资料库 5 项和去重 2 项测试通过；11 包重新打包，清单 SHA-256 逐项核对，安装器 dry-run 通过。Web `v0.1.0-alpha.9` 已推送并发布 GitHub Release。Desktop 固定引用 alpha.9 后，由 `desktop-v2.0.5-alpha.12` 标签触发 GitHub CI；检查、Windows x64、macOS x64/arm64 与发布作业全部成功，Release 有一个 Windows 安装包、两份独立 Mac DMG 和 SHA256SUMS。仍未执行新安装包的真人安装使用测试；Mac DMG 为未签名预览包。下一步核验实际安装体验与更新已有文档中遗留的 alpha.8 状态表述。
+## 2026-09-24：GitHub 首页增加 Desktop 下载
+
+中英文 README 顶部增加 Desktop Release 与 Windows x64、macOS arm64/x64 安装包直链，并将 Web/插件下载更新到 alpha.9。Desktop alpha.12 是预发布版，因此 GitHub 侧栏的 Latest 标识不会指向它；首页直接入口用于解决安装包难找的问题。本次仅修改文档，未重新打包；安装体验仍需实机验收。

@@ -5,9 +5,19 @@
 
 WorkDSH is an open-source AI workspace built on the official DeepSeek Harness. Organize conversations, material and capabilities in projects, reuse your local Library, and review editable deliverables alongside the task.
 
-**Web/plugins v0.1.0-alpha.8 · DeepSeek Harness 0.1.7-alpha.1 · Alpha preview**
+**Desktop v2.0.5-alpha.12 · Web/plugins v0.1.0-alpha.9 · Alpha preview**
 
-[Web/plugin download](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.8) · [Release notes](docs/releases/v0.1.0-alpha.8.md) · [Quick start](#quick-start) · [Website](https://techflag.github.io/workdsh/) · [Gitee mirror](https://gitee.com/techflag/workdsh)
+[Desktop downloads](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.12) · [Web/plugin download](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.9) · [Release notes](docs/releases/v0.1.0-alpha.9.md) · [Quick start](#quick-start) · [Website](https://techflag.github.io/workdsh/) · [Gitee mirror](https://gitee.com/techflag/workdsh)
+
+## Download WorkDSH Desktop
+
+| System | Installer |
+| --- | --- |
+| Windows x64 | [Download Setup.exe](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.12/dsh-plugin-desktop-windows-x64--WorkDSH-2.0.5-x64-Setup.exe) |
+| macOS Apple Silicon | [Download arm64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.12/dsh-plugin-desktop-macos-arm64--WorkDSH-2.0.5-arm64.dmg) |
+| macOS Intel | [Download x64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.12/dsh-plugin-desktop-macos-x64--WorkDSH-2.0.5-x64.dmg) |
+
+These Alpha installers bundle WorkDSH v0.1.0-alpha.9. macOS DMGs are unsigned previews; checksums are in the [Desktop release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.12).
 
 ![WorkDSH project home — full application in dark mode](docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
 
@@ -22,7 +32,7 @@ WorkDSH is an open-source AI workspace built on the official DeepSeek Harness. O
 | Office deliverables | Preview and edit supported document, presentation, spreadsheet, HTML and PDF working copies. Format fidelity varies. |
 | Activity | Inspect native task and child-agent activity; an expert-team label alone does not mean multiple agents are executing. |
 
-The alpha.8 bundle includes **11 installable modules**, including Projects and Library. It refreshes the project home, navigation, theme-aware menus and conversation capability selection, and adapts expert presets to Harness 0.1.7. Native attachment, input and send behavior remain owned by Harness.
+The alpha.9 bundle includes **11 installable modules**, including Projects and Library. It refreshes the project home, navigation, theme-aware menus and conversation capability selection, adapts expert presets to Harness 0.1.7, and refines Library menus and recent files. Native attachment, input and send behavior remain owned by Harness.
 
 ## Screenshots
 
@@ -65,7 +75,7 @@ Earlier local preview showing the artifact workflow; it is not an alpha.8 accept
 
 Requirements: Node.js `^22.19.0 || >=24.0.0`, Corepack/pnpm and the official `dsh` CLI **0.1.7-alpha.1**.
 
-1. Download all 11 `.tgz` packages, `release-manifest.json`, `SHA256SUMS` and `install-workdsh.mjs` from the [alpha.8 release](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.8) into one directory.
+1. Download all 11 `.tgz` packages, `release-manifest.json`, `SHA256SUMS` and `install-workdsh.mjs` from the [alpha.9 release](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.9) into one directory.
 2. For an upgrade, stop the target Profile and keep a recoverable backup of its configuration and data.
 3. Run from the download directory:
 

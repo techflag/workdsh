@@ -5,9 +5,19 @@
 
 WorkDSH 是基于官方 DeepSeek Harness 的开源 AI 工作台。把对话、资料与能力组织到项目里，复用本地资料库，在任务旁查看和编辑交付成果。
 
-**Web/插件 v0.1.0-alpha.8 · DeepSeek Harness 0.1.7-alpha.1 · Alpha 预览版**
+**桌面版 v2.0.5-alpha.12 · Web/插件 v0.1.0-alpha.9 · Alpha 预览版**
 
-[Web/插件下载](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.8) · [更新说明](docs/releases/v0.1.0-alpha.8.md) · [快速开始](#快速开始) · [官网](https://techflag.github.io/workdsh/) · [Gitee 镜像](https://gitee.com/techflag/workdsh)
+[桌面版下载](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.12) · [Web/插件下载](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.9) · [更新说明](docs/releases/v0.1.0-alpha.9.md) · [快速开始](#快速开始) · [官网](https://techflag.github.io/workdsh/) · [Gitee 镜像](https://gitee.com/techflag/workdsh)
+
+## 下载 WorkDSH 桌面版
+
+| 系统 | 安装包 |
+| --- | --- |
+| Windows x64 | [下载 Setup.exe](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.12/dsh-plugin-desktop-windows-x64--WorkDSH-2.0.5-x64-Setup.exe) |
+| macOS Apple 芯片 | [下载 arm64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.12/dsh-plugin-desktop-macos-arm64--WorkDSH-2.0.5-arm64.dmg) |
+| macOS Intel | [下载 x64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.12/dsh-plugin-desktop-macos-x64--WorkDSH-2.0.5-x64.dmg) |
+
+这批 Alpha 安装包内置 WorkDSH v0.1.0-alpha.9。macOS DMG 是未签名预览包；校验文件见[桌面版 Release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.12)。
 
 ![WorkDSH 深色项目主页，包含完整侧栏](docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
 
@@ -22,7 +32,7 @@ WorkDSH 是基于官方 DeepSeek Harness 的开源 AI 工作台。把对话、�
 | Office 成果 | 预览和编辑支持范围内的文档、演示文稿、表格、HTML 与 PDF 工作副本；不同格式的保真范围有差异。 |
 | 活动记录 | 查看原生任务与子代理活动；显示专家团名称不代表多个成员已经执行。 |
 
-alpha.8 整包包含 **11 个可安装模块**，项目和资料库纳入统一安装。此次优化项目主页、导航、跟随主题的菜单与对话能力选择，并适配 Harness 0.1.7 专家预设。附件、输入和发送继续使用 Harness 原生能力。
+alpha.9 整包包含 **11 个可安装模块**，项目和资料库纳入统一安装。此次优化项目主页、导航、跟随主题的菜单、对话能力选择和资料库最近文件展示，并适配 Harness 0.1.7 专家预设。附件、输入和发送继续使用 Harness 原生能力。
 
 ## 页面截图
 
@@ -65,7 +75,7 @@ alpha.8 整包包含 **11 个可安装模块**，项目和资料库纳入统一�
 
 环境要求：Node.js `^22.19.0 || >=24.0.0`、Corepack/pnpm，以及官方 **0.1.7-alpha.1** 版本的 `dsh` CLI。
 
-1. 从 [alpha.8 Release](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.8) 下载全部 11 个 `.tgz`、`release-manifest.json`、`SHA256SUMS` 和 `install-workdsh.mjs`，放入同一目录。
+1. 从 [alpha.9 Release](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.9) 下载全部 11 个 `.tgz`、`release-manifest.json`、`SHA256SUMS` 和 `install-workdsh.mjs`，放入同一目录。
 2. 升级已有 Profile 时，先停止运行，并保留配置和数据的可恢复备份。
 3. 在下载目录执行：
 
