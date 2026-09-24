@@ -121,10 +121,16 @@ jobs:
       - run: yarn install --immutable
       - run: yarn upstream:install
       - run: yarn workspace dsh-plugin-desktop check:win-package
+      - name: Prepare WorkDSH release profile
+        run: yarn workspace dsh-plugin-desktop prepare:workdsh-runtime
+      - name: Prepare official Python and Node runtime
+        timeout-minutes: 15
+        run: yarn workspace dsh-plugin-desktop prepare:workdsh-primary-runtime
       - name: Build Windows installer
+        timeout-minutes: 30
         env:
           DSH_PACKAGE_CHECK_ALREADY_RAN: '1'
-        run: yarn workspace dsh-plugin-desktop dist:win
+        run: node dsh-plugin-desktop/scripts/package-win.ts
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
         with:

@@ -16,6 +16,7 @@ if (target === undefined || !['win-x64', 'mac-arm64', 'mac-x64'].includes(target
 const output = join(desktopRoot, 'build', 'workdsh-runtime')
 const cache = join(desktopRoot, 'build', '.workdsh-primary-runtime-cache')
 const corepack = process.platform === 'win32' ? 'corepack.cmd' : 'corepack'
+const preparationTimeout = 12 * 60_000
 const result = spawnSync(corepack, [
   'pnpm', 'run', 'prepare:primary-runtime', '--target', target, '--output', output, '--cache', cache,
 ], {
@@ -23,7 +24,11 @@ const result = spawnSync(corepack, [
   env: { ...process.env, CI: 'true' },
   stdio: 'inherit',
   shell: process.platform === 'win32',
+  timeout: preparationTimeout,
 })
+if (result.error?.code === 'ETIMEDOUT') {
+  throw new Error(`Official primary runtime preparation exceeded ${preparationTimeout / 60_000} minutes for ${target}; check pinned asset downloads and retry the build`, { cause: result.error })
+}
 if (result.error) throw result.error
 if (result.status !== 0) throw new Error(`Official primary runtime preparation failed: ${result.status}`)
 const manifestPath = join(output, 'primary-runtime', 'runtime.json')
