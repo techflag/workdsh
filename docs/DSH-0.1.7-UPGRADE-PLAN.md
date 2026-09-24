@@ -1,4 +1,21 @@
-# DSH 0.1.7-alpha.1 升级计划
+# DSH 0.1.7 升级记录
+
+## 2026-09-25：Web 预览升级至 0.1.7-rc.2
+
+用户要求升级当前 `127.0.0.1:18989` 的 WorkDSH Web 应用。本专项不改变 D04 等业务步骤的完成状态。版本依据为 [DeepSeek Harness v0.1.7-rc.2 发布页](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.1.7-rc.2)。
+
+- 根工作区、功能插件及 UI 对官方 `@deepseek-ai/dsh*` 的直接依赖和覆盖统一固定为 `0.1.7-rc.2`，更新 pnpm 锁文件；新增 rc.2 依赖也纳入版本门禁。
+- 按 rc.2 发布包的 peer 要求，将 `@deepseek-ai/cordis-plugin-group` 和 `@deepseek-ai/cordis-plugin-loader` 分别固定为 `1.0.4` 与 `1.0.5`。Cordis 保持 `4.0.3`。
+- 预览安装器避免在 CLI/账号包已为目标版本时重复安装，并将网络安装超时延长至 10 分钟。原预览 Profile 和用户数据保留。
+- 本机 Node 22.23.2、pnpm 10.34.5；`pnpm build`、`pnpm typecheck`、`pnpm check:versions` 通过。版本门禁确认 556 条 DSH 锁记录统一为 rc.2。集成测试 115/115、项目 12/12、资料库 5/5、规划 2/2，合计 134 项。
+- 预览 Profile 中 11 个 WorkDSH 包入口与当前构建逐字节一致；官方 Base、Web App、CLI 均为 rc.2；CLI 与设置编辑器共享同一 Boot，Agent Loop 与预设注册器共享同一 Scope。
+- 使用该 Profile 启动 `18989`，匿名请求返回 401；通过登录链接打开页面，设置页显示“当前版本：0.1.7-rc.2”。
+- 启用官方 Web 侧栏 Browser 条目后，合成配置显示 `ui-sidebar-browser.disabled: false`；实际右侧栏出现“浏览器”入口，`https://example.com/` 在 tab 内加载。该 tab 只负责用户侧网页展示；Agent 的 Playwright MCP 浏览器独立按 Session 管理，目前没有与 iframe tab 共用实例。
+- `probe:browser-use:playwright` 验证 24 个浏览器工具，以及导航、快照和截图。连接器探针首次暴露根脚本直接导入的 `@deepseek-ai/dsh-credentials` 未声明为根开发依赖；补上精确 rc.2 依赖后，`probe:connectors` 验证连接器就绪、工具与资源注册、多实例、会话工具隔离及停用/恢复通过。
+- 专家打包探针发现编辑弹窗的业务样式位于 CSS layer，无法覆盖未分层的共享 Modal 尺寸规则；将尺寸覆盖放到未分层规则后，专家创建、技能引用、发布确认、移动端宽度、两次冷启动和真实浏览器页面探针均通过。Skill 市场、安装/停用/恢复及资料库打包安装/卸载/恢复探针也通过。
+- 原 `probe:experts:official` 仍使用 0.1.6 的 `dsh-agent-presets`（rc.2 不再发布），现指向当前官方 Team Web 组合探针。该探针中删除的 `remoteView()` 调用按 rc.2 文档改为 `listMembers()`/`listTasks()`；真实打包 Profile、成员技能、任务板、长任务、重连、失败恢复及冷启动全链路通过。旧 0.1.6 脚本保留为历史证据，不用于当前门禁。
+
+首次 `preview:install` 的最终 pnpm 重复安装步骤在 180 秒超时，包实际已安装。安装器随后加入版本命中跳过和更长超时，但未重新完成一次全新的空 Profile 安装。现场 Profile 的包内容、依赖共享关系和浏览器启动已分别验证。未运行付费模型、长时间任务、跨浏览器和跨平台验证；本次不发布 npm 包或远端 Web 服务。
 
 日期：2026-09-22。用户授权实施；原则：能用原生就用原生。
 基线：0.1.6-alpha.2；目标：0.1.7-alpha.1。独立升级专项，不代表 D04/D11 或其他业务模块整体完成。
