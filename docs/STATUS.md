@@ -1,6 +1,6 @@
 ## 2026-09-25：Web/插件 alpha.10 rc.2 发行候选
 
-11 个运行包与项目版本已递增，按官方 DSH `0.1.7-rc.2` 的公开接口重新构建；本次发行包将替换 Desktop 先前引用的 alpha.9 包。Node 22.23.2 / pnpm 10.34.5 下构建、类型检查、556 条版本锁定、115 项集成测试、12 项项目测试、5 项资料库测试与规划校验通过。规划台账里过时的 `resources/skills/expert-manager` 路径已改为实际受版本控制的 `resources/skills/workdsh-expert-manager`。打包 SHA-256、空 Profile 安装及 GitHub Release 尚未完成，需在本次候选后续验证；浏览器 Agent 与右侧栏共享同一页面仍未实现。
+11 个运行包与项目版本已递增，按官方 DSH `0.1.7-rc.2` 的公开接口重新构建；本次发行包将替换 Desktop 先前引用的 alpha.9 包。Node 22.23.2 / pnpm 10.34.5 下构建、类型检查、556 条版本锁定、115 项集成测试、12 项项目测试、5 项资料库测试与规划校验通过。规划台账里过时的 `resources/skills/expert-manager` 路径已改为实际受版本控制的 `resources/skills/workdsh-expert-manager`。11 个打包文件的 SHA-256 与清单逐项一致，安装器 dry-run 在 `0.1.7-rc.2` CLI 上通过；GitHub Release 尚未完成。浏览器 Agent 与右侧栏共享同一页面仍未实现。
 
 ## 2026-09-25：rc.2 Web 全新 Profile 安装复验
 
