@@ -1,7 +1,7 @@
 import { controlsCss, modalCss } from 'workdsh-ui';
 
 export const libraryCss = `${modalCss}
-@layer workdsh-business {
+${controlsCss}
 
 
 
@@ -23,6 +23,4 @@ export const libraryCss = `${modalCss}
 
 
 
-}
-${controlsCss}
 `;

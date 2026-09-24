@@ -1,9 +1,10 @@
 import { spawn } from 'node:child_process';
-import { mkdirSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { withoutRedundantAgentTeamProfile } from './preview-agent-team.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const previewHome = process.env.WORKDSH_PREVIEW_HOME ?? resolve(root, '.test-runtime/preview');
@@ -13,6 +14,15 @@ const port = process.env.WORKDSH_PREVIEW_PORT ?? '18989';
 const heapMb = process.env.WORKDSH_PREVIEW_HEAP_MB ?? '8192';
 if (!/^\d+$/.test(heapMb) || Number(heapMb) < 512) throw new Error('WORKDSH_PREVIEW_HEAP_MB must be an integer >= 512');
 const profile = resolve(previewHome, 'profiles/preview');
+const profileManifestPath = resolve(profile, 'package.json');
+if (existsSync(profileManifestPath)) {
+  const profileManifest = JSON.parse(readFileSync(profileManifestPath, 'utf8'));
+  const normalizedManifest = withoutRedundantAgentTeamProfile(profileManifest);
+  if (normalizedManifest) {
+    writeFileSync(profileManifestPath, `${JSON.stringify(normalizedManifest, null, 2)}\n`);
+    console.log('Removed redundant standalone Agent Team profile; WorkDSH experts owns Team composition.');
+  }
+}
 const dsh = resolve(profile, 'node_modules/@deepseek-ai/dsh/lib/bin.js');
 // Fail before serving a broken UI if preview:install has not migrated the CLI.
 const cliManifest = resolve(profile, 'node_modules/@deepseek-ai/dsh/package.json');

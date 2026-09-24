@@ -1,10 +1,11 @@
 import { execFile } from 'node:child_process';
-import { access, copyFile, mkdir, readFile, realpath } from 'node:fs/promises';
+import { access, copyFile, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { withoutRedundantAgentTeamProfile } from './preview-agent-team.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const rootManifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
@@ -46,6 +47,16 @@ let initialized = false;
 try { await access(join(home, 'profiles/preview/package.json')); initialized = true; }
 catch (error) { if (error.code !== 'ENOENT') throw error; }
 if (!initialized) await run('@deepseek-ai/dsh/lib/bin.js', ['--profile', 'preview', '--from-default-profile', 'web', '--dump-config']);
+// Experts already contributes the official Team service, tools and Web action.
+// The standalone Team profile adds the same loader ids again and can be toggled
+// on from the upstream plugin gallery. Keep this preview's bundle list singular.
+const previewManifestPath = join(home, 'profiles/preview/package.json');
+const previewManifest = JSON.parse(await readFile(previewManifestPath, 'utf8'));
+const normalizedManifest = withoutRedundantAgentTeamProfile(previewManifest);
+if (normalizedManifest) {
+  await writeFile(previewManifestPath, `${JSON.stringify(normalizedManifest, null, 2)}\n`);
+  console.log('Removed redundant standalone Agent Team profile from preview; WorkDSH experts owns Team composition.');
+}
 // Reinstall the pinned official Web bundle as well as the WorkDSH layers. An
 // existing preview Profile may have been created by an older DSH release; its
 // bundle list alone does not upgrade the packages that provide newly added Web

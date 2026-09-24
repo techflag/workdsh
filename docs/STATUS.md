@@ -2052,3 +2052,19 @@ Office build/typecheck 以及 content/download/rich-editor 30 项相关测试通
 - 专家、技能、连接器和资料选择统一使用原生主题变量，移除浅色主题下深底黑字；引用标签同步适配主题。
 - 卡片标题与说明分行，说明最多两行；筛选使用原生按钮选中状态，额外焦点描边仅用于键盘。
 - 项目构建与 11 项测试通过；浏览器验证四类选择器明暗主题、勾选和取消。截图位于 `.artifacts/project-selection/`。此次未调用模型或保存测试选择。
+## 2026-09-24：资料库界面修复与项目资料分析核查
+
+资料库原有样式位于低优先级的 CSS layer，公共按钮样式覆盖了“最近”列表、创建菜单和文件操作菜单，造成按钮膨胀、文字重叠。现将资料库样式提升到与公共控件一致的层级，列表行、菜单项和文件头操作改用语义化原生按钮，并限制菜单在视口内。已在实际 18989 预览的明暗主题检查“最近”列表、创建菜单和文件操作菜单；资料库 build/typecheck、5 项资料库测试、12 项项目测试及 diff check 通过。
+
+项目输入区的资料引用会校验固定修订、绑定项目任务并在模型系统上下文注入正文；但资料库自身“添加到新对话”创建的是普通工作区会话，不会自动归属项目。此前称“项目内资料分析闭环”不严谨：代码路径和模块测试已证实，尚缺一次实际模型响应及项目任务归属的端到端验证。此次未提交、推送或发布。
+## 2026-09-24：专家与官方智能体团队状态核查
+
+截图中的“工作复盘顾问”是内置单专家模板（`templates.ts` 中无 `team` 定义），会话标题旁“智能体团队”是会话运行模式标识，不表示该专家已成为专家团或已派出成员。截图只见模型分析请求，未见 `spawn_teammate` 或成员执行回执，不能据此认定多智能体协作成功。插件页“智能体团队”开关关闭也不能单独判断 WorkDSH 专家能力不可用，因为 WorkDSH 专家插件的 patch 自行装配官方 `agent-team`、`tool-agent-team` 与 UI 模块。
+
+但当前 18989 预览 Profile 有实际配置冲突：除 `workdsh-plugin-experts` 外，`dsh.profile.bundles` 还包含 `@deepseek-ai/dsh-experimental-agent-team-profile`；`--dump-config` 显示两份同名 `agent-team` 和 `tool-agent-team` 条目，参数分别为 16 与 8 名成员。这会使开关状态与运行模块来源不一致，并存在重启加载冲突风险。预览安装和启动脚本已增加去重，下一次启动会保留 WorkDSH 专家装配、移除冗余的独立 Profile；当前预览有运行中的用户会话，本轮未重启或中断会话。专家 typecheck 与 23 项管理/原生预设测试通过。旧 `probe:experts:team` 因已不存在的 `dsh-agent-presets` 包而未运行；Web 探针现已更新并通过，详见本日隔离验收条目。
+## 2026-09-24：官方专家团隔离验收
+
+将旧 `probe-native-team-web` 的 0.1.6 安装依赖与已停用活动条断言对齐当前 0.1.7：固定 Base/Web 版本，使用官方只读 Team 面板与 Host 权威任务状态验证。隔离 Profile 的生产专家包、官方团队服务及 Web 客户端完成 15 项确定性检查：成员创建、角色与技能隔离、面板任务显示、成员会话跳转、冷重启、运行中浏览器重连、中断恢复、成员交接、失败后恢复均通过。随后再以 DeepSeek `deepseek-flash` 执行真实模型测试，主专家调用 `team_task_create`、`send_message`、`wait_agent` 等团队工具；analyst 与 reviewer 两名成员分别完成 REAL-ANALYZE、REAL-REVIEW 任务，成员 ID 保持稳定，全程无浏览器 pageerror，共 16 项检查通过。结果见 `.artifacts/dsh-0.1.6-upgrade/native-team-web/result.json`。预览 Profile 去重函数另有 2 项测试通过。尚未在用户 18989 预览运行团队任务，也未验证 fork 成员浏览器历史；正在运行的预览尚未重启，去重将在下次启动应用。
+### 2026-09-24：预览重新编译与安装
+
+用户要求重新编译发布。Node 22.23.2 下完整 `pnpm build`、`pnpm typecheck` 通过；预览 Team 去重测试 2/2、资料库插件测试 5/5 通过，`git diff --check` 通过。通过官方 Profile 安装流程重新打包并安装各 WorkDSH 插件，18989 预览重启后返回预期的登录状态 401；Profile 仅保留 `workdsh-plugin-experts` 作为 Team 装配来源。当前完成的是本机预览部署；GitHub/npm 对外发布尚未执行，`gh` 未登录且远端读取未返回，不能宣称公共发布完成。

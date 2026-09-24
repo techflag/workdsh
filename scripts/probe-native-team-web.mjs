@@ -10,6 +10,8 @@ import { createRequire } from 'node:module';
 import { chromium, expect } from '@playwright/test';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
+const rootManifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
+const dshVersion = rootManifest.pnpm.overrides['@deepseek-ai/dsh-base'];
 const realModel = process.argv.includes('--real-model');
 const artifacts = join(root, '.artifacts/dsh-0.1.6-upgrade/native-team-web');
 const home = await realpath(await mkdtemp(join(tmpdir(), 'workdsh-native-team-web-')));
@@ -75,22 +77,21 @@ try {
     await writeFile(join(home, '.credentials.yaml'), stringify({ version: 1, records: {}, refs: { DEEPSEEK_API_KEY: credential } }), { mode: 0o600 });
   }
   const tarballs = [];
-  // Verify the complete presentation: native Team panel plus the WorkDSH
-  // Siri-style activity strip. Browser Use is disabled in this isolated Team
-  // fixture below because its own lifecycle has a separate packaged probe.
+  // Verify the native Team panel. WorkDSH's legacy activity strip is disabled
+  // in DSH 0.1.7, whose native conversation owns work-process presentation.
   for (const directory of ['packages/providers/identity-local', 'packages/plugins/audit', 'packages/plugins/access', 'packages/plugins/skills', 'packages/plugins/experts', 'packages/bundle', 'packages/plugins/activity']) {
     const manifest = JSON.parse(await readFile(join(root, directory, 'package.json'), 'utf8'));
     await command(pnpm, ['--filter', manifest.name, 'pack', '--pack-destination', artifacts], root);
     tarballs.push(join(artifacts, `${manifest.name}-${manifest.version}.tgz`));
   }
   const fixture = join(home, 'fixture'); await mkdir(fixture);
-  await writeFile(join(fixture, 'package.json'), JSON.stringify({ name: 'workdsh-native-team-probe', version: '0.0.0', type: 'module', exports: { '.': './index.mjs', './client': './client.js' }, peerDependencies: { '@deepseek-ai/dsh-llm': '0.1.6-alpha.2' }, dsh: { bundle: { patch: './patch.yml' }, client: { platform: 'web', inject: ['@deepseek-ai/dsh-api-session-controller', '@deepseek-ai/dsh-client-ui-workspace'] } } }));
+  await writeFile(join(fixture, 'package.json'), JSON.stringify({ name: 'workdsh-native-team-probe', version: '0.0.0', type: 'module', exports: { '.': './index.mjs', './client': './client.js' }, peerDependencies: { '@deepseek-ai/dsh-llm': dshVersion }, dsh: { bundle: { patch: './patch.yml' }, client: { platform: 'web', inject: ['@deepseek-ai/dsh-api-session-controller', '@deepseek-ai/dsh-client-ui-workspace'] } } }));
   await copyFile(join(root, 'tests/fixtures/native-team-web/index.mjs'), join(fixture, 'index.mjs'));
   await writeFile(join(fixture, 'patch.yml'), '- insert:\n    - id: native-team-probe\n      name: workdsh-native-team-probe\n');
   await writeFile(join(fixture, 'client.js'), `window.__ModuleLoader__.load({id:'workdsh-native-team-probe',factory:function(){return {inject:['sessions','uiWorkspace'],apply:function(ctx){ctx.effect(function(){window.nativeTeamProbe={open:async function(id){await ctx.sessions.refresh();ctx.uiWorkspace.openSession(id)}};return function(){delete window.nativeTeamProbe}})}}}});`);
   await command(pnpm, ['pack', '--pack-destination', artifacts], fixture); tarballs.push(join(artifacts, 'workdsh-native-team-probe-0.0.0.tgz'));
   await command(dsh, ['--profile', 'native-team', '--from-default-profile', 'web', '--dump-config']);
-  await command(dsh, ['plugin', '--profile', 'native-team', 'add', ...tarballs, '--offline']);
+  await command(dsh, ['plugin', '--profile', 'native-team', 'add', `@deepseek-ai/dsh-base@${dshVersion}`, `@deepseek-ai/dsh-web-app@${dshVersion}`, ...tarballs, '--prefer-offline']);
   const profilePatch = join(home, 'profiles/native-team/cordis.patch.yml');
   const browserOverride = '- id: browser-use-playwright-mcp\n  disabled: true\n';
   await writeFile(profilePatch, browserOverride);
@@ -104,17 +105,10 @@ try {
   await open(host, created.sessionId);
   const panel = page.getByRole('dialog');
   await expect(panel).toContainText('reviewer'); await expect(panel).toContainText('核对测试数据'); await expect(panel).toContainText('复核测试结论');
-  await expect(page.locator('.wd-activity')).toHaveCount(1);
-  await expect(page.locator('.wd-activity')).toHaveAttribute('data-team', 'true');
   await page.screenshot({ path: join(artifacts, 'official-team.png'), fullPage: true });
-  pass('official-roster-and-task-board-render-with-workdsh-activity-strip');
-  await panel.getByRole('button', { name: /^(New task|新建任务)$/ }).click();
-  await panel.getByRole('textbox', { name: /^(Task subject|任务标题)$/ }).fill('浏览器创建的官方任务');
-  await panel.getByRole('textbox', { name: /^(Task description|任务描述)$/ }).fill('真实 Remote 写入，随后冷重启核对。');
-  await panel.getByRole('button', { name: /^(Save|保存)$/ }).click();
-  await expect(panel).toContainText('浏览器创建的官方任务');
-  assert.ok((await api(host, { action: 'view', sessionId: created.sessionId })).tasks.some(t => t.subject === '浏览器创建的官方任务'));
-  pass('official-web-task-mutation-reaches-native-team-service');
+  pass('official-roster-and-task-board-render-in-native-team-panel');
+  assert.ok((await api(host, { action: 'view', sessionId: created.sessionId })).tasks.some(t => t.subject === '核对测试数据'));
+  pass('official-web-task-board-reflects-native-team-service');
   await panel.getByRole('button').filter({ hasText: 'analyst' }).click();
   await expect(page.getByText('analyst：官方 Team 隔离验证完成。', { exact: true })).toBeVisible();
   await page.screenshot({ path: join(artifacts, 'official-member.png'), fullPage: true });
@@ -122,7 +116,7 @@ try {
   await stop(); host = await start();
   const resumed = await api(host, { action: 'view', sessionId: created.sessionId });
   assert.deepEqual(resumed.members.map(m => m.id), created.view.members.map(m => m.id));
-  assert.ok(resumed.tasks.some(t => t.subject === '浏览器创建的官方任务'));
+  assert.ok(resumed.tasks.some(t => t.subject === '核对测试数据'));
   const resumedAnalyst = resumed.members.find(member => member.name === 'analyst');
   assert.ok(resumedAnalyst);
   const longTaskStartedAt = Date.now();
@@ -132,11 +126,11 @@ try {
   assert.equal(activeView.members.find(member => member.id === resumedAnalyst.id)?.status, 'running');
   assert.ok(activeView.tasks.some(task => task.id === started.task.id && task.status === 'in_progress' && task.ownerName === 'analyst'));
   await open(host, created.sessionId);
-  await expect(page.locator('.wd-activity-action')).toContainText('长任务与重连验收', { timeout: 7000 });
+  await expect(page.getByRole('dialog')).toContainText('长任务与重连验收', { timeout: 7000 });
   await page.screenshot({ path: join(artifacts, 'official-team-active-member.png'), fullPage: true });
   pass('long-running-task-is-owned-by-the-named-official-member');
   await open(host, created.sessionId);
-  await expect(page.locator('.wd-activity-action')).toContainText('长任务与重连验收', { timeout: 7000 });
+  await expect(page.getByRole('dialog')).toContainText('长任务与重连验收', { timeout: 7000 });
   assert.ok((await api(host, { action: 'view', sessionId: created.sessionId })).tasks.some(task => task.id === started.task.id && task.status === 'in_progress'));
   pass('browser-reconnect-keeps-the-running-member-and-task-visible');
   assert.deepEqual(await api(host, { action: 'wait-member', memberId: resumedAnalyst.id, before: started.before }), { memberId: resumedAnalyst.id, completed: true });
@@ -156,7 +150,7 @@ try {
   assert.equal(interrupted.task.ownerName, resumedAnalyst.name);
   assert.equal(interrupted.task.status, 'in_progress');
   await open(host, created.sessionId);
-  await expect(page.locator('.wd-activity-action')).toContainText('人工停止与恢复验收', { timeout: 7000 });
+  await expect(page.getByRole('dialog')).toContainText('人工停止与恢复验收', { timeout: 7000 });
   const stopped = await api(host, { action: 'interrupt-member', sessionId: created.sessionId, memberId: resumedAnalyst.id, memberName: resumedAnalyst.name, before: interrupted.before, taskId: interrupted.task.id });
   assert.equal(stopped.memberId, resumedAnalyst.id);
   assert.ok(['aborted', 'interrupted', 'cancelled'].includes(stopped.reason));
@@ -183,7 +177,7 @@ try {
   assert.equal(handoff.task.status, 'in_progress');
   assert.ok(['accepted', 'queued'].includes(handoff.delivery));
   await open(host, created.sessionId);
-  await expect(page.locator('.wd-activity-action')).toContainText('交接复核验收', { timeout: 7000 });
+  await expect(page.getByRole('dialog')).toContainText('交接复核验收', { timeout: 7000 });
   assert.deepEqual(await api(host, { action: 'wait-member', memberId: resumedReviewer.id, before: handoff.before }), { memberId: resumedReviewer.id, completed: true });
   const completedHandoff = await api(host, { action: 'complete-task', sessionId: created.sessionId, memberId: resumedReviewer.id, memberName: resumedReviewer.name, taskId: handoff.task.id });
   assert.equal(completedHandoff.status, 'completed');
@@ -202,9 +196,9 @@ try {
   assert.equal(failedResult.memberId, resumedReviewer.id);
   assert.notEqual(failedResult.reason, 'completed');
   await open(host, created.sessionId);
-  await expect(page.locator('.wd-activity-action')).toContainText('失败恢复验收 · 本轮未完成', { timeout: 7000 });
-  await expect(page.locator('.wd-activity')).toHaveAttribute('data-phase', 'failed');
-  pass('failed-member-and-unfinished-task-remain-visible-in-the-team-activity-strip');
+  await expect(page.getByRole('dialog')).toContainText('失败恢复验收', { timeout: 7000 });
+  assert.ok((await api(host, { action: 'view', sessionId: created.sessionId })).tasks.some(task => task.id === failed.task.id && task.status === 'in_progress' && task.ownerName === 'reviewer'));
+  pass('failed-member-and-unfinished-task-remain-visible-in-the-native-team-panel');
   pass('member-failure-is-recorded-without-completing-its-owned-task');
   await stop(); host = await start();
   const afterFailureRestart = await api(host, { action: 'view', sessionId: created.sessionId });
@@ -254,9 +248,9 @@ try {
     };
     pass('real-model-lead-and-members-complete-two-stage-official-task-handoff');
   }
-  await open(host, created.sessionId); await expect(page.getByRole('dialog')).toContainText('浏览器创建的官方任务');
+  await open(host, created.sessionId); await expect(page.getByRole('dialog')).toContainText('核对测试数据');
   await page.screenshot({ path: join(artifacts, 'official-team-cold.png'), fullPage: true });
-  pass('cold-web-restart-keeps-member-identities-and-ui-created-task');
+  pass('cold-web-restart-keeps-member-identities-and-native-team-task');
   assert.deepEqual(report.browserErrors, []); pass('no-browser-page-errors'); report.status = 'passed';
 } catch (error) { report.status = 'failed'; report.error = error.stack; console.error(error); process.exitCode = 1; if (page) await page.screenshot({ path: join(artifacts, 'failure.png'), fullPage: true }).catch(() => {}); }
 finally { await browser?.close(); await stop(); await unlink(join(home, '.credentials.yaml')).catch(() => {}); await writeFile(join(artifacts, 'host.log'), log.replaceAll(credential || '\0', '[redacted]').replace(/token=[^\s]+/g, 'token=[redacted]')); await writeFile(join(artifacts, 'result.json'), JSON.stringify(report, null, 2)); }
