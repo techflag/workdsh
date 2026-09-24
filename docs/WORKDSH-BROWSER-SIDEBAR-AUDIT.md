@@ -24,7 +24,7 @@ WorkDSH 自有 Electron 壳原先没有官方 Desktop Browser 所需的 preload�
 
 ## 达成用户期望还需验证
 
-1. 找到或设计符合官方扩展契约的 Session 浏览器页面共享方式，不能直接改上游或建立第二套 Agent loop。若采用 CDP attach，须先证明安全边界、会话独占、动态端点、登录态隔离和 Electron guest 可被目标 MCP 可靠控制。
+1. 官方公开的 `@deepseek-ai/dsh-experimental-browser-use-runtime` 可供自有 Browser provider 构造 `SessionResources`，复用官方的 live Agent 所有权、串行操作和清理；`browser-use` 服务仍只注册提供方名称。这是可继续验证的扩展点，但不自动提供 Electron guest 操作接口或侧栏事件。不能直接改上游或建立第二套 Agent loop。若采用 CDP attach，须先证明安全边界、会话独占、动态端点、登录态隔离和 Electron guest 可被目标 MCP 可靠控制。
 2. 在打包后的 Windows、macOS 上创建真实会话，让 Agent 在侧栏可见页面中导航、点击，并核对侧栏状态与 Agent 工具结果是同一页面。
 3. 验证会话切换、关闭侧栏、重启、失败恢复、外部链接和拒绝站点时的行为。
 
