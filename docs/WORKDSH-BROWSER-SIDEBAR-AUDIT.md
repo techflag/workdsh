@@ -18,6 +18,8 @@ WorkDSH 自有 Electron 壳原先没有官方 Desktop Browser 所需的 preload�
 
 该改动只让右栏 Browser 可以使用原生 webview；**没有**把 Playwright MCP 的 Agent 浏览器接到同一页面。未做安装包 UI 实测，不能宣称用户期望已完成。主进程仍会将应用自身的新窗口 HTTP(S) 请求交给系统浏览器。
 
+**发布阻断：**官方其他 Client 插件以 `dshDesktop` 是否存在来切换整个 Desktop 体验，而不只检查 `browser` 子接口。例如 `ui-settings-models` 会关闭 Web 凭据引导，`ui-settings-account` 会启用 Desktop onboarding。当前 WorkDSH 壳只暴露了 Browser lease，缺少完整官方 Desktop 契约；直接合并会有账号/设置回归风险。正式方案需采用官方完整 Desktop 宿主或经公开接口提供完整兼容桥，且做设置、账号、快捷键与浏览器回归。此分支应保持实验状态，不进入现有安装包发布线。
+
 ## 达成用户期望还需验证
 
 1. 找到或设计符合官方扩展契约的 Session 浏览器页面共享方式，不能直接改上游或建立第二套 Agent loop。若采用 CDP attach，须先证明安全边界、会话独占、动态端点、登录态隔离和 Electron guest 可被目标 MCP 可靠控制。
