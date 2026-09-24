@@ -1,6 +1,6 @@
 {
   "name": "workdsh-plugin-experts",
-  "version": "0.1.0-alpha.8",
+  "version": "0.1.0-alpha.9",
   "private": false,
   "type": "module",
   "description": "Local expert management plugin for DeepSeek Harness (D04 / P1-02, expert module 0.1)",

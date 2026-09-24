@@ -1,3 +1,7 @@
+## 0.1.0-alpha.49 — 2026-09-25
+
+- 将 11 个 WorkDSH 运行包与官方 DSH 0.1.7-rc.2 组合，并启用官方侧栏 Browser。
+
 ## 0.1.0-alpha.48 — Unreleased（2026-09-22）
 
 - 适配 DeepSeek Harness 0.1.7-alpha.1、Cordis 4.0.3，更新精确依赖。

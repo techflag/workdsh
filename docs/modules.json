@@ -77,7 +77,7 @@
       "src/client/components",
       "src/harness",
       "tests",
-      "resources/skills/expert-manager",
+      "resources/skills/workdsh-expert-manager",
       "resources/templates",
       "src/services/preferences"
     ],

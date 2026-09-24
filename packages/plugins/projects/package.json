@@ -1,6 +1,6 @@
 {
   "name": "workdsh-plugin-projects",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "private": false,
   "type": "module",
   "description": "Project workspace, planning, configuration and asset references for WorkDSH",

@@ -1,3 +1,7 @@
+## 0.1.0-alpha.9 — 2026-09-25
+
+- 将 Office 插件按官方 DSH 0.1.7-rc.2 的公开接口重新打包。
+
 ## 0.1.0-alpha.8 — Unreleased（2026-09-22）
 
 - 适配 DeepSeek Harness 0.1.7-alpha.1、Cordis 4.0.3，更新精确依赖。 CSV/TSV 交由原生预览，Office 编辑作为可选渲染器保留。

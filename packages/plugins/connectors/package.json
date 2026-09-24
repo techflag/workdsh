@@ -1,6 +1,6 @@
 {
   "name": "workdsh-plugin-connectors",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "private": false,
   "type": "module",
   "description": "MCP connector management and a verified local example for WorkDSH",

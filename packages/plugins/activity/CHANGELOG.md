@@ -1,3 +1,7 @@
+## 0.1.0-alpha.6 — 2026-09-25
+
+- 将活动插件按官方 DSH 0.1.7-rc.2 的公开接口重新打包。
+
 ## 0.1.0-alpha.5 — Unreleased（2026-09-22）
 
 - 适配 DeepSeek Harness 0.1.7-alpha.1、Cordis 4.0.3，更新精确依赖。 默认停用重复工作过程界面，交由原生 Conversation/Team 展示；保留轻量身份兼容服务。

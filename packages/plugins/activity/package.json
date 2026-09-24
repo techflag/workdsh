@@ -1,6 +1,6 @@
 {
   "name": "workdsh-plugin-activity",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0-alpha.6",
   "type": "module",
   "private": false,
   "description": "Compact animated activity presentation for standard DSH sessions",

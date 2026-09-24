@@ -5,9 +5,9 @@
 
 WorkDSH is an open-source AI workspace built on the official DeepSeek Harness. Organize conversations, material and capabilities in projects, reuse your local Library, and review editable deliverables alongside the task.
 
-**Desktop v2.0.5-alpha.12 · Web/plugins v0.1.0-alpha.9 · Alpha preview**
+**Desktop v2.0.5-alpha.12 · Web/plugins v0.1.0-alpha.10 · Alpha preview**
 
-[Desktop downloads](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.12) · [Web/plugin download](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.9) · [Release notes](docs/releases/v0.1.0-alpha.9.md) · [Quick start](#quick-start) · [Website](https://techflag.github.io/workdsh/) · [Gitee mirror](https://gitee.com/techflag/workdsh)
+[Desktop downloads](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.12) · [Web/plugin download](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.10) · [Release notes](docs/releases/v0.1.0-alpha.10.md) · [Quick start](#quick-start) · [Website](https://techflag.github.io/workdsh/) · [Gitee mirror](https://gitee.com/techflag/workdsh)
 
 ## Download WorkDSH Desktop
 
@@ -32,7 +32,7 @@ These Alpha installers bundle WorkDSH v0.1.0-alpha.9. macOS DMGs are unsigned pr
 | Office deliverables | Preview and edit supported document, presentation, spreadsheet, HTML and PDF working copies. Format fidelity varies. |
 | Activity | Inspect native task and child-agent activity; an expert-team label alone does not mean multiple agents are executing. |
 
-The alpha.9 bundle includes **11 installable modules**, including Projects and Library. It refreshes the project home, navigation, theme-aware menus and conversation capability selection, adapts expert presets to Harness 0.1.7, and refines Library menus and recent files. Native attachment, input and send behavior remain owned by Harness.
+The alpha.10 bundle includes **11 installable modules**, including Projects and Library, rebuilt against the published Harness 0.1.7-rc.2 APIs. Native attachment, input and send behavior remain owned by Harness. The Desktop alpha.12 installers above still contain the earlier Web alpha.9 packages; use the Web/plugin release below for the rc.2-aligned modules until new Desktop installers are published.
 
 ## Screenshots
 
@@ -75,7 +75,7 @@ Earlier local preview showing the artifact workflow; it is not an alpha.8 accept
 
 Requirements: Node.js `^22.19.0 || >=24.0.0`, Corepack/pnpm and the official `dsh` CLI **0.1.7-rc.2**.
 
-1. Download all 11 `.tgz` packages, `release-manifest.json`, `SHA256SUMS` and `install-workdsh.mjs` from the [alpha.9 release](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.9) into one directory.
+1. Download all 11 `.tgz` packages, `release-manifest.json`, `SHA256SUMS` and `install-workdsh.mjs` from the [alpha.10 release](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.10) into one directory.
 2. For an upgrade, stop the target Profile and keep a recoverable backup of its configuration and data.
 3. Run from the download directory:
 
