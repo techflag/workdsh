@@ -37,7 +37,7 @@ if (channel !== 'stable' && channel !== 'beta') fail(`unknown release channel ${
 const upstream = upstreamDocument.channels?.[channel]
 if (upstream === undefined || typeof upstream !== 'object') fail(`missing upstream metadata for ${channel}`)
 const otherChannel = channel === 'stable' ? 'beta' : 'stable'
-const otherVersion = upstreamDocument.channels?.[otherChannel]?.sourceVersion
+const otherVersion = upstreamDocument.channels?.[otherChannel]?.runtimePackageVersion
 if (typeof otherVersion !== 'string' || !/^[0-9A-Za-z][0-9A-Za-z.-]*$/u.test(otherVersion)) {
   fail(`unsafe ${otherChannel} source version ${JSON.stringify(otherVersion)}`)
 }
@@ -45,7 +45,7 @@ const pluginPaths = [
   join(root, upstream.package, 'package.json'),
   ...(channel === 'beta' ? [join(root, 'dsh-community-market', 'package.json')] : []),
 ]
-const version = upstream.sourceVersion
+const version = upstream.runtimePackageVersion
 if (typeof version !== 'string' || !/^[0-9A-Za-z][0-9A-Za-z.-]*$/u.test(version)) {
   fail(`unsafe source version ${JSON.stringify(version)}`)
 }
@@ -117,7 +117,7 @@ function writeVendor() {
   const manifest = {
     formatVersion: 1,
     repository: upstreamDocument.repository,
-    commit: upstream.commit,
+    commit: upstream.runtimeCommit ?? upstream.commit,
     version,
     buildProfile: 'official',
     packages,
@@ -155,11 +155,11 @@ function checkVendor() {
   const manifest = readJson(manifestPath)
   if (manifest.formatVersion !== 1) fail('unsupported vendored runtime manifest format')
   for (const field of ['repository', 'commit']) {
-    const expected = field === 'repository' ? upstreamDocument.repository : upstream[field]
+    const expected = field === 'repository' ? upstreamDocument.repository : (upstream.runtimeCommit ?? upstream.commit)
     if (manifest[field] !== expected) fail(`manifest ${field} differs from upstream.json ${channel} channel`)
   }
-  if (manifest.version !== version || upstream.runtimePackageVersion !== version) {
-    fail('source, runtime, and manifest versions must match')
+  if (manifest.version !== version) {
+    fail('runtime and manifest versions must match')
   }
   if (manifest.buildProfile !== 'official') fail('vendored runtime must use the official client build profile')
   if (upstream.runtimeSource !== `${vendorRelative}/manifest.json`) {

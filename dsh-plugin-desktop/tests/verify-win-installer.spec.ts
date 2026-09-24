@@ -28,6 +28,12 @@ function fixture(version = '2.0.0'): {
   const application = join(unpacked, 'WorkDSH.exe')
   writeFileSync(installer, portableExecutable())
   writeFileSync(application, portableExecutable())
+  const runtime = join(unpacked, 'resources', 'workdsh-runtime', 'primary-runtime')
+  mkdirSync(join(runtime, 'dependencies', 'python'), { recursive: true })
+  mkdirSync(join(runtime, 'dependencies', 'node', 'bin'), { recursive: true })
+  writeFileSync(join(runtime, 'runtime.json'), JSON.stringify({ desktopVersion: '0.1.7-rc.2', platform: 'win32', arch: 'x64', python: '3.12.14', node: '24.21.0' }))
+  writeFileSync(join(runtime, 'dependencies', 'python', 'python.exe'), portableExecutable())
+  writeFileSync(join(runtime, 'dependencies', 'node', 'bin', 'node.exe'), portableExecutable())
   return { root, installer, application }
 }
 
@@ -70,5 +76,13 @@ describe('Windows installer artifact verification', () => {
 
     expect(() => verifyWindowsInstaller({ desktopRoot: value.root, version: '2.0.0' }))
       .toThrow('does not have a Windows PE signature')
+  })
+
+  it('rejects a missing bundled Python executable', () => {
+    const value = fixture()
+    rmSync(join(value.root, 'dist', 'win-unpacked', 'resources', 'workdsh-runtime', 'primary-runtime', 'dependencies', 'python', 'python.exe'))
+
+    expect(() => verifyWindowsInstaller({ desktopRoot: value.root, version: '2.0.0' }))
+      .toThrow('python.exe')
   })
 })

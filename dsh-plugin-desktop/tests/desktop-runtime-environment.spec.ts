@@ -7,6 +7,7 @@ import {
   mkdtempSync,
   readFileSync,
   readdirSync,
+  realpathSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -155,10 +156,9 @@ describe('desktop Host pnpm runtime', () => {
 
     expect(result.error).toBeUndefined()
     expect(result.status).toBe(0)
-    expect(JSON.parse(result.stdout)).toEqual({
-      execPath: installation.nodeShimPath,
-      runAsNode: [],
-    })
+    const payload = JSON.parse(result.stdout) as { execPath: string; runAsNode: string[] }
+    expect(realpathSync(payload.execPath)).toBe(realpathSync(installation.nodeShimPath))
+    expect(payload.runAsNode).toEqual([])
     installation.dispose()
   })
 

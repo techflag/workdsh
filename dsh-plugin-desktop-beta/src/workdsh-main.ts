@@ -17,7 +17,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const PROFILE_NAME = 'workdsh'
-const RUNTIME_VERSION = '0.1.0-alpha.8'
+const RUNTIME_VERSION = '0.1.0-alpha.9+dsh-0.1.7-rc.2'
 const READY_PATTERN = /dsh web:\s+(http:\/\/127\.0\.0\.1:\d+\/?\?token=[^\s]+)/u
 
 let runtime: ChildProcess | undefined
@@ -45,6 +45,10 @@ function bundledNodeExecutable(): string {
     'node',
     process.platform === 'win32' ? 'node.exe' : 'node',
   )
+}
+
+function bundledPrimaryRuntime(): string {
+  return join(process.resourcesPath, 'workdsh-runtime', 'primary-runtime')
 }
 
 function materializeRuntimeProfile(home: string): string {
@@ -126,6 +130,7 @@ function startRuntime(home: string, profileDir: string): void {
     env: {
       ...process.env,
       DSH_HOME: home,
+      DSH_BUNDLED_PRIMARY_RUNTIME: bundledPrimaryRuntime(),
       ELECTRON_RUN_AS_NODE: undefined,
     },
     stdio: ['ignore', 'pipe', 'pipe'],

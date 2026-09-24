@@ -35,6 +35,15 @@ function fixture(): AppFixture {
   chmodSync(executable, 0o755)
   modeOverrides.set(executable, 0o755)
   writeFileSync(appAsar, 'packed')
+  const runtime = join(resources, 'workdsh-runtime', 'primary-runtime')
+  mkdirSync(join(runtime, 'dependencies', 'python', 'bin'), { recursive: true })
+  mkdirSync(join(runtime, 'dependencies', 'node', 'bin'), { recursive: true })
+  writeFileSync(join(runtime, 'runtime.json'), JSON.stringify({ desktopVersion: '0.1.7-rc.2', platform: 'darwin', arch: 'arm64', python: '3.12.14', node: '24.21.0' }))
+  for (const path of [join(runtime, 'dependencies', 'python', 'bin', 'python3'), join(runtime, 'dependencies', 'node', 'bin', 'node')]) {
+    writeFileSync(path, 'binary')
+    chmodSync(path, 0o755)
+    modeOverrides.set(path, 0o755)
+  }
   for (const entry of MACOS_UNIVERSAL_NATIVE_ENTRIES) {
     const path = join(`${appAsar}.unpacked`, entry.path)
     mkdirSync(join(path, '..'), { recursive: true })
@@ -119,6 +128,10 @@ describe('macOS DMG smoke artifact verification', () => {
         command: 'lipo',
         args: [value.executable, '-verify_arch', 'arm64'],
       },
+      ...['python/bin/python3', 'node/bin/node'].map(entry => ({
+        command: 'lipo',
+        args: [join(value.root, 'WorkDSH.app', 'Contents', 'Resources', 'workdsh-runtime', 'primary-runtime', 'dependencies', entry), '-verify_arch', 'arm64'],
+      })),
       ...MACOS_UNIVERSAL_NATIVE_ENTRIES.filter(entry => entry.arch === 'arm64').map(entry => ({
         command: 'lipo',
         args: [join(`${value.appAsar}.unpacked`, entry.path), '-verify_arch', entry.arch],
@@ -130,6 +143,7 @@ describe('macOS DMG smoke artifact verification', () => {
 
   it('checks only the Intel executable and native modules for an x64 DMG', () => {
     const value = fixture()
+    writeFileSync(join(value.root, 'WorkDSH.app', 'Contents', 'Resources', 'workdsh-runtime', 'primary-runtime', 'runtime.json'), JSON.stringify({ desktopVersion: '0.1.7-rc.2', platform: 'darwin', arch: 'x64', python: '3.12.14', node: '24.21.0' }))
     const harness = options({ targetArch: 'x64', makeMountPoint: () => value.root }, value.modeOverrides)
     verifyMacSmoke(harness.value)
     const lipoCalls = harness.calls.filter(call => call.command === 'lipo')
@@ -187,5 +201,13 @@ describe('macOS DMG smoke artifact verification', () => {
 
     expectSmokeFailure(harness, 'app.asar')
     expect(harness.removeMountPoint).toHaveBeenCalledWith(value.root)
+  })
+
+  it('rejects a missing bundled Node binary', () => {
+    const value = fixture()
+    rmSync(join(value.root, 'WorkDSH.app', 'Contents', 'Resources', 'workdsh-runtime', 'primary-runtime', 'dependencies', 'node', 'bin', 'node'))
+    const harness = options({ makeMountPoint: () => value.root }, value.modeOverrides)
+
+    expectSmokeFailure(harness, 'missing bundled Node')
   })
 })

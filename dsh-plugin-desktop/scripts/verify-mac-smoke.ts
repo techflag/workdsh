@@ -1,7 +1,7 @@
 /** Verify the unsigned application structure sealed inside one macOS smoke DMG. */
 
 import { spawnSync } from 'node:child_process'
-import { existsSync, mkdtempSync, readdirSync, rmdirSync, statSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmdirSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -130,6 +130,30 @@ export function verifyMacSmoke(
     const appAsarStat = options.stat(appAsarPath)
     if (!appAsarStat.isFile || appAsarStat.size === 0) {
       throw new Error(`packaged application archive is empty: ${appAsarPath}`)
+    }
+
+    const runtimeRoot = join(appPath, 'Contents', 'Resources', 'workdsh-runtime', 'primary-runtime')
+    const runtime = JSON.parse(readFileSync(join(runtimeRoot, 'runtime.json'), 'utf8')) as {
+      desktopVersion?: unknown
+      platform?: unknown
+      arch?: unknown
+      python?: unknown
+      node?: unknown
+    }
+    if (runtime.desktopVersion !== '0.1.7-rc.2' || runtime.platform !== 'darwin'
+      || runtime.arch !== options.targetArch || runtime.python !== '3.12.14' || runtime.node !== '24.21.0') {
+      throw new Error(`macOS DMG has mismatched bundled primary runtime: ${JSON.stringify(runtime)}`)
+    }
+    for (const [label, path] of [
+      ['Python', join(runtimeRoot, 'dependencies', 'python', 'bin', 'python3')],
+      ['Node', join(runtimeRoot, 'dependencies', 'node', 'bin', 'node')],
+    ] as const) {
+      if (!options.exists(path)) throw new Error(`macOS application is missing bundled ${label}: ${path}`)
+      const binary = options.stat(path)
+      if (!binary.isFile || binary.size === 0 || (binary.mode & 0o111) === 0) {
+        throw new Error(`macOS application has invalid bundled ${label}: ${path}`)
+      }
+      options.run('lipo', [path, '-verify_arch', binaryArch])
     }
 
     const unpackedRoot = `${appAsarPath}.unpacked`

@@ -1,7 +1,7 @@
 /** Build an unsigned macOS DMG smoke artifact on a native macOS host. */
 
 import { spawnSync } from 'node:child_process'
-import { rmSync } from 'node:fs'
+import { existsSync, rmSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -32,6 +32,8 @@ export interface MacSmokePackageOptions {
   readonly prepareRuntime: () => void
   /** Absolute electron-builder CLI module. */
   readonly builderCli: string
+  /** Local Electron distribution when already installed, avoiding another download. */
+  readonly electronDist?: string
   /** Absolute packaged-DMG verification script. */
   readonly verifier: string
   /** Node executable used to run package-local scripts. */
@@ -65,6 +67,7 @@ function defaultOptions(): MacSmokePackageOptions {
   const workspaceRoot = resolve(desktopRoot, '..')
   const require = createRequire(import.meta.url)
   const outputDir = resolve(desktopRoot, 'dist', 'mac-smoke', process.env.WORKDSH_MAC_ARCH ?? process.arch)
+  const electronDist = resolve(dirname(require.resolve('electron/package.json')), 'dist')
   return {
     env: process.env,
     platform: process.platform,
@@ -80,6 +83,7 @@ function defaultOptions(): MacSmokePackageOptions {
       prepareInstalledMacUniversalRuntime(desktopRoot)
     },
     builderCli: require.resolve('electron-builder/cli.js'),
+    ...(existsSync(resolve(electronDist, 'Electron.app')) ? { electronDist } : {}),
     verifier: fileURLToPath(new URL('./verify-mac-smoke.ts', import.meta.url)),
     nodeExecutable: process.execPath,
     run,
@@ -141,6 +145,7 @@ export function packageMacSmoke(options: MacSmokePackageOptions = defaultOptions
       '--config.mac.notarize=false',
       '--config.npmRebuild=false',
       `--config.directories.output=${options.outputDir}`,
+      ...(options.electronDist === undefined ? [] : [`--config.electronDist=${options.electronDist}`]),
     ],
     options.desktopRoot,
     electronBuilderEnvironment({
