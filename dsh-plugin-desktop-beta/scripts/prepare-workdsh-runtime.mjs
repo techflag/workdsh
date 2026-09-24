@@ -5,7 +5,7 @@ import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFi
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const WORKDSH_VERSION = '0.1.0-alpha.10'
+const WORKDSH_VERSION = '0.1.0-alpha.11'
 const DSH_VERSION = '0.1.7-rc.2'
 const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const output = join(desktopRoot, 'build', 'workdsh-runtime')
@@ -173,6 +173,12 @@ const releasePackages = [
 const isPreparedProfile = candidate => {
   if (installedDshVersion(candidate) !== DSH_VERSION) return false
   if (!releasePackages.every(name => existsSync(join(candidate, 'node_modules', name, 'package.json')))) return false
+  try {
+    const bundle = JSON.parse(readFileSync(join(candidate, 'node_modules', 'workdsh-bundle', 'package.json'), 'utf8'))
+    if (bundle.version !== '0.1.0-alpha.50') return false
+  } catch {
+    return false
+  }
   try {
     const profile = JSON.parse(readFileSync(join(candidate, 'package.json'), 'utf8'))
     return profile.dsh?.profile?.bundles?.includes('workdsh-bundle') === true
