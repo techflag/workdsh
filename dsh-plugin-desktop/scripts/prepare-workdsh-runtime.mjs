@@ -6,7 +6,7 @@ import { delimiter, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const WORKDSH_VERSION = '0.1.0-alpha.9'
-const DSH_VERSION = '0.1.7-rc.1'
+const DSH_VERSION = '0.1.7-rc.2'
 const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const output = join(desktopRoot, 'build', 'workdsh-runtime')
 const destination = join(output, 'profiles', 'workdsh')
@@ -125,7 +125,14 @@ const candidates = [
   process.env.WORKDSH_DSH_HOME && join(process.env.WORKDSH_DSH_HOME, 'profiles', 'workdsh'),
   '/tmp/workdsh-desktop-profile.IbF6US/profiles/workdsh',
 ].filter(Boolean)
-const source = candidates.find(candidate => existsSync(join(candidate, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')))
+const installedDshVersion = candidate => {
+  try {
+    return JSON.parse(readFileSync(join(candidate, 'node_modules', '@deepseek-ai', 'dsh', 'package.json'), 'utf8')).version
+  } catch {
+    return undefined
+  }
+}
+const source = candidates.find(candidate => installedDshVersion(candidate) === DSH_VERSION)
 
 if (source) {
   rmSync(output, { recursive: true, force: true })
@@ -134,7 +141,8 @@ if (source) {
   // Clone into a real directory; APFS copy-on-write keeps local preparation fast.
   if (process.platform === 'darwin') run('/bin/cp', ['-cR', resolve(source), destination])
   else cpSync(resolve(source), destination, { recursive: true, dereference: true })
-} else if (!existsSync(cli)) {
+} else if (installedDshVersion(destination) !== DSH_VERSION || !existsSync(cli)) {
+  rmSync(output, { recursive: true, force: true })
   await installReleasedProfile()
 }
 
