@@ -1,3 +1,7 @@
+## 2026-09-25 WorkDSH 项目级 alpha.11
+
+在 `dsh-v0.1.7-rc.2` 基线上，Agent 使用 Playwright 时会把其会话中的页面同步到 WorkDSH 右侧栏；用户可在侧栏点击、滚动、输入和导航，操作仍落在同一个 Agent 浏览器会话。浏览器 Host/Client 回归和真实 Playwright MCP 集成测试已通过。详情见 [alpha.11 更新说明](releases/v0.1.0-alpha.11.md)。
+
 ## 2026-09-25 WorkDSH 项目级 alpha.10
 
 11 个运行包按官方 DeepSeek Harness `0.1.7-rc.2` 的已发布接口重新构建，覆盖专家、连接器、技能、项目、资料库及其组合和治理依赖。发行清单将固定源码提交、各包版本和 SHA-256。详情见 [alpha.10 更新说明](releases/v0.1.0-alpha.10.md)。Desktop 安装包仍需用本次 Web 包重建；Agent 浏览器与右侧栏同页操作仍待实现。

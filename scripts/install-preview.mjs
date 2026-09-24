@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { access, copyFile, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
+import { access, copyFile, mkdir, readFile, realpath, readdir, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
@@ -81,8 +81,30 @@ const installedVersion = async (name) => {
   try { return JSON.parse(await readFile(join(home, 'profiles/preview/node_modules/@deepseek-ai', name, 'package.json'), 'utf8')).version; }
   catch (error) { if (error.code === 'ENOENT') return undefined; throw error; }
 };
-if (await installedVersion('dsh') !== cliVersion || await installedVersion('dsh-deepseek-account') !== cliVersion) {
-  await run('pnpm/bin/pnpm.cjs', ['--dir', join(home, 'profiles/preview'), 'add', '--save-exact', `@deepseek-ai/dsh@${cliVersion}`, `@deepseek-ai/dsh-deepseek-account@${cliVersion}`]);
+if (await installedVersion('dsh') !== cliVersion || await installedVersion('dsh-deepseek-account') !== cliVersion || await installedVersion('cordis-plugin-group') !== '1.0.4') {
+  await run('pnpm/bin/pnpm.cjs', ['--dir', join(home, 'profiles/preview'), 'add', '--save-exact', `@deepseek-ai/dsh@${cliVersion}`, `@deepseek-ai/dsh-deepseek-account@${cliVersion}`, '@deepseek-ai/cordis-plugin-group@1.0.4']);
+}
+// DSH Profiles disable automatic peer installation. A fresh preview must
+// install the same official runtime peer closure as the release installer.
+const profile = join(home, 'profiles/preview');
+const officialScope = join(profile, 'node_modules/@deepseek-ai');
+for (let pass = 0; pass < 9; pass++) {
+  const missing = new Map();
+  for (const entry of await readdir(officialScope)) {
+    const manifestPath = join(officialScope, entry, 'package.json');
+    let manifest;
+    try { manifest = JSON.parse(await readFile(manifestPath, 'utf8')); }
+    catch (error) { if (error.code === 'ENOENT') continue; throw error; }
+    for (const [name, range] of Object.entries(manifest.peerDependencies ?? {})) {
+      if (!name.startsWith('@deepseek-ai/') || manifest.peerDependenciesMeta?.[name]?.optional) continue;
+      if (await installedVersion(name.slice('@deepseek-ai/'.length))) continue;
+      const version = rootManifest.pnpm?.overrides?.[name] ?? (name.startsWith('@deepseek-ai/dsh-') ? baseVersion : range);
+      missing.set(name, `${name}@${version}`);
+    }
+  }
+  if (!missing.size) break;
+  if (pass === 8) throw new Error('Official preview runtime peer dependencies did not converge.');
+  await run('pnpm/bin/pnpm.cjs', ['--dir', profile, 'add', '--save-exact', ...missing.values()]);
 }
 const installedBase = JSON.parse(await readFile(join(home, 'profiles/preview/node_modules/@deepseek-ai/dsh-base/package.json'), 'utf8'));
 if (installedBase.version !== baseVersion) throw new Error(`Installed @deepseek-ai/dsh-base ${installedBase.version} does not match pinned ${baseVersion}.`);
