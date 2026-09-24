@@ -60,7 +60,7 @@ async function installReleasedProfile() {
   if (process.platform === 'win32') {
     installer = installer
       .replace("import { spawnSync } from 'node:child_process';", "import { spawnSync as nativeSpawnSync } from 'node:child_process';")
-      .replace('const argv = process.argv.slice(2);', "const portableSpawn = (command, args, options = {}) => nativeSpawnSync(command, args, { ...options, shell: true });\nconst argv = process.argv.slice(2);")
+      .replace('const argv = process.argv.slice(2);', "const portableSpawn = (command, args, options = {}) => nativeSpawnSync(command, args, { ...options, shell: true, timeout: 5 * 60_000 });\nconst argv = process.argv.slice(2);")
       .replaceAll('spawnSync(', 'portableSpawn(')
   }
   writeFileSync(installerPath, installer)
@@ -100,20 +100,22 @@ async function installReleasedProfile() {
   const bootstrap = join(output, '.dsh-cli')
   rmSync(bootstrap, { recursive: true, force: true })
   mkdirSync(bootstrap, { recursive: true })
-  writeFileSync(join(bootstrap, 'package.json'), JSON.stringify({ private: true, dependencies: { '@deepseek-ai/dsh': DSH_VERSION } }, null, 2) + '\n')
+  writeFileSync(join(bootstrap, 'package.json'), JSON.stringify({ private: true, dependencies: { '@deepseek-ai/dsh': DSH_VERSION, pnpm: '11.8.0' } }, null, 2) + '\n')
   const overrides = Object.entries(manifest.runtimeOverrides ?? {}).map(([name, version]) => `  ${JSON.stringify(name)}: ${JSON.stringify(version)}`).join('\n')
   writeFileSync(join(bootstrap, 'pnpm-workspace.yaml'), `overrides:\n${overrides}\n`)
   const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx'
   run(npx, ['--yes', 'pnpm@11.8.0', '--dir', bootstrap, 'install', '--prod', '--ignore-scripts'], { shell: process.platform === 'win32' })
   const bootstrapCli = join(bootstrap, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
+  const pnpmCli = join(bootstrap, 'node_modules', 'pnpm', 'bin', 'pnpm.mjs')
+  if (!existsSync(pnpmCli)) throw new Error(`Pinned pnpm CLI is missing: ${pnpmCli}`)
   const shim = join(output, process.platform === 'win32' ? 'dsh-runtime.cmd' : 'dsh-runtime')
   const pnpmShim = join(output, process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm')
   if (process.platform === 'win32') {
     writeFileSync(shim, `@echo off\r\n"${process.execPath}" "${bootstrapCli}" %*\r\n`)
-    writeFileSync(pnpmShim, '@echo off\r\nnpx --yes pnpm@11.8.0 %*\r\n')
+    writeFileSync(pnpmShim, `@echo off\r\n\"${process.execPath}\" \"${pnpmCli}\" %*\r\n`)
   } else {
     writeFileSync(shim, `#!/bin/sh\nexec "${process.execPath}" "${bootstrapCli}" \"$@\"\n`)
-    writeFileSync(pnpmShim, '#!/bin/sh\nexec npx --yes pnpm@11.8.0 "$@"\n')
+    writeFileSync(pnpmShim, `#!/bin/sh\nexec \"${process.execPath}\" \"${pnpmCli}\" \"$@\"\n`)
     chmodSync(shim, 0o755)
     chmodSync(pnpmShim, 0o755)
   }
