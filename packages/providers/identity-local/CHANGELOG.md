@@ -1,3 +1,7 @@
+## 0.1.0-alpha.7 — 2026-09-25
+
+- 将本地身份提供方按官方 DSH 0.1.7-rc.2 的公开接口重新打包。
+
 ## 0.1.0-alpha.6 — Unreleased（2026-09-22）
 
 - 适配 DeepSeek Harness 0.1.7-alpha.1、Cordis 4.0.3，更新精确依赖。

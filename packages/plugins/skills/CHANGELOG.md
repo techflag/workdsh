@@ -1,3 +1,7 @@
+## 0.1.0-alpha.33 — 2026-09-25
+
+- 将技能插件按官方 DSH 0.1.7-rc.2 的公开接口重新打包。
+
 ## 0.1.0-alpha.32 — Unreleased（2026-09-22）
 
 - 统一管理操作与表单：复用 Harness 原生 Button/Input，Select/Textarea 共用 workdsh-ui；声明原生 UI 依赖，保持主题与交互语义。
