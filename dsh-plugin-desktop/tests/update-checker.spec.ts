@@ -60,6 +60,10 @@ describe('strict SemVer parsing', () => {
 })
 
 describe('public Desktop version check', () => {
+  it('uses the WorkDSH update origin', () => {
+    expect(DESKTOP_VERSION_ENDPOINT).toBe('https://workdsh.techflag.cn/api/desktop/version')
+  })
+
   it('uses only the fixed no-cache version endpoint and reports a newer stable version', async () => {
     const controller = new AbortController()
     const calls: Array<{ url: string, init: RequestInit }> = []

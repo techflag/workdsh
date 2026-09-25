@@ -66,6 +66,10 @@ describe('strict SemVer parsing', () => {
 })
 
 describe('public Desktop version check', () => {
+  it('uses the WorkDSH update origin', () => {
+    expect(DESKTOP_VERSION_ENDPOINT).toBe('https://workdsh.techflag.cn/api/desktop/version')
+  })
+
   it('isolates Beta checks and rejects an unlabelled or stable response', async () => {
     const calls: RequestInit[] = []
     const request = vi.fn(async (_url: string, init: RequestInit) => {

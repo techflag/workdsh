@@ -79,6 +79,13 @@ afterEach(async () => {
 })
 
 describe('desktop update installer download', () => {
+  it('uses the WorkDSH download origin', () => {
+    expect(DESKTOP_DOWNLOAD_URLS).toEqual({
+      darwin: 'https://workdsh.techflag.cn/api/downloads/mac',
+      win32: 'https://workdsh.techflag.cn/api/downloads/windows',
+    })
+  })
+
   it('pins a Beta artifact request to its channel and target version', async () => {
     const directory = await temporaryDirectory()
     const artifact = dmgArtifact()

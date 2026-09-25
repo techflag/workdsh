@@ -16,8 +16,8 @@ export type DesktopDownloadPlatform = 'darwin' | 'win32'
 
 /** Fixed download endpoints that record one user-confirmed installer download. */
 export const DESKTOP_DOWNLOAD_URLS: Readonly<Record<DesktopDownloadPlatform, string>> = {
-  darwin: 'https://www.dshdesktop.cn/api/downloads/mac',
-  win32: 'https://www.dshdesktop.cn/api/downloads/windows',
+  darwin: 'https://workdsh.techflag.cn/api/downloads/mac',
+  win32: 'https://workdsh.techflag.cn/api/downloads/windows',
 }
 
 /** Header pinning a download request and response to the checked release. */
