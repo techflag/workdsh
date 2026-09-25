@@ -5,7 +5,7 @@ import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, re
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { DSH_VERSION } from './runtime-version.mjs'
-import { verifyProfileRelease } from './verify-profile-release.mjs'
+import { verifyPackageDshReferences, verifyProfileRelease } from './verify-profile-release.mjs'
 
 const WORKDSH_VERSION = '0.1.0-alpha.13'
 const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -196,6 +196,10 @@ const isPreparedProfile = candidate => {
   try {
     const marker = JSON.parse(readFileSync(join(candidate, releaseMarker), 'utf8'))
     if (marker.release !== WORKDSH_VERSION || marker.harness !== DSH_VERSION) return false
+    for (const name of releasePackages) {
+      const pkg = JSON.parse(readFileSync(join(candidate, 'node_modules', name, 'package.json'), 'utf8'))
+      verifyPackageDshReferences(pkg, DSH_VERSION)
+    }
   } catch {
     return false
   }

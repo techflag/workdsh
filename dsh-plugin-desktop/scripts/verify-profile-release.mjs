@@ -8,3 +8,13 @@ export function verifyProfileRelease(manifest, expectedDshVersion) {
     }
   }
 }
+
+export function verifyPackageDshReferences(manifest, expectedDshVersion) {
+  for (const field of ['dependencies', 'peerDependencies', 'optionalDependencies']) {
+    for (const [name, version] of Object.entries(manifest[field] ?? {})) {
+      if ((name === '@deepseek-ai/dsh' || name.startsWith('@deepseek-ai/dsh-')) && version !== expectedDshVersion) {
+        throw new Error(`${manifest.name ?? 'WorkDSH package'} references ${name}@${version} in ${field}; expected ${expectedDshVersion}`)
+      }
+    }
+  }
+}
