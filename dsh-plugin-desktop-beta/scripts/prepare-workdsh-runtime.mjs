@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process'
-import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const WORKDSH_VERSION = '0.1.0-alpha.11'
+const WORKDSH_VERSION = '0.1.0-alpha.12'
 const DSH_VERSION = '0.1.7-rc.2'
 const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const output = join(desktopRoot, 'build', 'workdsh-runtime')
@@ -179,7 +179,7 @@ const installedDshVersion = candidate => {
   }
 }
 const releasePackages = [
-  'workdsh-provider-identity-local', 'workdsh-plugin-audit', 'workdsh-plugin-access',
+  'workdsh-provider-identity-local', 'workdsh-provider-browser-session', 'workdsh-plugin-audit', 'workdsh-plugin-access',
   'workdsh-plugin-skills', 'workdsh-plugin-experts', 'workdsh-plugin-connectors',
   'workdsh-plugin-activity', 'workdsh-plugin-office', 'workdsh-plugin-library',
   'workdsh-plugin-projects', 'workdsh-bundle',
@@ -189,7 +189,7 @@ const isPreparedProfile = candidate => {
   if (!releasePackages.every(name => existsSync(join(candidate, 'node_modules', name, 'package.json')))) return false
   try {
     const bundle = JSON.parse(readFileSync(join(candidate, 'node_modules', 'workdsh-bundle', 'package.json'), 'utf8'))
-    if (bundle.version !== '0.1.0-alpha.50') return false
+    if (bundle.version !== '0.1.0-alpha.51') return false
   } catch {
     return false
   }
@@ -215,6 +215,22 @@ if (source) {
 }
 
 if (!existsSync(cli)) throw new Error(`Failed to prepare WorkDSH runtime at ${destination}`)
+// Electron already contains Chromium. Fail before packaging if a dependency
+// starts shipping a second browser executable inside the profile.
+const browserExecutables = new Set([
+  'chrome', 'chrome.exe', 'chromium', 'chromium.exe', 'chrome-headless-shell',
+  'headless_shell', 'firefox', 'firefox.exe', 'msedge.exe',
+])
+const scanForBundledBrowser = directory => {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name)
+    if (entry.isDirectory()) scanForBundledBrowser(path)
+    else if (entry.isFile() && browserExecutables.has(entry.name.toLowerCase())) {
+      throw new Error(`Standalone browser executable is forbidden in WorkDSH Desktop: ${path}`)
+    }
+  }
+}
+scanForBundledBrowser(output)
 cpSync(join(destination, 'package.json'), join(output, 'profile-package.json'))
 const nodeExecutable = join(output, 'node', process.platform === 'win32' ? 'node.exe' : 'node')
 await prepareNodeExecutable(nodeExecutable)
