@@ -1,6 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { DSH_VERSION } from '../scripts/runtime-version.mjs'
 import { afterEach, describe, expect, it } from 'vitest'
 import { verifyWindowsInstaller } from '../scripts/verify-win-installer.ts'
 
@@ -31,7 +32,7 @@ function fixture(version = '2.0.0'): {
   const runtime = join(unpacked, 'resources', 'workdsh-runtime', 'primary-runtime')
   mkdirSync(join(runtime, 'dependencies', 'python'), { recursive: true })
   mkdirSync(join(runtime, 'dependencies', 'node', 'bin'), { recursive: true })
-  writeFileSync(join(runtime, 'runtime.json'), JSON.stringify({ desktopVersion: '0.1.7-rc.2', platform: 'win32', arch: 'x64', python: '3.12.14', node: '24.21.0' }))
+  writeFileSync(join(runtime, 'runtime.json'), JSON.stringify({ desktopVersion: DSH_VERSION, platform: 'win32', arch: 'x64', python: '3.12.14', node: '24.21.0' }))
   writeFileSync(join(runtime, 'dependencies', 'python', 'python.exe'), portableExecutable())
   writeFileSync(join(runtime, 'dependencies', 'node', 'bin', 'node.exe'), portableExecutable())
   return { root, installer, application }

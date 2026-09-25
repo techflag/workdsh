@@ -1799,55 +1799,6 @@ __metadata:
   dependencies:
     ajv: "npm:^8.20.0"
     ajv-formats: "npm:^3.0.1"
-  peerDependenciesMeta:
-    "@deepseek-ai/dsh-agent":
-      optional: true
-    "@deepseek-ai/dsh-agent-presets":
-      optional: true
-    "@deepseek-ai/dsh-api-gateway":
-      optional: true
-    "@deepseek-ai/dsh-api-remotes":
-      optional: true
-    "@deepseek-ai/dsh-api-session-controller":
-      optional: true
-    "@deepseek-ai/dsh-api-settings-controller":
-      optional: true
-    "@deepseek-ai/dsh-api-workspace-controller":
-      optional: true
-    "@deepseek-ai/dsh-brand":
-      optional: true
-    "@deepseek-ai/dsh-client-connection":
-      optional: true
-    "@deepseek-ai/dsh-client-file-upload":
-      optional: true
-    "@deepseek-ai/dsh-client-ui-theme":
-      optional: true
-    "@deepseek-ai/dsh-commands":
-      optional: true
-    "@deepseek-ai/dsh-cordis-host-runner":
-      optional: true
-    "@deepseek-ai/dsh-credentials":
-      optional: true
-    "@deepseek-ai/dsh-goal":
-      optional: true
-    "@deepseek-ai/dsh-host-plugin-inventory":
-      optional: true
-    "@deepseek-ai/dsh-invariants":
-      optional: true
-    "@deepseek-ai/dsh-llm":
-      optional: true
-    "@deepseek-ai/dsh-message-feedback":
-      optional: true
-    "@deepseek-ai/dsh-session":
-      optional: true
-    "@deepseek-ai/dsh-session-persistence":
-      optional: true
-    "@deepseek-ai/dsh-subagent":
-      optional: true
-    "@deepseek-ai/dsh-typert-protocol":
-      optional: true
-    "@deepseek-ai/dsh-typert-registry":
-      optional: true
   languageName: unknown
   linkType: soft
 

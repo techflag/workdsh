@@ -1,6 +1,7 @@
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { DSH_VERSION } from '../scripts/runtime-version.mjs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   verifyMacSmoke,
@@ -37,7 +38,7 @@ function fixture(): AppFixture {
   const runtime = join(resources, 'workdsh-runtime', 'primary-runtime')
   mkdirSync(join(runtime, 'dependencies', 'python', 'bin'), { recursive: true })
   mkdirSync(join(runtime, 'dependencies', 'node', 'bin'), { recursive: true })
-  writeFileSync(join(runtime, 'runtime.json'), JSON.stringify({ desktopVersion: '0.1.7-rc.2', platform: 'darwin', arch: 'arm64', python: '3.12.14', node: '24.21.0' }))
+  writeFileSync(join(runtime, 'runtime.json'), JSON.stringify({ desktopVersion: DSH_VERSION, platform: 'darwin', arch: 'arm64', python: '3.12.14', node: '24.21.0' }))
   for (const path of [join(runtime, 'dependencies', 'python', 'bin', 'python3'), join(runtime, 'dependencies', 'node', 'bin', 'node')]) {
     writeFileSync(path, 'binary')
     chmodSync(path, 0o755)
@@ -130,7 +131,7 @@ describe('macOS DMG smoke artifact verification', () => {
 
   it('checks only the Intel executable and native modules for an x64 DMG', () => {
     const value = fixture()
-    writeFileSync(join(value.root, 'WorkDSH.app', 'Contents', 'Resources', 'workdsh-runtime', 'primary-runtime', 'runtime.json'), JSON.stringify({ desktopVersion: '0.1.7-rc.2', platform: 'darwin', arch: 'x64', python: '3.12.14', node: '24.21.0' }))
+    writeFileSync(join(value.root, 'WorkDSH.app', 'Contents', 'Resources', 'workdsh-runtime', 'primary-runtime', 'runtime.json'), JSON.stringify({ desktopVersion: DSH_VERSION, platform: 'darwin', arch: 'x64', python: '3.12.14', node: '24.21.0' }))
     const harness = options({ targetArch: 'x64', makeMountPoint: () => value.root }, value.modeOverrides)
     verifyMacSmoke(harness.value)
     const lipoCalls = harness.calls.filter(call => call.command === 'lipo')
