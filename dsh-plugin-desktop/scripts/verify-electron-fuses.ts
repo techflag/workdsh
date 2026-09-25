@@ -45,7 +45,14 @@ export function smokeBundledWorkdshProfile(context: PackagedRuntimeContext): voi
   const runtime = join(resources, 'workdsh-runtime')
   const node = join(runtime, 'node', context.electronPlatformName === 'win32' ? 'node.exe' : 'node')
   const cli = join(runtime, 'profiles', 'workdsh', 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
-  const result = spawnSync(node, [cli, '--version'], { encoding: 'utf8', timeout: 30_000 })
+  // An Intel macOS artifact is smoke-tested under Rosetta on arm64 CI runners.
+  // Loading its bundled dependency graph can exceed the native 30-second limit.
+  const emulatedMac = context.electronPlatformName === 'darwin'
+    && context.arch === Arch.x64 && process.arch === 'arm64'
+  const result = spawnSync(node, [cli, '--version'], {
+    encoding: 'utf8',
+    timeout: emulatedMac ? 120_000 : 30_000,
+  })
   if (result.error || result.status !== 0 || !result.stdout.includes(DSH_VERSION)) {
     throw new Error(`Bundled Harness CLI smoke failed: ${String(result.error ?? result.stderr)}`)
   }
