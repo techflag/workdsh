@@ -48,5 +48,7 @@ browser, identity, access, and audit behavior. A source-level package count or
 successful config dump alone does not prove that runtime outcome.
 Profile preparation now boots the bundled DSH plugin manager and requires its
 `listBundles()` response to contain exactly the five installed and enabled
-WorkDSH products. The installed application's UI and feature flows still need
-their own acceptance checks on both platforms.
+WorkDSH products. The Electron `afterPack` gate repeats that live inventory
+check with the Node executable and Profile inside each packaged application.
+The installed application's UI and feature flows still need their own
+acceptance checks on both platforms.

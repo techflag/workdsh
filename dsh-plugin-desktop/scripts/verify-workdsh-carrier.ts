@@ -1,6 +1,8 @@
 /** Verify that the Electron carrier contains no second Harness runtime. */
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { extractFile, listPackage } from '@electron/asar'
 import { DSH_VERSION } from './runtime-version.mjs'
 
@@ -94,6 +96,17 @@ export async function afterPack(context: PackContext): Promise<void> {
       throw new Error(`Bundled ${name} is ${String(pkg.version)}, expected ${DSH_VERSION}`)
     }
   }
+  const node = join(runtime, 'primary-runtime', 'dependencies', 'node', 'bin',
+    context.electronPlatformName === 'win32' ? 'node.exe' : 'node')
+  const inventoryCheck = fileURLToPath(new URL('./verify-product-plugin-inventory.mjs', import.meta.url))
+  const inventory = spawnSync(node, [inventoryCheck, runtime], {
+    encoding: 'utf8',
+    timeout: 120_000,
+  })
+  if (inventory.error || inventory.status !== 0) {
+    throw new Error(`Packaged WorkDSH plugin inventory check failed: ${String(inventory.error ?? inventory.stderr)}`)
+  }
+  process.stdout.write(inventory.stdout)
   console.log(`Verified thin Electron carrier and ${names.length} Harness ${DSH_VERSION} packages`)
 }
 
