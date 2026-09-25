@@ -41,7 +41,3 @@ Acceptance requires `yarn check:layout`, `yarn upstream:version`, `yarn install 
 Desktop changes have three explicitly owned package trees, and the official checkout remains directly comparable with its remote commit. The outer landing page presents DSH Desktop, the desktop README owns application setup and release usage, the Fabric README owns the proposed community contract boundary, and the Market README owns the proposed market boundary. Product installs and checks are reproducible from the outer Yarn lockfile, while upstream verification continues to use its own pnpm lockfile.
 
 Clones must initialize the submodule, and contributors maintain two intentionally separate package-manager caches. Source-pin updates and runtime-family updates require separate evidence because a public GitHub revision and a published npm family may not correspond.
-
-## 2026-09-08 SSH ownership addendum
-
-The user changed the SSH delivery target to an installable Harness plugin. `dsh-plugin-ssh/` is a fifth root Yarn workspace owning its bundle, Host/Client faces, browser assets and release checks. It has no Desktop dependency. Existing Desktop variant rules and the upstream pnpm/submodule boundary remain in effect. See [the SSH decision](../architecture/2026-09-08-installable-ssh-plugin.md).

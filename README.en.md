@@ -100,8 +100,8 @@ Ordinary users can start with the [user guide](docs/user-guide.en.md); the devel
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <h3>SSH / SFTP Plugin</h3>
-      <p>The standalone <a href="dsh-plugin-ssh/README.md">SSH / SFTP + AI plugin</a> adds remote-work capabilities. It can be installed separately from the desktop application.</p>
+      <h3>WorkDSH Product Plugins</h3>
+      <p>Experts, skills, connectors, projects, and the library work together within WorkDSH and follow the product release.</p>
     </td>
     <td width="50%" valign="top">
       <h3>Co-build the Plugin Ecosystem</h3>

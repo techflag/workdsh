@@ -100,8 +100,8 @@ WorkDSH 将 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <h3>SSH / SFTP 插件</h3>
-      <p>独立的 <a href="dsh-plugin-ssh/README.md">SSH / SFTP + AI 插件</a>提供远程工作能力；可以按需安装，与桌面主程序分开维护。</p>
+      <h3>WorkDSH 功能插件</h3>
+      <p>专家、技能、连接器、项目和资料库共同组成 WorkDSH 的工作流程，随产品版本统一维护。</p>
     </td>
     <td width="50%" valign="top">
       <h3>共建插件生态</h3>
