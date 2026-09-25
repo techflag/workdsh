@@ -87,15 +87,19 @@ async function installReleasedProfile(output) {
   // completed local tarball add. Use the same pinned pnpm directly; the
   // release tarball hash and exact compatibility approval were checked above.
   const profileDir = join(dshHome, 'profiles', profile);
-  const added = ${installSpawn}(corepack, ['--dir', profileDir, 'add', '--save-exact', 'file:../../package-cache/' + item.filename], { stdio: 'inherit' });
-  if (added.error) throw added.error;
-  if (added.status !== 0) process.exit(added.status ?? 1);`,
+  const added = ${installSpawn}(corepack, ['--dir', profileDir, 'add', '--save-exact', 'file:../../package-cache/' + item.filename], { stdio: 'inherit', timeout: 90_000, killSignal: 'SIGKILL' });
+  if (added.error?.code === 'ETIMEDOUT') {
+    const installed = join(profileDir, 'node_modules', name, 'package.json');
+    const dependency = JSON.parse(readFileSync(join(profileDir, 'package.json'), 'utf8')).dependencies?.[name];
+    if (!existsSync(installed) || JSON.parse(readFileSync(installed, 'utf8')).version !== item.version || dependency?.replaceAll('\\\\', '/') !== 'file:../../package-cache/' + item.filename) throw added.error;
+    console.warn('Pinned pnpm installed ' + name + ' but did not exit; verified the exact package and continuing.');
+  } else if (added.error) throw added.error;
+  if (added.error?.code !== 'ETIMEDOUT' && added.status !== 0) process.exit(added.status ?? 1);`,
     'plugin installation step',
   )
   // On some macOS runners pnpm prints "Done" but retains an idle Node handle.
-  // Bound only the final peer-closure installs, then accept a timeout solely
-  // when their exact expected package manifests are present. The following
-  // Profile validation still checks all WorkDSH packages and DSH versions.
+  // Bound the remaining peer-closure installs too. Timeouts are accepted only
+  // when expected package manifests are present; Profile validation follows.
   installer = replaceRequired(installer,
     `const result = ${installSpawn}(corepack, runtimeArgs, { stdio: 'inherit' });\n  if (result.error) throw result.error;\n  if (result.status !== 0) process.exit(result.status ?? 1);`,
     `const result = ${installSpawn}(corepack, runtimeArgs, { stdio: 'inherit', timeout: 90_000, killSignal: 'SIGKILL' });\n  if (result.error?.code === 'ETIMEDOUT') {\n    const scope = join(dshHome, 'profiles', profile, 'node_modules', '@deepseek-ai');\n    if (!['dsh', 'dsh-deepseek-account', 'cordis-plugin-group'].every(name => existsSync(join(scope, name, 'package.json')))) throw result.error;\n    console.warn('Pinned pnpm finished the runtime install but did not exit; verified package manifests and continuing.');\n  } else if (result.error) throw result.error;\n  if (result.error?.code !== 'ETIMEDOUT' && result.status !== 0) process.exit(result.status ?? 1);`,
