@@ -29,3 +29,16 @@ package layout has not yet been reduced to only the five user-facing product
 plugins. A future consolidation must preserve their actual behavior and be
 verified against the installed app; merely changing their labels would not
 complete this boundary.
+
+The pinned DSH plugin manager derives its bundle inventory from the Profile's
+selected bundles and direct dependencies, as well as installation dependencies.
+Its client hides a small fixed set of official built-in bundle names; it does
+not hide WorkDSH support packages because their manifests say `private`.
+Therefore the current support packages and `workdsh-bundle` remain visible or
+manageable as installed bundles. The ownership change is complete only when
+an installed Desktop has exactly the five intended WorkDSH product entries in
+its user-facing plugin management, while project, library, office, browser,
+identity, access, and audit behavior still pass their runtime checks. Inspect
+the installed Profile's dependency and selected-bundle lists and the running
+plugin manager's `listBundles()` output; a source-level package count alone is
+not evidence of this outcome.
