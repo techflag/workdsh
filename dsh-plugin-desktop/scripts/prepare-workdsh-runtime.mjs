@@ -5,7 +5,7 @@ import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rm
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const WORKDSH_VERSION = '0.1.0-alpha.12'
+const WORKDSH_VERSION = '0.1.0-alpha.13'
 const DSH_VERSION = '0.1.7-rc.2'
 const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const output = join(desktopRoot, 'build', 'workdsh-runtime')
@@ -83,7 +83,9 @@ async function installReleasedProfile() {
   const added = ${installSpawn}(corepack, ['--dir', profileDir, 'add', '--save-exact', join(directory, item.filename)], { stdio: 'inherit' });
   if (added.error) throw added.error;
   if (added.status !== 0) process.exit(added.status ?? 1);
-  if (name === 'workdsh-bundle') {
+  // pnpm installs the package but does not activate its DSH bundle. The
+  // browser-session provider is inserted by workdsh-bundle's patch instead.
+  if (name !== 'workdsh-provider-browser-session') {
     const profilePackage = JSON.parse(readFileSync(profileManifest, 'utf8'));
     const bundles = profilePackage.dsh?.profile?.bundles ?? [];
     if (!bundles.includes(name)) bundles.push(name);
@@ -184,18 +186,19 @@ const releasePackages = [
   'workdsh-plugin-activity', 'workdsh-plugin-office', 'workdsh-plugin-library',
   'workdsh-plugin-projects', 'workdsh-bundle',
 ]
+const requiredBundles = releasePackages.filter(name => name !== 'workdsh-provider-browser-session')
 const isPreparedProfile = candidate => {
   if (installedDshVersion(candidate) !== DSH_VERSION) return false
   if (!releasePackages.every(name => existsSync(join(candidate, 'node_modules', name, 'package.json')))) return false
   try {
     const bundle = JSON.parse(readFileSync(join(candidate, 'node_modules', 'workdsh-bundle', 'package.json'), 'utf8'))
-    if (bundle.version !== '0.1.0-alpha.51') return false
+    if (bundle.version !== '0.1.0-alpha.52') return false
   } catch {
     return false
   }
   try {
     const profile = JSON.parse(readFileSync(join(candidate, 'package.json'), 'utf8'))
-    return profile.dsh?.profile?.bundles?.includes('workdsh-bundle') === true
+    return requiredBundles.every(name => profile.dsh?.profile?.bundles?.includes(name))
   } catch {
     return false
   }
@@ -215,6 +218,9 @@ if (source) {
 }
 
 if (!existsSync(cli)) throw new Error(`Failed to prepare WorkDSH runtime at ${destination}`)
+if (!isPreparedProfile(destination)) {
+  throw new Error(`Prepared WorkDSH profile is missing required active bundles: ${destination}`)
+}
 // Electron already contains Chromium. Fail before packaging if a dependency
 // starts shipping a second browser executable inside the profile.
 const browserExecutables = new Set([
