@@ -16,6 +16,7 @@ This repository owns the desktop product around an unmodified DeepSeek Harness c
 - Run type checking with `corepack yarn typecheck`.
 - Run the complete headless gate with `corepack yarn check`.
 - Develop and validate Desktop feature changes in `dsh-plugin-desktop-beta/` first, then synchronize shared changes into `dsh-plugin-desktop/` while preserving declared variant differences. Before committing or pushing shared Desktop changes, run `corepack yarn check:desktop-variants` and validate both affected packages; neither package automatically inherits the other's source edits.
+- The pinned `deepseek-harness/` version is the single DSH version for both Desktop variants, their plugin source dependencies, and the packaged WorkDSH Profile. A DSH upgrade is incomplete until `corepack yarn check:desktop-dsh-alignment` passes and both variants build and pass tests against that version. Do not replace old package versions mechanically: if an upstream package was removed or renamed, migrate its imports and API usage first. Do not tag a Desktop release or describe its source as version-aligned while this check fails. The packaged-runtime checks must also confirm that neither Desktop carrier contains a second DSH installation.
 - Run upstream operations through the root scripts, such as `corepack yarn upstream:build`.
 
 - `deepseek-harness/` is a pinned upstream Git submodule. Never edit files inside it from a desktop feature branch.
