@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process'
-import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -195,6 +195,22 @@ if (source) {
 }
 
 if (!existsSync(cli)) throw new Error(`Failed to prepare WorkDSH runtime at ${destination}`)
+// Electron already contains Chromium. Fail before packaging if a dependency
+// starts shipping a second browser executable inside the profile.
+const browserExecutables = new Set([
+  'chrome', 'chrome.exe', 'chromium', 'chromium.exe', 'chrome-headless-shell',
+  'headless_shell', 'firefox', 'firefox.exe', 'msedge.exe',
+])
+const scanForBundledBrowser = directory => {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name)
+    if (entry.isDirectory()) scanForBundledBrowser(path)
+    else if (entry.isFile() && browserExecutables.has(entry.name.toLowerCase())) {
+      throw new Error(`Standalone browser executable is forbidden in WorkDSH Desktop: ${path}`)
+    }
+  }
+}
+scanForBundledBrowser(output)
 cpSync(join(destination, 'package.json'), join(output, 'profile-package.json'))
 const nodeExecutable = join(output, 'node', process.platform === 'win32' ? 'node.exe' : 'node')
 await prepareNodeExecutable(nodeExecutable)

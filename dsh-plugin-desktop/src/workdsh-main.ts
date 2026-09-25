@@ -13,7 +13,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from 'node:fs'
-import { join } from 'node:path'
+import { isAbsolute, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const PROFILE_NAME = 'workdsh'
@@ -49,6 +49,46 @@ function bundledNodeExecutable(): string {
 
 function bundledPrimaryRuntime(): string {
   return join(process.resourcesPath, 'workdsh-runtime', 'primary-runtime')
+}
+
+function browserWorkerRequest(): { port: number, profile: string } | undefined {
+  const portArg = process.argv.find(arg => arg.startsWith('--workdsh-browser-worker-port='))
+  if (portArg === undefined) return undefined
+  const port = Number(portArg.slice('--workdsh-browser-worker-port='.length))
+  const profile = process.argv.find(arg => arg.startsWith('--workdsh-browser-worker-profile='))
+    ?.slice('--workdsh-browser-worker-profile='.length)
+  if (!Number.isInteger(port) || port < 1024 || port > 65535 || !profile || !isAbsolute(profile) || !existsSync(profile)) {
+    throw new Error('Invalid WorkDSH browser worker arguments')
+  }
+  return { port, profile }
+}
+
+function startBrowserWorker(request: { port: number, profile: string }): void {
+  app.setPath('userData', request.profile)
+  app.commandLine.appendSwitch('remote-debugging-address', '127.0.0.1')
+  app.commandLine.appendSwitch('remote-debugging-port', String(request.port))
+  void app.whenReady().then(async () => {
+    app.dock?.hide()
+    const page = new BrowserWindow({
+      show: false,
+      width: 1280,
+      height: 800,
+      webPreferences: {
+        offscreen: true,
+        backgroundThrottling: false,
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: true,
+        webSecurity: true,
+      },
+    })
+    page.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
+    await page.loadURL('about:blank')
+    process.stdout.write('WORKDSH_BROWSER_WORKER_READY\n')
+  }).catch(error => {
+    process.stderr.write(`WorkDSH browser worker failed: ${String(error)}\n`)
+    app.exit(1)
+  })
 }
 
 function materializeRuntimeProfile(home: string): string {
@@ -131,6 +171,7 @@ function startRuntime(home: string, profileDir: string): void {
       ...process.env,
       DSH_HOME: home,
       DSH_BUNDLED_PRIMARY_RUNTIME: bundledPrimaryRuntime(),
+      DSH_ELECTRON_EXECUTABLE: process.execPath,
       ELECTRON_RUN_AS_NODE: undefined,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -167,6 +208,10 @@ function stopRuntime(): void {
   runtime = undefined
 }
 
+const worker = browserWorkerRequest()
+if (worker !== undefined) {
+  startBrowserWorker(worker)
+} else {
 app.setName('WorkDSH')
 if (!app.requestSingleInstanceLock()) {
   app.quit()
@@ -198,4 +243,5 @@ if (!app.requestSingleInstanceLock()) {
     process.stderr.write(`WorkDSH failed to start: ${cause instanceof Error ? cause.stack ?? cause.message : String(cause)}\n`)
     app.quit()
   })
+}
 }
