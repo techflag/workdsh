@@ -1,5 +1,13 @@
 # DSH 0.1.7 升级记录
 
+## 2026-09-25：alpha.13 / Desktop alpha.20 发布核对
+
+- Web/插件 `v0.1.0-alpha.13` 已发布，共 12 个模块。专家、连接器、技能、项目和资料库沿用已按 Harness `0.1.7-rc.2` 公开接口构建及测试的版本；新增受管浏览器会话模块，组合包更新到 alpha.52。
+- 发现先前 Desktop Profile 中模块虽已安装，却只有组合包列入 `dsh.profile.bundles`，导致项目及浏览器会话 Host 路由返回 404。现已修复发布安装器与 Desktop Profile 准备脚本，并要求所有模块处于启用列表，否则打包失败。
+- Desktop 浏览器会话复用应用内 Electron worker。Agent 的官方 Playwright MCP 工具和右侧“任务浏览器”观察、操作同一页面；隔离本机测试中，右侧点击使 worker 页面按钮状态同步变化。打包准备拒绝独立 Chrome、Chromium、Firefox 可执行文件。
+- Desktop 标准版/Beta 共享文件检查及根目录 `yarn check` 通过。PR #20 和正式 `desktop-v2.0.5-alpha.20` 标签流水线的 Windows、macOS x64、macOS arm64 GitHub CI 均通过；成品校验分别检查官方 Node/Python 运行时。公开 Release 已上传 Windows Setup、两种架构的 macOS DMG 和 `SHA256SUMS`。
+- 当前发布的是 rc.2 **WorkDSH Profile**；标准 Desktop 壳的旧 DSH 直接依赖尚未整体迁移到 rc.2。真实模型长任务、Windows/macOS 安装后的浏览器交互仍需单独实机复测，不能由无界面构建门禁推定通过。
+
 ## 2026-09-25：Web 与 Desktop 版本边界补充核对
 
 ### 版本与实际打包边界
