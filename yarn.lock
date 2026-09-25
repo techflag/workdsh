@@ -1232,9 +1232,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"app-builder-lib@patch:app-builder-lib@npm%3A26.15.7#./patches/app-builder-lib@26.15.7.patch::locator=deepseek-harness-desktop%40workspace%3A.":
+"app-builder-lib@patch:app-builder-lib@npm%3A26.15.7#./patches/app-builder-lib@26.15.7.patch::locator=workdsh-desktop-workspace%40workspace%3A.":
   version: 26.15.7
-  resolution: "app-builder-lib@patch:app-builder-lib@npm%3A26.15.7#./patches/app-builder-lib@26.15.7.patch::version=26.15.7&hash=5ac45c&locator=deepseek-harness-desktop%40workspace%3A."
+  resolution: "app-builder-lib@patch:app-builder-lib@npm%3A26.15.7#./patches/app-builder-lib@26.15.7.patch::version=26.15.7&hash=5ac45c&locator=workdsh-desktop-workspace%40workspace%3A."
   dependencies:
     "@electron/asar": "npm:3.4.1"
     "@electron/fuses": "npm:^1.8.0"
@@ -1680,17 +1680,6 @@ __metadata:
   checksum: 10c0/bd89d23141b96d80577e70c54fb226b2f40e74a6817652b80a116d7befb8758261ad073a8895648a29cc0a5947021ab66705cb542fa9c143c82022b27c5b175e
   languageName: node
   linkType: hard
-
-"deepseek-harness-desktop@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "deepseek-harness-desktop@workspace:."
-  dependenciesMeta:
-    electron:
-      built: true
-    esbuild:
-      built: true
-  languageName: unknown
-  linkType: soft
 
 "defer-to-connect@npm:^2.0.0":
   version: 2.0.1
@@ -4202,6 +4191,17 @@ __metadata:
   checksum: 10c0/1cde0b01b827d2cf4cb11db962f3958b9175d5d9e7ac7361d1a7b0e2dc6069a263e69118bd974c4f6d0a890ef4eedfe34cf3d5167ec14203dbc9a18620537054
   languageName: node
   linkType: hard
+
+"workdsh-desktop-workspace@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "workdsh-desktop-workspace@workspace:."
+  dependenciesMeta:
+    electron:
+      built: true
+    esbuild:
+      built: true
+  languageName: unknown
+  linkType: soft
 
 "wrap-ansi@npm:^7.0.0":
   version: 7.0.0
