@@ -3,13 +3,22 @@ import type { Context } from '@deepseek-ai/cordis';
 import type {} from '@deepseek-ai/dsh-api-remotes/client';
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client';
 import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client';
+import type {} from '@deepseek-ai/dsh-client-ui-sidebar-right/client';
+import type {} from '@deepseek-ai/dsh-client-ui-session/client';
+import type {} from '@deepseek-ai/dsh-api-session-controller/client';
+import type { ISessions } from '@deepseek-ai/dsh-api-session-controller/client';
 import * as workbench from 'workdsh-plugin-workbench';
 import { BrandMark, BrandName, DiagnosticsMark } from '../components/Brand.js';
 import { DiagnosticsPanel, type Inventory } from '../components/DiagnosticsPanel.js';
 import { NavigationLocation } from '../components/NavigationLocation.js';
+import { AgentBrowserPage, agentBrowserKind, readAgentBrowserFrame } from '../components/AgentBrowserPage.js';
+
+declare module '@deepseek-ai/dsh-client-ui-sidebar-right/client' {
+  interface SidebarRightTabParamsMap { 'workdsh-agent-browser': Record<string, never>; }
+}
 
 export const name = 'workdsh-client';
-export const inject = ['slots', 'layout', 'remote', 'remote.pluginInventory'];
+export const inject = ['slots', 'layout', 'remote', 'remote.pluginInventory', 'sessions', 'sidebarRight', 'sidebarRightTabs'];
 
 const productViews: Readonly<Record<string, string>> = {
   experts: 'workdsh-experts', skills: 'workdsh-skills', assistant: 'workdsh-assistant', projects: 'workdsh-projects', 'project-detail': 'workdsh-project-detail',
@@ -17,6 +26,32 @@ const productViews: Readonly<Record<string, string>> = {
 };
 
 export function apply(ctx: Context): void {
+  ctx.effect(() => ctx.sidebarRightTabs.register({
+    id: agentBrowserKind, kind: agentBrowserKind, title: () => '智能体浏览器',
+    guide: [{ id: 'agent-browser', order: 25, title: () => '智能体浏览器', description: () => '查看并操作当前会话的网页' }],
+  }), 'workdsh.agent-browser.tab');
+  ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register({ name: 'sidebar.right.pane.tab', key: agentBrowserKind }, AgentBrowserPage));
+  ctx.effect(() => {
+    const sessions = ctx.sessions as unknown as ISessions;
+    const opened = new Set<string>();
+    let pending = false;
+    const poll = async () => {
+      if (pending) return;
+      const state = sessions.list.getSnapshot();
+      const current = Object.values(state.byId).find(row => (row.retainedBy.mainView ?? 0) > 0)?.id;
+      if (!current || opened.has(String(current))) return;
+      pending = true;
+      try {
+        const { frame } = await readAgentBrowserFrame(String(current));
+        if (!frame || frame.revision === 0) return;
+        opened.add(String(current));
+        ctx.sidebarRight.openTabIn(current, agentBrowserKind, { params: {} });
+      } catch { /* The browser provider is optional; retry on the next poll. */ }
+      finally { pending = false; }
+    };
+    const timer = window.setInterval(() => { void poll(); }, 900);
+    return () => window.clearInterval(timer);
+  }, 'workdsh.agent-browser.auto-open');
   ctx.slots.inject('shell.overlay', () => ctx.slots.register({ name: 'shell.overlay', id: 'workdsh-shell-appearance' }, ShellAppearance));
   const diagnostics = new URL(window.location.href).searchParams.get('diagnostics') === '1';
   const viewToPanel = diagnostics ? { ...productViews, diagnostics: 'workdsh-probe' } : productViews;

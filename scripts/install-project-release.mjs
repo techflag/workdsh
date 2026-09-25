@@ -138,7 +138,7 @@ for (const name of installOrder) {
 }
 
 // Keep CLI and ConfigEditor in the same Profile dependency graph (0.1.7).
-const runtimeArgs = ['pnpm', '--dir', join(dshHome, 'profiles', profile), 'add', '--save-exact', `@deepseek-ai/dsh@${expectedHarness}`, `@deepseek-ai/dsh-deepseek-account@${expectedHarness}`, '@deepseek-ai/cordis-plugin-group@1.0.3'];
+const runtimeArgs = ['pnpm', '--dir', join(dshHome, 'profiles', profile), 'add', '--save-exact', `@deepseek-ai/dsh@${expectedHarness}`, `@deepseek-ai/dsh-deepseek-account@${expectedHarness}`, '@deepseek-ai/cordis-plugin-group@1.0.4'];
 console.log(`> ${corepack} ${runtimeArgs.join(' ')}`);
 if (!dryRun) {
   const result = spawnSync(corepack, runtimeArgs, { stdio: 'inherit' });

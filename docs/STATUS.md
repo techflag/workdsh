@@ -5,6 +5,9 @@
 ## 2026-09-25：rc.2 模块文档口径复核
 
 核对专家、连接器、技能、项目和资料库当前包依赖后，`check:versions` 通过：556 条 DSH 锁记录均为 `0.1.7-rc.2`，Cordis 为 `4.0.3`。专家、技能、连接器 README 中仍有 0.1.6 基线和旧 tgz 示例，现已改为当前源码版本，并区分本地 Web 验证与历史 GitHub 制品。项目和资料库 README 未发现同类旧基线声明。另检查 GitHub 发布的 Desktop alpha.18 macOS arm64 DMG：有内置 Node/Python，但没有独立 Chromium；随包 Playwright 配置仍默认调用机器上的 Google Chrome。官方 Browser tab 与 Playwright provider 无共享页面契约，安装包证据和正式验收要求已回填 [rc.2 升级记录](DSH-0.1.7-UPGRADE-PLAN.md)。本轮只修改文档；未重新构建、运行模型或做 Windows/macOS 安装后实机验收。浏览器 Agent 与右栏同页操作仍未完成；下一步实现受控的 Session 浏览器与右栏同页操作，并用安装包验收。
+## 2026-09-25：Web/插件 alpha.10 rc.2 发行候选
+
+11 个运行包与项目版本已递增，按官方 DSH `0.1.7-rc.2` 的公开接口重新构建；本次发行包将替换 Desktop 先前引用的 alpha.9 包。Node 22.23.2 / pnpm 10.34.5 下构建、类型检查、556 条版本锁定、115 项集成测试、12 项项目测试、5 项资料库测试与规划校验通过。规划台账里过时的 `resources/skills/expert-manager` 路径已改为实际受版本控制的 `resources/skills/workdsh-expert-manager`。11 个打包文件的 SHA-256 与清单逐项一致，安装器 dry-run 在 `0.1.7-rc.2` CLI 上通过；GitHub Release 尚未完成。浏览器 Agent 与右侧栏共享同一页面仍未实现。
 
 ## 2026-09-25：rc.2 Web 全新 Profile 安装复验
 

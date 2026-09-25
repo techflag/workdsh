@@ -1,6 +1,6 @@
 {
   "name": "workdsh-bundle",
-  "version": "0.1.0-alpha.48",
+  "version": "0.1.0-alpha.50",
   "private": true,
   "type": "module",
   "description": "WorkDSH default Harness bundle and client composition",
@@ -35,6 +35,8 @@
         "@deepseek-ai/dsh-client-ui-renderer",
         "@deepseek-ai/dsh-client-ui-layout",
         "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-sidebar-right",
+        "@deepseek-ai/dsh-client-ui-session",
         "@deepseek-ai/dsh-api-remotes",
         "@deepseek-ai/dsh-api-session-controller"
       ]
@@ -49,6 +51,7 @@
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "4.0.3",
+    "@deepseek-ai/dsh-attachment": "0.1.7-rc.2",
     "@deepseek-ai/dsh-api-remotes": "0.1.7-rc.2",
     "@deepseek-ai/dsh-api-session-controller": "0.1.7-rc.2",
     "@deepseek-ai/dsh-api-workspace-controller": "0.1.7-rc.2",
@@ -57,8 +60,13 @@
     "@deepseek-ai/dsh-client-ui-layout": "0.1.7-rc.2",
     "@deepseek-ai/dsh-client-ui-renderer": "0.1.7-rc.2",
     "@deepseek-ai/dsh-client-ui-sidebar": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-ui-sidebar-right": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-ui-session": "0.1.7-rc.2",
     "@deepseek-ai/dsh-client-ui-slots": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-llm": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-tools": "0.1.7-rc.2",
     "@deepseek-ai/dsh-skill": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-system-prompt": "0.1.7-rc.2",
     "@types/react": "19.2.14",
     "react": "19.2.4",
     "workdsh-plugin-workbench": "workspace:*",

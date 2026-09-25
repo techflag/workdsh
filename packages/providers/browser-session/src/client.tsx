@@ -11,10 +11,13 @@ import { browserSessionClient } from './client/api.js';
 import { BrowserSessionPane } from './client/BrowserSessionPane.js';
 import { browserSessionStyles } from './client/styles.js';
 
-const TAB = 'workdsh-agent-browser';
+// The Web bundle keeps its Playwright screenshot tab under workdsh-agent-browser.
+// Desktop's managed Electron page is a separate provider and must not register
+// a second renderer for that same tab kind.
+const TAB = 'workdsh-managed-browser';
 
 declare module '@deepseek-ai/dsh-client-ui-sidebar-right/client' {
-  interface SidebarRightTabParamsMap { 'workdsh-agent-browser': Record<string, never>; }
+  interface SidebarRightTabParamsMap { 'workdsh-managed-browser': Record<string, never>; }
 }
 
 export const name = 'workdsh-browser-session-client';
