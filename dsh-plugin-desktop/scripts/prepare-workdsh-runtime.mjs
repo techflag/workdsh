@@ -207,30 +207,26 @@ const isPreparedProfile = candidate => {
 const source = candidates.find(isPreparedProfile)
 
 if (source || !isPreparedProfile(destination) || !existsSync(cli)) {
-  const staged = mkdtempSync(join(desktopRoot, 'build', '.workdsh-profile-'))
   const backup = mkdtempSync(join(desktopRoot, 'build', '.workdsh-profile-backup-'))
   rmSync(backup, { recursive: true })
-  const stagedProfile = join(staged, 'profiles', 'workdsh')
+  if (existsSync(output)) renameSync(output, backup)
   try {
     if (source) {
-      mkdirSync(dirname(stagedProfile), { recursive: true })
+      mkdirSync(dirname(destination), { recursive: true })
       // electron-builder does not follow extra-resource directory links.
-      if (process.platform === 'darwin') run('/bin/cp', ['-cR', resolve(source), stagedProfile])
-      else cpSync(resolve(source), stagedProfile, { recursive: true, dereference: true })
+      if (process.platform === 'darwin') run('/bin/cp', ['-cR', resolve(source), destination])
+      else cpSync(resolve(source), destination, { recursive: true, dereference: true })
     } else {
-      await installReleasedProfile(staged)
+      // pnpm records the absolute virtual-store location. Installing under a
+      // temporary path and renaming it breaks the Profile on Windows.
+      await installReleasedProfile(output)
     }
-    if (!isPreparedProfile(stagedProfile)) throw new Error(`Staged WorkDSH Profile is incomplete: ${stagedProfile}`)
-    if (existsSync(output)) renameSync(output, backup)
-    try {
-      renameSync(staged, output)
-    } catch (error) {
-      if (existsSync(backup)) renameSync(backup, output)
-      throw error
-    }
+    if (!isPreparedProfile(destination)) throw new Error(`Prepared WorkDSH Profile is incomplete: ${destination}`)
     rmSync(backup, { recursive: true, force: true })
-  } finally {
-    rmSync(staged, { recursive: true, force: true })
+  } catch (error) {
+    rmSync(output, { recursive: true, force: true })
+    if (existsSync(backup)) renameSync(backup, output)
+    throw error
   }
 }
 
