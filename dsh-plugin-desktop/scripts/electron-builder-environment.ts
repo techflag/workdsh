@@ -3,7 +3,7 @@
 /**
  * Keep the Desktop package on Electron Builder's bounded physical traversal.
  * Its Yarn Berry collector delegates to `npm list --all`, which expands the
- * outer stable and Beta workspace instead of the selected app's runtime graph.
+ * entire root workspace instead of the selected app's runtime graph.
  */
 export function electronBuilderEnvironment(
   environment: NodeJS.ProcessEnv,
