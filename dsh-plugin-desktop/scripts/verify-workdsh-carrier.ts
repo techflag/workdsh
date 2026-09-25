@@ -51,7 +51,7 @@ export async function afterPack(context: PackContext): Promise<void> {
   const lockfile = readFileSync(join(profile, 'pnpm-lock.yaml'), 'utf8')
   for (const item of release.packages) {
     if (!existsSync(join(cache, item.filename))) throw new Error(`Bundled plugin archive is missing: ${item.filename}`)
-    if (profileManifest.dependencies?.[item.name] !== `file:../../package-cache/${item.filename}`) {
+    if (profileManifest.dependencies?.[item.name]?.replaceAll('\\', '/') !== `file:../../package-cache/${item.filename}`) {
       throw new Error(`Bundled ${item.name} must use a portable plugin archive path`)
     }
   }

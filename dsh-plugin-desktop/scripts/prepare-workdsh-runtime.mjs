@@ -226,7 +226,7 @@ const isPreparedProfile = candidate => {
     const profile = JSON.parse(readFileSync(join(candidate, 'package.json'), 'utf8'))
     const manifest = JSON.parse(readFileSync(resolve(candidate, '..', '..', 'package-cache', 'release-manifest.json'), 'utf8'))
     return requiredBundles.every(name => profile.dsh?.profile?.bundles?.includes(name)) &&
-      manifest.packages.every(item => profile.dependencies?.[item.name] === `file:../../package-cache/${item.filename}`)
+      manifest.packages.every(item => profile.dependencies?.[item.name]?.replaceAll('\\', '/') === `file:../../package-cache/${item.filename}`)
   } catch {
     return false
   }
