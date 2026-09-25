@@ -6,8 +6,6 @@ import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { withoutMacReleaseSecrets } from './release-preflight.ts'
-import { prepareInstalledMacUniversalRuntime } from './mac-universal.ts'
-import { prepareFsExtForElectron } from './prepare-fs-ext.ts'
 import { electronBuilderEnvironment } from './electron-builder-environment.ts'
 
 /** Injectable native macOS packaging boundary used by focused tests. */
@@ -28,8 +26,6 @@ export interface MacSmokePackageOptions {
   readonly outputDir: string
   /** Remove only the dedicated generated smoke output before packaging. */
   readonly resetOutput: () => void
-  /** Validate and prepare both architecture-specific runtime trees. */
-  readonly prepareRuntime: () => void
   /** Absolute electron-builder CLI module. */
   readonly builderCli: string
   /** Local Electron distribution when already installed, avoiding another download. */
@@ -77,11 +73,6 @@ function defaultOptions(): MacSmokePackageOptions {
     desktopRoot,
     outputDir,
     resetOutput: () => rmSync(outputDir, { recursive: true, force: true }),
-    prepareRuntime: () => {
-      prepareFsExtForElectron({ platform: 'darwin', arch: 'arm64', desktopRoot })
-      prepareFsExtForElectron({ platform: 'darwin', arch: 'x64', desktopRoot })
-      prepareInstalledMacUniversalRuntime(desktopRoot)
-    },
     builderCli: require.resolve('electron-builder/cli.js'),
     ...(existsSync(resolve(electronDist, 'Electron.app')) ? { electronDist } : {}),
     verifier: fileURLToPath(new URL('./verify-mac-smoke.ts', import.meta.url)),
@@ -132,7 +123,6 @@ export function packageMacSmoke(options: MacSmokePackageOptions = defaultOptions
     options.log('Skipping the macOS package preflight; the package gate already passed.')
   }
   options.resetOutput()
-  options.prepareRuntime()
   options.run(
     options.nodeExecutable,
     [

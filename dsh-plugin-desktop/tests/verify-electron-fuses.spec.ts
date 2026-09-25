@@ -9,10 +9,8 @@ import {
   verifyElectronExecutableFuses,
   type ElectronArtifactBuildResult,
   type ElectronFuseReader,
+  type PackagedElectronSmoke,
 } from '../scripts/verify-electron-fuses.ts'
-import type {
-  PackagedElectronSmoke,
-} from '../scripts/verify-packaged-runtime.ts'
 
 function result(
   platforms: readonly {

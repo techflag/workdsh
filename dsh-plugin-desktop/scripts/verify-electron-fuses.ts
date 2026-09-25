@@ -10,11 +10,31 @@ import { Arch, archFromString, getArchSuffix } from 'builder-util'
 import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import {
-  resolvePackagedExecutablePath,
-  type PackagedElectronSmoke,
-  type PackagedRuntimeContext,
-} from './verify-packaged-runtime.ts'
+
+export interface PackagedRuntimeContext {
+  readonly appOutDir: string
+  readonly arch?: number
+  readonly electronPlatformName: string
+  readonly packager: {
+    readonly projectDir?: string
+    readonly executableName?: string
+    readonly appInfo: { readonly productFilename: string }
+  }
+}
+
+export type PackagedElectronSmoke = (context: PackagedRuntimeContext) => void
+
+export function resolvePackagedExecutablePath(context: PackagedRuntimeContext): string {
+  const filename = context.packager.appInfo.productFilename
+  if (context.electronPlatformName === 'darwin') {
+    return join(context.appOutDir, `${filename}.app`, 'Contents', 'MacOS', filename)
+  }
+  if (context.electronPlatformName === 'win32') return join(context.appOutDir, `${filename}.exe`)
+  if (context.electronPlatformName === 'linux') {
+    return join(context.appOutDir, context.packager.executableName ?? filename)
+  }
+  throw new Error(`Unsupported Electron platform: ${context.electronPlatformName}`)
+}
 
 /** The CLI lives in the single bundled rc.2 Profile, outside app.asar. */
 export function smokeBundledWorkdshProfile(context: PackagedRuntimeContext): void {

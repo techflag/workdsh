@@ -4,9 +4,9 @@ import { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
-  smokePackagedElectronRuntime,
+  smokeBundledWorkdshProfile,
   type PackagedElectronSmoke,
-} from './verify-packaged-runtime.ts'
+} from './verify-electron-fuses.ts'
 
 export interface InstalledWindowsRuntimeProbe {
   readonly installRoot: string
@@ -20,14 +20,11 @@ function message(cause: unknown): string {
 }
 
 /**
- * Reuse the post-fuse packaging gate instead of maintaining a weaker Windows-
- * only startup approximation. The shared gate exercises DSH, pnpm, the
- * Profile resolver, native ripgrep, the diagnostic Worker, config composition,
- * and a real Loader boot through Electron's RunAsNode mode.
+ * Reuse the post-fuse packaging gate to verify the single bundled rc.2 CLI.
  */
 export function probeInstalledWindowsRuntime(
   installRoot: string,
-  smoke: PackagedElectronSmoke = smokePackagedElectronRuntime,
+  smoke: PackagedElectronSmoke = smokeBundledWorkdshProfile,
   platform: NodeJS.Platform = process.platform,
 ): InstalledWindowsRuntimeProbe {
   const root = resolve(installRoot)

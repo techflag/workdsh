@@ -11,13 +11,17 @@ interface PackContext {
   packager: { appInfo: { productFilename: string } }
 }
 
+export function normalizeAsarEntry(entry: string): string {
+  return entry.replaceAll('\\', '/').replace(/^\//u, '')
+}
+
 export async function afterPack(context: PackContext): Promise<void> {
   const resources = context.electronPlatformName === 'darwin'
     ? join(context.appOutDir, `${context.packager.appInfo.productFilename}.app`, 'Contents', 'Resources')
     : join(context.appOutDir, 'resources')
   const archive = join(resources, 'app.asar')
   if (!existsSync(archive)) throw new Error(`Missing Electron carrier: ${archive}`)
-  const entries = listPackage(archive, { isPack: false }).map(entry => entry.replace(/^\//u, ''))
+  const entries = listPackage(archive, { isPack: false }).map(normalizeAsarEntry)
   if (!entries.includes('lib/workdsh-main.js')) throw new Error('Electron carrier has no WorkDSH entry point')
   if (entries.some(entry => entry.startsWith('node_modules/'))) {
     throw new Error('Electron carrier contains duplicate node_modules; Harness must come only from the bundled Profile')
