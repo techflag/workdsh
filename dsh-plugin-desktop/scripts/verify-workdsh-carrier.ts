@@ -2,8 +2,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { extractFile, listPackage } from '@electron/asar'
-
-const HARNESS_VERSION = '0.1.7-rc.2'
+import { DSH_VERSION } from './runtime-version.mjs'
 
 interface PackContext {
   appOutDir: string
@@ -38,19 +37,19 @@ export async function afterPack(context: PackContext): Promise<void> {
   const primary = JSON.parse(readFileSync(join(runtime, 'primary-runtime', 'runtime.json'), 'utf8')) as {
     desktopVersion?: string
   }
-  if (primary.desktopVersion !== HARNESS_VERSION) {
-    throw new Error(`Bundled primary runtime is ${String(primary.desktopVersion)}, expected ${HARNESS_VERSION}`)
+  if (primary.desktopVersion !== DSH_VERSION) {
+    throw new Error(`Bundled primary runtime is ${String(primary.desktopVersion)}, expected ${DSH_VERSION}`)
   }
   const packages = join(runtime, 'profiles', 'workdsh', 'node_modules', '@deepseek-ai')
   const names = readdirSync(packages).filter(name => name === 'dsh' || name.startsWith('dsh-'))
   if (names.length === 0) throw new Error('Bundled WorkDSH Profile has no Harness packages')
   for (const name of names) {
     const pkg = JSON.parse(readFileSync(join(packages, name, 'package.json'), 'utf8')) as { version?: string }
-    if (pkg.version !== HARNESS_VERSION) {
-      throw new Error(`Bundled ${name} is ${String(pkg.version)}, expected ${HARNESS_VERSION}`)
+    if (pkg.version !== DSH_VERSION) {
+      throw new Error(`Bundled ${name} is ${String(pkg.version)}, expected ${DSH_VERSION}`)
     }
   }
-  console.log(`Verified thin Electron carrier and ${names.length} Harness ${HARNESS_VERSION} packages`)
+  console.log(`Verified thin Electron carrier and ${names.length} Harness ${DSH_VERSION} packages`)
 }
 
 export default afterPack

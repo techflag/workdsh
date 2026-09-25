@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { DSH_VERSION } from './runtime-version.mjs'
 
 const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const upstreamRoot = resolve(desktopRoot, '..', 'deepseek-harness')
@@ -36,9 +37,9 @@ if (!existsSync(manifestPath) || !existsSync(join(output, 'office-skills'))) {
   throw new Error('Official primary runtime payload is incomplete')
 }
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-if (manifest.desktopVersion !== '0.1.7-rc.2' || manifest.platform !== process.platform
+if (manifest.desktopVersion !== DSH_VERSION || manifest.platform !== process.platform
   || manifest.arch !== target.slice(4)) {
-  throw new Error(`Official primary runtime metadata does not match ${target} / rc.2`)
+  throw new Error(`Official primary runtime metadata does not match ${target} / ${DSH_VERSION}`)
 }
 const profile = join(output, 'profiles', 'workdsh')
 const packagePath = join(profile, 'package.json')
@@ -48,12 +49,12 @@ const packages = [
   '@deepseek-ai/dsh-tool-workspace-dependencies',
   '@deepseek-ai/dsh-skill-office',
 ]
-if (packages.some(name => profilePackage.dependencies?.[name] !== '0.1.7-rc.2'
+if (packages.some(name => profilePackage.dependencies?.[name] !== DSH_VERSION
   || !existsSync(join(profile, 'node_modules', name, 'package.json')))) {
   const pnpm = process.platform === 'win32' ? 'npx.cmd' : 'npx'
   const install = spawnSync(pnpm, [
     '--yes', 'pnpm@11.8.0', '--dir', profile, 'add', '--save-exact',
-    ...packages.map(name => `${name}@0.1.7-rc.2`),
+    ...packages.map(name => `${name}@${DSH_VERSION}`),
   ], { env: process.env, stdio: 'inherit', shell: process.platform === 'win32' })
   if (install.error) throw install.error
   if (install.status !== 0) throw new Error(`Official Office plugins failed to install: ${install.status}`)

@@ -5,6 +5,7 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync, rmdirSync, statSync
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { DSH_VERSION } from './runtime-version.mjs'
 
 /** Injectable filesystem and command boundaries for smoke verification. */
 export interface MacSmokeVerificationOptions {
@@ -139,7 +140,7 @@ export function verifyMacSmoke(
       python?: unknown
       node?: unknown
     }
-    if (runtime.desktopVersion !== '0.1.7-rc.2' || runtime.platform !== 'darwin'
+    if (runtime.desktopVersion !== DSH_VERSION || runtime.platform !== 'darwin'
       || runtime.arch !== options.targetArch || runtime.python !== '3.12.14' || runtime.node !== '24.21.0') {
       throw new Error(`macOS DMG has mismatched bundled primary runtime: ${JSON.stringify(runtime)}`)
     }

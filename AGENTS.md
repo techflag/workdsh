@@ -16,16 +16,16 @@ This repository owns the desktop product around an unmodified DeepSeek Harness c
 - Run type checking with `corepack yarn typecheck`.
 - Run the complete headless gate with `corepack yarn check`.
 - `dsh-plugin-desktop/` is the only Desktop source and release workspace. Do not reintroduce a copied Beta package; optional release channels must build from this same source and pinned DSH version.
-- The pinned `deepseek-harness/` version is the single DSH version for the Desktop source dependencies and packaged WorkDSH Profile. A DSH upgrade is incomplete until `corepack yarn check:desktop-dsh-alignment` passes and the Desktop workspace builds and passes tests against that version. Do not replace old package versions mechanically: if an upstream package was removed or renamed, migrate its imports and API usage first. Do not tag a Desktop release or describe its source as version-aligned while this check fails. The packaged-runtime checks must also confirm that the Desktop carrier contains no second DSH installation.
+- The pinned `deepseek-harness/` version is the single DSH version for the packaged WorkDSH Profile. Desktop source is an Electron carrier without direct DSH dependencies. A DSH upgrade is incomplete until `corepack yarn check:desktop-dsh-alignment`, the Desktop checks, and a packaged-runtime check pass. Default to the newest official stable DSH release after compatibility validation; use a pre-release only by explicit product decision. Do not tag a Desktop release while the version gate fails. The carrier must contain no second DSH installation.
 - Run upstream operations through the root scripts, such as `corepack yarn upstream:build`.
 
 - `deepseek-harness/` is a pinned upstream Git submodule. Never edit files inside it from a desktop feature branch.
-- `dsh-plugin-desktop/` owns the Cordis Host and Client faces, Electron bootstrap, packaging, and release tests.
+- `dsh-plugin-desktop/` owns the Electron carrier, packaging, and release tests. DSH Host and Client code comes from the pinned upstream runtime Profile; WorkDSH features belong to the WorkDSH Profile packages.
 - `dsh-community-fabric/` owns the community interoperability RFC. Until schemas and a reviewed reference adapter exist, it remains a private documentation scaffold and must not declare loadable DSH or package entry points.
 - `dsh-community-market/` owns the community-market shell. Until its runtime is implemented, it remains a private documentation scaffold and must not declare loadable DSH or package entry points.
 - The outer repository and all owned packages use the root Yarn release with `nodeLinker: node-modules`.
 - The upstream submodule keeps its own pnpm workspace. Run upstream commands through the root `upstream:*` scripts, whose Yarn portable-shell commands enter the submodule before invoking Corepack.
-- Compatibility mode must run the upstream default client without overrides. Advanced presentation belongs to desktop-owned client plugins and may replace documented slots or services through profile composition.
+- Keep presentation and WorkDSH feature changes in the Profile rather than adding a second Desktop Host or Client implementation.
 - Keep graphical application launch explicit. Builds, typechecks, unit tests, and Loader smokes must remain headless-safe.
 - Commit before major changes of direction and keep the submodule pin update separate from desktop behavior changes.
 - Keep the repository topology and package-manager split consistent with the [owning Agent Note](.agents/notes/implemented/process/2026-08-15-pinned-upstream-and-isolated-yarn-workspace.md).

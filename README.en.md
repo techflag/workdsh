@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  Everything is a plugin — the desktop itself is a plugin.
+  Official DSH runtime with WorkDSH projects, library, experts, skills, and connectors.
 </p>
 
 <p align="center"><sub>An independent community project, not affiliated with, authorized by, or endorsed by DeepSeek.<br>No DeepSeek employee or official upstream DeepSeek Harness team member currently participates in this repository; upstream contributors shown by GitHub are inherited from synchronized fork history.<br><a href="README.md">中文</a> · English</sub></p>
@@ -19,18 +19,18 @@
   <img src="https://img.shields.io/badge/macOS%20%7C%20Windows-4493F8?style=flat-square" alt="Supported platforms: macOS and Windows">
 </p>
 
-WorkDSH integrates the local Web UI, Host service, and plugin system from [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) into a native desktop application. It runs a pinned upstream version unchanged, while WorkDSH provides the window, tray, terminal, updates, and work profiles through the plugin mechanism provided by DeepSeek Harness.
+WorkDSH integrates the local Web UI, Host service, and plugin system from [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) into a native desktop window. It runs a pinned upstream version unchanged; projects, library, experts, skills, and connectors come from the WorkDSH Profile.
 
 <a id="run"></a>
 
 ## Download and install
 
-The desktop app is in Alpha testing, targeting Windows x64 and macOS Universal. On [Releases](https://github.com/techflag/workdsh/releases), choose the newest Desktop release that **actually contains installers**. A release containing only source archives does not mean desktop installers have shipped.
+The desktop app is in Alpha testing, targeting Windows x64 and separate macOS Apple Silicon (arm64) and Intel (x64) packages. On [Releases](https://github.com/techflag/workdsh/releases), choose the newest Desktop release that **actually contains installers**. A release containing only source archives does not mean desktop installers have shipped.
 
 | Platform | Download | Installation |
 | --- | --- | --- |
 | Windows x64 | [Browse Desktop Releases](https://github.com/techflag/workdsh/releases) | Download the Windows Setup or Portable file for that release; run the installer or extract the portable archive |
-| macOS Universal | [Browse Desktop Releases](https://github.com/techflag/workdsh/releases) | Download the macOS DMG for that release and drag WorkDSH into Applications |
+| macOS arm64 / x64 | [Browse Desktop Releases](https://github.com/techflag/workdsh/releases) | Choose the DMG for your computer and drag WorkDSH into Applications |
 
 > This is an Alpha preview. Projects, Library, and cross-plugin composition remain under active validation; back up your workspace and profile before upgrading.
 
@@ -71,7 +71,7 @@ Ordinary users can start with the [user guide](docs/user-guide.en.md); the devel
 | Join the unified plugin-contract discussion | [DSH Community Fabric Draft](dsh-community-fabric/README.md) |
 | See the research behind the unified plugin framework | [Framework and real-plugin research](dsh-community-fabric/docs/research/mature-plugin-frameworks.md) |
 | Read the plugin market product and safety design | [DSH Community Market](dsh-community-market/README.md) |
-| See what Desktop plugins can use | [Desktop plugin API](dsh-plugin-desktop/docs/plugin-services.md) |
+| Understand Desktop and feature ownership | [Ownership boundaries](docs/desktop-boundaries.md) |
 | Understand how the desktop works | [Architecture](docs/architecture.en.md) |
 | Read package-level build and release details | [`dsh-plugin-desktop/README.md`](dsh-plugin-desktop/README.md) |
 
@@ -91,7 +91,7 @@ Ordinary users can start with the [user guide](docs/user-guide.en.md); the devel
   <tr>
     <td width="50%" valign="top">
       <h3>Desktop</h3>
-      <p>Bring the upstream DeepSeek Harness local Web UI to a native desktop application. The app starts and manages the local Harness service, integrates the system tray and desktop window, and requires no Node.js installation or command-line setup.</p>
+      <p>Bring the upstream DeepSeek Harness local Web UI to a native desktop application. The app starts the local Harness service in a desktop window and requires no separate Node.js installation.</p>
     </td>
     <td width="50%" valign="top">
       <h3>Mobile Remote Control <img src="https://img.shields.io/badge/COMING_SOON-F59E0B?style=flat-square" alt="Coming Soon"></h3>
@@ -110,27 +110,11 @@ Ordinary users can start with the [user guide](docs/user-guide.en.md); the devel
   </tr>
 </table>
 
-### First-run setup, browser access, and LAN exposure
+## Plugin ecosystem
 
-On the normal first launch of each uninitialized profile, Desktop shows its native Setup Wizard first. It can configure the window mode and system material, plugin marketplace, notifications, whether to open the system default browser automatically, and the Web access scope; it can also be skipped. The Host and main DSH window do not start until the wizard is completed or skipped. Completion or skip state is recorded separately for each profile; an explicit recovery launch still enters Recovery Assistant first.
+WorkDSH uses the official DSH plugin mechanism. Projects, library, experts, skills, and connectors are WorkDSH product packages; activity, Office, audit, access, and providers support the same Profile. The Electron carrier owns only the window, startup, and installer, without another DSH Host or Web Client. Community Fabric and Market remain design documentation.
 
-The Web service listens on the local loopback interface by default. When **Open in browser** is enabled, Desktop hands the page to the system default browser after the Web service is actually ready; this preference does not change the listener exposure. **Desktop settings** shows the actual local URL below the control. LAN access is a separate opt-in setting and exposes the currently available LAN URLs when enabled.
-
-> **Danger:** LAN exposure has no authentication. Anyone on the same local network can open DSH and directly operate your computer. Enable it only on a fully trusted network and with great care.
-
-The automatic updater's fixed version-check request sends the installed version in the `X-DSH-Desktop-Version` header, `stable` in the `X-DSH-Desktop-Channel` header, and a locally generated, persistently stored random UUID in the `X-DSH-Desktop-Installation-Id` header; the value is not derived from hardware information. Package download requests and their download redirects do not receive these headers.
-
-## Plugin Ecosystem
-
-Plugins are extensions that add capabilities to DSH — models, tools, interfaces, and workflows can all be plugins, combined like building blocks.
-
-WorkDSH does not modify upstream source, and it is not a fixed, hardcoded shell. A pinned upstream DeepSeek Harness version runs unchanged; the desktop shell itself — the window, tray, terminal, updates, and work profiles — integrates as a DSH plugin through the plugin mechanism provided by DeepSeek Harness. From the core agent to the desktop shell, the whole product follows the same "everything is a plugin" rule: plugins compatible with the pinned upstream version can be used, while desktop capabilities are composed, replaced, and evolved in the same way.
-
-We want the plugin ecosystem to work like a phone app store: every plugin is built against the same set of rules, so plugins can be installed together and work together without interfering with each other.
-
-### For developers
-
-Unlike many other projects, this project itself is a DSH [plugin](docs/plugin-development.en.md): the desktop shell uses the same plugin composition mechanism as third-party plugins. Desktop plugin capabilities are now available. We provide Desktop services so plugin developers can integrate their plugins with desktop capabilities: for example, viewing and switching work profiles, or installing, updating, and removing plugins in the active profile. See the [Desktop plugin API](dsh-plugin-desktop/docs/plugin-services.md) for complete usage details. See [Why WorkDSH](docs/why-desktop.en.md) and [Plugin development](docs/plugin-development.en.md) for the reasoning and the third-party boundary.
+Developers can read [plugin development](docs/plugin-development.en.md), the [architecture](docs/architecture.en.md), and [ownership boundaries](docs/desktop-boundaries.md). The current carrier has no former tray, multi-Profile selector, or automatic update manager. Download updates manually from [Releases](https://github.com/techflag/workdsh/releases).
 
 ## Relationship to DeepSeek Harness
 
@@ -141,8 +125,9 @@ This repository is independently maintained by the community. No DeepSeek employ
 The upstream project provides the core agent capabilities, plugin system, and Web UI. WorkDSH primarily provides:
 
 - Desktop application packaging
-- Starting, stopping, and recovering the local service
-- Desktop window and system tray integration
+- Starting and stopping the local service
+- Desktop window integration
+- Projects, library, experts, skills, and connectors
 - macOS and Windows installer builds and releases
 - An interface designed for desktop use
 

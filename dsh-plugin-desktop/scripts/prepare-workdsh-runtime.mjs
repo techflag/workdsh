@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process'
-import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { DSH_VERSION } from './runtime-version.mjs'
+import { verifyProfileRelease } from './verify-profile-release.mjs'
 
 const WORKDSH_VERSION = '0.1.0-alpha.13'
-const DSH_VERSION = '0.1.7-rc.2'
 const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const output = join(desktopRoot, 'build', 'workdsh-runtime')
 const destination = join(output, 'profiles', 'workdsh')
@@ -16,6 +17,11 @@ function run(command, args, options = {}) {
   const result = spawnSync(command, args, { stdio: 'inherit', ...options })
   if (result.error) throw result.error
   if (result.status !== 0) throw new Error(`${command} exited with ${result.status}`)
+}
+
+function replaceRequired(input, expected, replacement, description) {
+  if (!input.includes(expected)) throw new Error(`WorkDSH release installer changed: ${description}`)
+  return input.replace(expected, replacement)
 }
 
 async function download(url, path) {
@@ -40,7 +46,7 @@ async function download(url, path) {
   }
 }
 
-async function installReleasedProfile() {
+async function installReleasedProfile(output) {
   const releaseDir = join(desktopRoot, 'build', `.workdsh-release-${WORKDSH_VERSION}`)
   mkdirSync(releaseDir, { recursive: true })
   const base = `https://github.com/techflag/workdsh/releases/download/v${WORKDSH_VERSION}`
@@ -50,30 +56,24 @@ async function installReleasedProfile() {
   const installerPath = join(releaseDir, 'install-workdsh.mjs')
   await download(`${base}/install-workdsh.mjs`, rawInstallerPath)
   let installer = readFileSync(rawInstallerPath, 'utf8')
-  installer = installer.replace(
+  installer = replaceRequired(installer,
     'profilePackage.packageManager = manifest.packageManager;',
     "profilePackage.packageManager = manifest.packageManager;\n  profilePackage.devEngines = { ...profilePackage.devEngines, packageManager: { name: 'pnpm', version: manifest.packageManager.slice('pnpm@'.length), onFail: 'ignore' } };",
+    'package-manager declaration',
   )
-  installer = installer
-    .replace("const runtimeArgs = ['pnpm', '--dir',", "const runtimeArgs = ['--dir',")
-    .replace("spawnSync(corepack, ['pnpm', '--dir',", "spawnSync(corepack, ['--dir',")
+  installer = replaceRequired(installer, "const runtimeArgs = ['pnpm', '--dir',", "const runtimeArgs = ['--dir',", 'runtime pnpm invocation')
+  installer = replaceRequired(installer, "spawnSync(corepack, ['pnpm', '--dir',", "spawnSync(corepack, ['--dir',", 'profile pnpm invocation')
   if (process.platform === 'win32') {
-    installer = installer
-      .replace("import { spawnSync } from 'node:child_process';", "import { spawnSync as nativeSpawnSync } from 'node:child_process';")
-      .replace('const argv = process.argv.slice(2);', "const portableSpawn = (command, args, options = {}) => nativeSpawnSync(command, args, { ...options, shell: true, timeout: 5 * 60_000 });\nconst argv = process.argv.slice(2);")
-      .replaceAll('spawnSync(', 'portableSpawn(')
+    installer = replaceRequired(installer, "import { spawnSync } from 'node:child_process';", "import { spawnSync as nativeSpawnSync } from 'node:child_process';", 'Windows spawn import')
+    installer = replaceRequired(installer, 'const argv = process.argv.slice(2);', "const portableSpawn = (command, args, options = {}) => nativeSpawnSync(command, args, { ...options, shell: true, timeout: 5 * 60_000 });\nconst argv = process.argv.slice(2);", 'Windows argument handling')
+    if (!installer.includes('spawnSync(')) throw new Error('WorkDSH release installer changed: Windows spawn calls')
+    installer = installer.replaceAll('spawnSync(', 'portableSpawn(')
   }
   writeFileSync(installerPath, installer)
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-  manifest.harness = DSH_VERSION
-  for (const name of Object.keys(manifest.runtimeOverrides ?? {})) {
-    if (name === '@deepseek-ai/dsh' || name.startsWith('@deepseek-ai/dsh-')) {
-      manifest.runtimeOverrides[name] = DSH_VERSION
-    }
-  }
-  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n')
+  verifyProfileRelease(manifest, DSH_VERSION)
   const installSpawn = process.platform === 'win32' ? 'portableSpawn' : 'spawnSync'
-  installer = readFileSync(installerPath, 'utf8').replace(
+  installer = replaceRequired(readFileSync(installerPath, 'utf8'),
     "  execute(['plugin', '--profile', profile, 'add', join(directory, item.filename)]);",
     `  execute(['plugin', '--profile', profile, 'allow-version', \`\${name}@\${item.version}\`, '--dsh-version', expectedHarness, '--accept-risk']);
   // The DSH plugin-manager wrapper can retain an idle pnpm process after a
@@ -92,17 +92,19 @@ async function installReleasedProfile() {
     profilePackage.dsh = { ...profilePackage.dsh, profile: { ...profilePackage.dsh?.profile, bundles } };
     writeFileSync(profileManifest, JSON.stringify(profilePackage, null, 2) + '\\n');
   }`,
+    'plugin installation step',
   )
   if (process.platform === 'win32') {
     // pnpm.cmd can leave cmd.exe waiting after pnpm has finished. Execute the
     // pinned JavaScript CLI with the bundled Node process directly instead.
-    installer = installer
-      .replace(
+    installer = replaceRequired(installer,
         "const corepack = value('--corepack', 'corepack');",
         "const corepack = value('--corepack', 'corepack');\nconst bundledPnpmCli = join(dirname(corepack), '.dsh-cli', 'node_modules', 'pnpm', 'bin', 'pnpm.mjs');",
+        'Windows bundled pnpm path',
       )
-      .replaceAll('portableSpawn(corepack, [', 'nativeSpawnSync(process.execPath, [bundledPnpmCli, ')
-      .replace('portableSpawn(corepack, runtimeArgs,', 'nativeSpawnSync(process.execPath, [bundledPnpmCli, ...runtimeArgs],')
+    if (!installer.includes('portableSpawn(corepack, [')) throw new Error('WorkDSH release installer changed: Windows pnpm invocation')
+    installer = installer.replaceAll('portableSpawn(corepack, [', 'nativeSpawnSync(process.execPath, [bundledPnpmCli, ')
+    installer = replaceRequired(installer, 'portableSpawn(corepack, runtimeArgs,', 'nativeSpawnSync(process.execPath, [bundledPnpmCli, ...runtimeArgs],', 'Windows runtime pnpm invocation')
     if (installer.includes('portableSpawn(corepack,') || !installer.includes('bundledPnpmCli')) {
       throw new Error('Windows release installer still invokes pnpm through cmd.exe')
     }
@@ -171,7 +173,6 @@ async function prepareNodeExecutable(path) {
 const candidates = [
   process.env.WORKDSH_BUNDLED_PROFILE,
   process.env.WORKDSH_DSH_HOME && join(process.env.WORKDSH_DSH_HOME, 'profiles', 'workdsh'),
-  '/tmp/workdsh-desktop-profile.IbF6US/profiles/workdsh',
 ].filter(Boolean)
 const installedDshVersion = candidate => {
   try {
@@ -205,16 +206,32 @@ const isPreparedProfile = candidate => {
 }
 const source = candidates.find(isPreparedProfile)
 
-if (source) {
-  rmSync(output, { recursive: true, force: true })
-  mkdirSync(dirname(destination), { recursive: true })
-  // electron-builder intentionally does not follow extra-resource directory links.
-  // Clone into a real directory; APFS copy-on-write keeps local preparation fast.
-  if (process.platform === 'darwin') run('/bin/cp', ['-cR', resolve(source), destination])
-  else cpSync(resolve(source), destination, { recursive: true, dereference: true })
-} else if (!isPreparedProfile(destination) || !existsSync(cli)) {
-  rmSync(output, { recursive: true, force: true })
-  await installReleasedProfile()
+if (source || !isPreparedProfile(destination) || !existsSync(cli)) {
+  const staged = mkdtempSync(join(desktopRoot, 'build', '.workdsh-profile-'))
+  const backup = mkdtempSync(join(desktopRoot, 'build', '.workdsh-profile-backup-'))
+  rmSync(backup, { recursive: true })
+  const stagedProfile = join(staged, 'profiles', 'workdsh')
+  try {
+    if (source) {
+      mkdirSync(dirname(stagedProfile), { recursive: true })
+      // electron-builder does not follow extra-resource directory links.
+      if (process.platform === 'darwin') run('/bin/cp', ['-cR', resolve(source), stagedProfile])
+      else cpSync(resolve(source), stagedProfile, { recursive: true, dereference: true })
+    } else {
+      await installReleasedProfile(staged)
+    }
+    if (!isPreparedProfile(stagedProfile)) throw new Error(`Staged WorkDSH Profile is incomplete: ${stagedProfile}`)
+    if (existsSync(output)) renameSync(output, backup)
+    try {
+      renameSync(staged, output)
+    } catch (error) {
+      if (existsSync(backup)) renameSync(backup, output)
+      throw error
+    }
+    rmSync(backup, { recursive: true, force: true })
+  } finally {
+    rmSync(staged, { recursive: true, force: true })
+  }
 }
 
 if (!existsSync(cli)) throw new Error(`Failed to prepare WorkDSH runtime at ${destination}`)

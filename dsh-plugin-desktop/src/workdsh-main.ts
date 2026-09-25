@@ -17,7 +17,6 @@ import { isAbsolute, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const PROFILE_NAME = 'workdsh'
-const RUNTIME_VERSION = '0.1.0-alpha.13+dsh-0.1.7-rc.2'
 const READY_PATTERN = /dsh web:\s+(http:\/\/127\.0\.0\.1:\d+\/?\?token=[^\s]+)/u
 
 let runtime: ChildProcess | undefined
@@ -48,6 +47,8 @@ function bundledNodeExecutable(): string {
 }
 
 function bundledPrimaryRuntime(): string {
+  const overridden = process.env.WORKDSH_PRIMARY_RUNTIME
+  if (overridden !== undefined && overridden.length > 0) return overridden
   return join(process.resourcesPath, 'workdsh-runtime', 'primary-runtime')
 }
 
@@ -100,6 +101,9 @@ function materializeRuntimeProfile(home: string): string {
   if (!existsSync(sourceModules)) {
     throw new Error(`Bundled WorkDSH runtime is incomplete: ${sourceModules}`)
   }
+  const dsh = JSON.parse(readFileSync(join(sourceModules, '@deepseek-ai', 'dsh', 'package.json'), 'utf8')) as { version: string }
+  const bundle = JSON.parse(readFileSync(join(sourceModules, 'workdsh-bundle', 'package.json'), 'utf8')) as { version: string }
+  const runtimeVersion = `${bundle.version}+dsh-${dsh.version}`
   mkdirSync(target, { recursive: true })
   for (const name of ['package.json', 'cordis.yml', 'cordis.patch.yml', 'pnpm-lock.yaml', 'pnpm-workspace.yaml']) {
     const from = join(source, name)
@@ -114,7 +118,7 @@ function materializeRuntimeProfile(home: string): string {
     cpSync(sourceCompatibility, targetCompatibility)
   }
   const installedVersion = existsSync(marker) ? readFileSync(marker, 'utf8').trim() : undefined
-  if (existsSync(targetModules) && installedVersion !== RUNTIME_VERSION) {
+  if (existsSync(targetModules) && installedVersion !== runtimeVersion) {
     const stat = lstatSync(targetModules)
     if (!stat.isSymbolicLink()) {
       throw new Error(
@@ -128,7 +132,7 @@ function materializeRuntimeProfile(home: string): string {
   if (!existsSync(targetModules)) {
     symlinkSync(sourceModules, targetModules, process.platform === 'win32' ? 'junction' : 'dir')
   }
-  writeFileSync(marker, `${RUNTIME_VERSION}\n`, 'utf8')
+  writeFileSync(marker, `${runtimeVersion}\n`, 'utf8')
   return target
 }
 

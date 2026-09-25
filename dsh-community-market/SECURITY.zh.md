@@ -2,6 +2,8 @@
 
 [English](SECURITY.md)
 
+本文记录历史 Market 设计。当前 Desktop 不包含该 Market，也没有 `desktopPnpm` 服务。
+
 ## 信任模型
 
 目录响应是不可信远程数据。被目录收录、provider 徽章、仓库链接或显示在**可安装**中，都不代表安全审核、维护者身份验证、推荐或兼容性保证。

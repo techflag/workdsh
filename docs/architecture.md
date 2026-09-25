@@ -1,77 +1,22 @@
-# DSH Desktop 架构
+# WorkDSH Desktop 架构
 
-## 总览
+[English](architecture.en.md)
 
-DSH Desktop 是一个薄的 Electron 宿主。它在 Electron main 进程中启动官方 DSH Host，Host 再通过 HTTP/WebSocket Web carrier 提供普通 Web UI；carrier 默认只监听回环地址，也可在用户明确确认风险后向局域网开放。Desktop 没有另造一条 renderer IPC 插件系统，也不把 Electron API 暴露给页面。
+WorkDSH Desktop 是一个 Electron 外壳，运行一套固定版本的 DeepSeek Harness Profile。`dsh-plugin-desktop/src/workdsh-main.ts` 是安装包唯一的应用入口；`deepseek-harness/` 是不修改的上游子模块。安装包中的 `workdsh-runtime/profiles/workdsh` 提供 DSH Host、Web UI 和 WorkDSH 功能包。
 
 ```mermaid
 flowchart LR
-  User[用户] --> Native[Electron main / tray / window]
-  Native --> Launcher[Profile launcher]
-  Launcher --> Host[Host Cordis generation]
-  Host --> Carrier[HTTP + WebSocket Web carrier]
-  Carrier --> Renderer[Sandboxed Web renderer]
-  Host --> Upstream[Upstream DSH services]
-  Host --> Desktop[Desktop-owned plugins]
-  Host --> ThirdParty[Third-party plugins]
-  Launcher --> Services[desktopProfiles + desktopPnpm]
-  Services --> ThirdParty
+  Electron[Electron 窗口] --> Local[本机 DSH Web 服务]
+  Node[安装包内 Node] --> CLI[Profile 内 DSH CLI]
+  CLI --> Local
+  CLI --> Official[官方 DSH 能力]
+  CLI --> WorkDSH[WorkDSH 功能包]
 ```
 
-## 启动顺序
+启动时，Electron 将 Profile 复制到应用数据目录并链接其依赖，使用安装包内的 Node 启动 `dsh --profile workdsh --no-open`。DSH 就绪后，窗口加载服务输出的本机 token URL。关闭 Windows 窗口会退出并终止子进程；macOS 遵循系统窗口生命周期。当前外壳没有旧版的托盘、模式切换、多 Profile 选择或自动更新管理器。
 
-1. Electron 获取单实例锁，并读取 Desktop 私有的 profile/mode 状态。
-2. Launcher 准备激活 profile，但不会为了列举 profile 而改写用户 profile。
-3. Launcher 提供当前 generation 的 native runtime、`desktopProfiles` bootstrap 和内置 pnpm 环境。
-4. Host Cordis root 启动 Loader entries。Desktop service 在第三方插件可读取前注册。
-5. 官方 `dsh-base`、`dsh-web-app` 和 profile 中的第三方 bundle 组成 Web carrier。
-6. Host 默认绑定 loopback，也可按已确认的设置绑定所有网络接口；Electron 创建 BrowserWindow 并从 loopback 地址加载同源页面。
-7. Web surface 成功加载后才创建托盘并提交 profile 的 last-known-good 状态。
+WorkDSH 的项目、资料库、专家、技能、连接器通过 `workdsh-bundle` 组合。活动记录和 Office 支撑这些产品界面；审计、访问控制与本地身份、浏览器会话是 Profile 内部服务。它们都不是第二个 Desktop，也不在 Electron 外壳内另装一套 DSH。市场与 Fabric 目前只保留设计文档，不随安装包运行。
 
-任何 profile 或模式切换都会 dispose 当前 generation，再启动新的 generation。Service reference、窗口对象和 subprocess handle 都不能跨 generation 缓存。
+`upstream.json` 记录唯一的上游提交和版本。外壳不直接依赖 DSH npm 包。打包脚本读取该版本来准备和验证 Profile、官方主运行时与安装包；安装后的 `app.asar` 只含 Electron 入口，不含第二个 `node_modules`。升级时依次更新上游固定提交、WorkDSH Profile 兼容版本和打包资源，并通过 `corepack yarn check`、平台打包检查及安装包启动验证。默认采用上游最新正式版，预发布版本需要明确选择。
 
-## Host、Client 和 native runtime
-
-- **Upstream Host**：agent、model、tool、session、settings、webServer 和 subprocess 等官方能力。
-- **Desktop Host**：窗口、托盘、profile、终端、更新，以及对第三方开放的两个 service。
-- **Web Client**：官方 Web UI 和第三方浏览器界面。它通过共享 Web carrier 工作，不直接调用 Electron。
-- **Native runtime**：Electron BrowserWindow、系统托盘、文件/网络/安装器适配。`desktopRuntime` 只供 Desktop 自有 row 使用。
-
-兼容模式的 Client face 会校验环境，并且只通过 overlay slot 加入一条独立的 36 像素 Desktop frame；官方 layout、root、sidebar 与 conversation 作为完全无关的内容 viewport 从它下方开始。扩展窗口会禁用官方 root layout，安装自己独立注册的 Desktop layout/sidebar surface，并在倒 L 材质 frame 中继续承载官方 sidebar、conversation 与 details occupant。增强模式保留独立 root registration 与最初的紧凑内部 caption 几何。macOS 与 Windows 会按系统能力使用原生材质，同时不改变上游 occupant slot 的所有权。
-
-Desktop 级确认、警告、错误与结果不会进入 Web Client 组件树。`DesktopDialogWindow` 会创建独立、沙箱化的模态 `BrowserWindow`，应用共享的空白 utility frame，并在可能时以当前 generation 窗口为 parent，只接受一次有界本地结果。恢复模式与新增 Profile 是使用同一套无标题 frame 的独立 Desktop-owned 窗口。恢复页面本身使用 shadcn，先展示原因，再提供四个工作流 Tab；破坏性恢复操作会把确认交回 `DesktopDialogWindow`。
-
-### 原生 Shell generation 与平台 adapter
-
-`ElectronRuntime` 负责协调 Host 与原生桌面环境，但不直接拥有窗口和托盘的细节。每次启动由一个 `ElectronShellGeneration` module 完整拥有 `BrowserWindow`、`Tray`、相关 Electron listener、导航限制、外链处理和缩放快捷键。释放 generation 必须通过其幂等 `release()` interface 完成，调用方不能跨 generation 缓存或单独销毁这些资源。
-
-平台差异集中在启动时选择一次的 `ElectronPlatformStrategy` seam。Windows、macOS 与 Linux adapter 声明目录选择、Shell 模式切换和更新下载能力，并负责各自的菜单、Dock 图标与原生材质操作。新的平台分支应进入对应 adapter；generation 与 runtime 中只保留各平台共享的生命周期流程。
-
-## Profile 与服务边界
-
-profile 的名字和绝对目录由 `desktopProfiles.current` 提供，不能从 argv、settings 或 URL 猜测。`list()` 是只读发现；`select()` 记录 pending target，并通过重启完成切换。
-
-`desktopPnpm.run()` 直接跑内置 pnpm；`runPlugin()` 通过打包的 DSH CLI 维持 profile 初始化、相对 source 和 bundle reconcile。两者都属于当前 generation，并由 subprocess service 管理完整进程树。
-
-Launcher 私有的 `desktopRuntime`、`desktopPnpmBootstrap`、Electron executable、Node helper 和 ABI 环境不是第三方 API。保留的 Desktop 包公开 contract 是 `dsh-plugin-desktop/profile-service` 与 `dsh-plugin-desktop/pnpm`；旧 Beta 包仅作为历史兼容对象识别。
-
-## 打包与运行时闭包
-
-发布包使用 Electron Builder 和 `app.asar`，但需要物理 unpack 的依赖（例如 pnpm、node-pty、Windows ACL/native 文件）会放在 `app.asar.unpacked`。Packaged runtime gate 会检查 ASAR 入口和物理运行时入口，profile fallback 不能把符号链接指向无法被 Node 解析的虚拟 ASAR 路径。
-
-根 workspace 使用 Yarn；固定的 `deepseek-harness/` 子模块保持上游自己的 pnpm workspace。Desktop 源码仅位于 `dsh-plugin-desktop/`，不修改上游子模块。发布前必须通过 DSH 版本一致性检查。
-
-## 发行与版本约束
-
-仓库只构建 `dsh-plugin-desktop` 一个 Desktop 应用。旧 Beta 应用的身份仍可用于识别和迁移历史用户数据，不再对应独立工作区或安装包。未来如需预览发行通道，必须从同一源码和同一上游 DSH 版本构建。
-
-`deepseek-harness/` 子模块版本是唯一的目标 DSH 版本。发布前执行 `corepack yarn check:desktop-dsh-alignment`，确认 Desktop 源码依赖与该版本一致；安装包检查还必须确认只携带一套 DSH 运行时。当前旧源码依赖尚待迁移，发布门禁在迁移完成前会阻止新版本发布。
-
-## 维护者深入阅读
-
-- [Desktop service contract](../dsh-plugin-desktop/docs/plugin-services.md)
-- [Package README](../dsh-plugin-desktop/README.md)
-- [Pinned upstream and isolated Yarn workspace](../.agents/notes/implemented/process/2026-08-15-pinned-upstream-and-isolated-yarn-workspace.md)
-- [Profile and pnpm services decision](../.agents/notes/implemented/architecture/2026-08-15-desktop-profile-and-pnpm-services.md)
-- [Advanced shell decision](../.agents/notes/implemented/architecture/2026-08-15-desktop-advanced-shell.md)
-- [Native shell generation and platform adapters](../.agents/notes/implemented/architecture/2026-08-19-native-shell-generation-and-platform-adapters.md)
+参见[归属约束](desktop-boundaries.md)与[包级构建说明](../dsh-plugin-desktop/README.zh.md)。

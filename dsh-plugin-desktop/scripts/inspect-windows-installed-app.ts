@@ -90,7 +90,7 @@ export function inspectInstalledWindowsApp(
   try {
     const entries = listPackage(asarPath, { isPack: false })
       .map(entry => entry.replace(/^[/\\]+/u, '').replaceAll('\\', '/'))
-    for (const required of ['package.json', 'lib/main.js']) {
+    for (const required of ['package.json', 'lib/workdsh-main.js']) {
       if (!entries.includes(required)) errors.push(`app.asar is missing ${required}`)
     }
     let packageName: string | null = null

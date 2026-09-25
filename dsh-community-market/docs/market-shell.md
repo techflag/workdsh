@@ -2,7 +2,7 @@
 
 [中文说明](market-shell.zh.md)
 
-Status: delivered and built into DSH Desktop.
+Status: historical design draft only. No Market runtime ships in the current Desktop. References to `desktopPnpm` and recovery services below describe the removed prototype; they are not available APIs.
 
 ## Ownership
 

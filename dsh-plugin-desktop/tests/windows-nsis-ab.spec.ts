@@ -426,7 +426,7 @@ describe('Windows NSIS A/B packaging', () => {
     mkdirSync(join(source, 'lib'), { recursive: true })
     mkdirSync(join(resources, 'app.asar.unpacked'), { recursive: true })
     writeFileSync(join(source, 'package.json'), '{"name":"dsh-plugin-desktop"}\n')
-    writeFileSync(join(source, 'lib', 'main.js'), 'export {}\n')
+    writeFileSync(join(source, 'lib', 'workdsh-main.js'), 'export {}\n')
     writeFileSync(join(installRoot, 'WorkDSH.exe'), pe())
     writeFileSync(join(resources, 'app.asar.unpacked', 'native.node'), 'native')
     // The library-level createPackage() promise resolves when it calls
