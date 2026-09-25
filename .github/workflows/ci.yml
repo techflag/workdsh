@@ -243,6 +243,7 @@ jobs:
 
           - 桌面产品名称统一为 WorkDSH
           - 安装包内置完整 WorkDSH 运行时，启动后可直接使用项目、资料库、专家、技能和连接器
+          - 内置 Node 和 Python；Agent 使用 Playwright 浏览网页时，可在同一会话的右侧栏查看并操作页面
           - 应用、Dock、托盘和安装包图标统一为 WorkDSH 蓝色 W 标识
           - README 包含项目、资料库和桌面端下载说明
           - Windows 包在原生 Windows Runner 构建和验证
