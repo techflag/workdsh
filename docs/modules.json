@@ -377,6 +377,15 @@
     ]
   },
   {
+    "path": "packages/providers/browser-session",
+    "title": "受管浏览器会话提供方",
+    "phase": "P1",
+    "task": "BROWSER-01",
+    "status": "in_progress",
+    "moduleVersion": "0.1",
+    "directories": ["src", "tests"]
+  },
+  {
     "path": "packages/providers/identity-local",
     "title": "本地身份提供方",
     "phase": "P0/P1",

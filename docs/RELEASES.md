@@ -1,3 +1,7 @@
+## 2026-09-25 WorkDSH 项目级 alpha.12（候选）
+
+Desktop 浏览器任务改用安装包已有的 Electron 内核，由每个 Agent 会话独立持有；右侧栏显示和操作该会话的同一页面。发行包新增 `workdsh-provider-browser-session`，不包含独立浏览器可执行文件。Windows/macOS 安装包和真实模型任务尚待 GitHub 流水线验收。详情见 [alpha.12 更新说明](releases/v0.1.0-alpha.12.md)。
+
 ## 2026-09-25 WorkDSH 项目级 alpha.11
 
 在 `dsh-v0.1.7-rc.2` 基线上，Agent 使用 Playwright 时会把其会话中的页面同步到 WorkDSH 右侧栏；用户可在侧栏点击、滚动、输入和导航，操作仍落在同一个 Agent 浏览器会话。浏览器 Host/Client 回归和真实 Playwright MCP 集成测试已通过。详情见 [alpha.11 更新说明](releases/v0.1.0-alpha.11.md)。

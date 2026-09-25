@@ -32,6 +32,7 @@ if (typeof expectedHarness !== 'string' || expectedHarness.length === 0) {
 const packages = new Map(manifest.packages.map(item => [item.name, item]));
 const installOrder = [
   'workdsh-provider-identity-local',
+  'workdsh-provider-browser-session',
   'workdsh-plugin-audit',
   'workdsh-plugin-access',
   'workdsh-plugin-skills',

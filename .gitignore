@@ -8,6 +8,7 @@ coverage/
 *.tsbuildinfo
 .test-runtime/
 .artifacts/
+**/.playwright-mcp/
 tmp/
 .env
 .env.*

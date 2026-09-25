@@ -11,6 +11,7 @@ const releaseNotes = join(root, 'docs', 'releases', `${tag}.md`);
 const destination = join(root, '.artifacts', `project-${tag}`);
 const packageDirectories = [
   'packages/providers/identity-local',
+  'packages/providers/browser-session',
   'packages/plugins/audit',
   'packages/plugins/access',
   'packages/plugins/skills',

@@ -9,6 +9,8 @@ test('real bundle plugin releases its effect and supports a fresh installation',
   const ctx = new Context();
   try {
     ctx.provide('connection', { fetch: { register: () => async () => {} } });
+    ctx.provide('agents', {});
+    ctx.provide('attachments', {});
     ctx.provide('systemPrompt', { tools() {}, section() {}, getSectionOrder() { return 0; } });
     await ctx.plugin(Tools);
     await ctx.plugin(SkillRegistry);

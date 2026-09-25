@@ -1,6 +1,6 @@
 {
   "name": "workdsh",
-  "version": "0.1.0-alpha.11",
+  "version": "0.1.0-alpha.12",
   "private": true,
   "type": "module",
   "description": "WorkDSH planning and plugin workspace",
@@ -14,8 +14,8 @@
     "check:acceptance": "node scripts/check-acceptance.mjs",
     "check:env": "node scripts/check-environment.mjs",
     "test:planning": "node --test tests/planning/*.test.mjs",
-    "build": "corepack pnpm --filter workdsh-contracts build && corepack pnpm --filter workdsh-provider-identity-local build && corepack pnpm --filter workdsh-plugin-audit build && corepack pnpm --filter workdsh-plugin-access build && corepack pnpm --filter workdsh-plugin-skills build && corepack pnpm --filter workdsh-plugin-experts build && corepack pnpm --filter workdsh-plugin-connectors build && corepack pnpm --filter workdsh-plugin-office build && corepack pnpm --filter workdsh-plugin-library build && corepack pnpm --filter workdsh-plugin-projects build && corepack pnpm --filter workdsh-bundle build && corepack pnpm --filter workdsh-plugin-activity build",
-    "typecheck": "corepack pnpm --filter workdsh-contracts typecheck && corepack pnpm --filter workdsh-provider-identity-local typecheck && corepack pnpm --filter workdsh-plugin-audit typecheck && corepack pnpm --filter workdsh-plugin-access typecheck && corepack pnpm --filter workdsh-plugin-skills typecheck && corepack pnpm --filter workdsh-plugin-experts typecheck && corepack pnpm --filter workdsh-plugin-connectors typecheck && corepack pnpm --filter workdsh-plugin-office typecheck && corepack pnpm --filter workdsh-plugin-library typecheck && corepack pnpm --filter workdsh-plugin-projects typecheck && corepack pnpm --filter workdsh-bundle typecheck && corepack pnpm --filter workdsh-plugin-activity typecheck",
+    "build": "corepack pnpm --filter workdsh-provider-browser-session build && corepack pnpm --filter workdsh-contracts build && corepack pnpm --filter workdsh-provider-identity-local build && corepack pnpm --filter workdsh-plugin-audit build && corepack pnpm --filter workdsh-plugin-access build && corepack pnpm --filter workdsh-plugin-skills build && corepack pnpm --filter workdsh-plugin-experts build && corepack pnpm --filter workdsh-plugin-connectors build && corepack pnpm --filter workdsh-plugin-office build && corepack pnpm --filter workdsh-plugin-library build && corepack pnpm --filter workdsh-plugin-projects build && corepack pnpm --filter workdsh-bundle build && corepack pnpm --filter workdsh-plugin-activity build",
+    "typecheck": "corepack pnpm --filter workdsh-provider-browser-session typecheck && corepack pnpm --filter workdsh-contracts typecheck && corepack pnpm --filter workdsh-provider-identity-local typecheck && corepack pnpm --filter workdsh-plugin-audit typecheck && corepack pnpm --filter workdsh-plugin-access typecheck && corepack pnpm --filter workdsh-plugin-skills typecheck && corepack pnpm --filter workdsh-plugin-experts typecheck && corepack pnpm --filter workdsh-plugin-connectors typecheck && corepack pnpm --filter workdsh-plugin-office typecheck && corepack pnpm --filter workdsh-plugin-library typecheck && corepack pnpm --filter workdsh-plugin-projects typecheck && corepack pnpm --filter workdsh-bundle typecheck && corepack pnpm --filter workdsh-plugin-activity typecheck",
     "probe:install": "node scripts/check-environment.mjs && node scripts/probe-install.mjs",
     "probe:activity": "node scripts/probe-activity.mjs",
     "test:activity": "node --test packages/plugins/activity/tests/*.test.mjs",
