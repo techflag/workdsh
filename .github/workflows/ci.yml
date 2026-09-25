@@ -120,6 +120,7 @@ jobs:
       - run: yarn upstream:install
       - run: yarn workspace dsh-plugin-desktop check:win-package
       - name: Prepare WorkDSH release profile
+        timeout-minutes: 15
         run: yarn workspace dsh-plugin-desktop prepare:workdsh-runtime
       - name: Prepare official Python and Node runtime
         timeout-minutes: 15
@@ -172,11 +173,22 @@ jobs:
       - run: yarn install --immutable
       - run: yarn upstream:install
       - run: yarn workspace dsh-plugin-desktop check:mac-package
+      - name: Prepare WorkDSH release profile
+        timeout-minutes: 15
+        env:
+          WORKDSH_MAC_ARCH: ${{ matrix.arch }}
+        run: yarn workspace dsh-plugin-desktop prepare:workdsh-runtime
+      - name: Prepare official Python and Node runtime
+        timeout-minutes: 15
+        env:
+          WORKDSH_MAC_ARCH: ${{ matrix.arch }}
+        run: yarn workspace dsh-plugin-desktop prepare:workdsh-primary-runtime
       - name: Build macOS smoke artifact
+        timeout-minutes: 25
         env:
           DSH_PACKAGE_CHECK_ALREADY_RAN: '1'
           WORKDSH_MAC_ARCH: ${{ matrix.arch }}
-        run: yarn workspace dsh-plugin-desktop dist:mac-smoke
+        run: node dsh-plugin-desktop/scripts/package-mac.ts
       - name: Upload macOS architecture DMG
         uses: actions/upload-artifact@v4
         with:
