@@ -23,22 +23,19 @@ The former Cordis Host/Client and SSH sources have been removed from the
 Desktop release branch along with their old DSH dependencies and build entry
 points. The current carrier and packaged Profile use one DSH version.
 
-The supporting WorkDSH modules above are still installed as separate DSH
-bundles inside that Profile. They are internal runtime components, but the
-package layout has not yet been reduced to only the five user-facing product
-plugins. A future consolidation must preserve their actual behavior and be
-verified against the installed app; merely changing their labels would not
-complete this boundary.
+The Desktop Profile selects and directly depends on exactly five WorkDSH
+product bundles: experts, skills, connectors, library, and projects. Its
+support packages are installed as optional runtime dependencies. The Profile's
+own `cordis.patch.yml` activates their service entries and the WorkDSH client
+composition, so they do not become separately manageable product plugins.
+The release archives remain bundled for offline installation and updates.
 
 The pinned DSH plugin manager derives its bundle inventory from the Profile's
 selected bundles and direct dependencies, as well as installation dependencies.
 Its client hides a small fixed set of official built-in bundle names; it does
 not hide WorkDSH support packages because their manifests say `private`.
-Therefore the current support packages and `workdsh-bundle` remain visible or
-manageable as installed bundles. The ownership change is complete only when
-an installed Desktop has exactly the five intended WorkDSH product entries in
-its user-facing plugin management, while project, library, office, browser,
-identity, access, and audit behavior still pass their runtime checks. Inspect
-the installed Profile's dependency and selected-bundle lists and the running
-plugin manager's `listBundles()` output; a source-level package count alone is
-not evidence of this outcome.
+The Profile layout now keeps support packages out of those two inventory
+inputs. Installed-app acceptance still requires checking the running plugin
+manager's `listBundles()` output and exercising project, library, office,
+browser, identity, access, and audit behavior. A source-level package count or
+successful config dump alone does not prove that runtime outcome.

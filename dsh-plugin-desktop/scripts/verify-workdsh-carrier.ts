@@ -47,13 +47,37 @@ export async function afterPack(context: PackContext): Promise<void> {
   }
   const profileManifest = JSON.parse(readFileSync(join(profile, 'package.json'), 'utf8')) as {
     dependencies?: Record<string, string>
+    optionalDependencies?: Record<string, string>
+    dsh?: { profile?: { bundles?: string[] } }
+  }
+  const productPackages = new Set([
+    'workdsh-plugin-experts', 'workdsh-plugin-skills', 'workdsh-plugin-connectors',
+    'workdsh-plugin-library', 'workdsh-plugin-projects',
+  ])
+  const selected = profileManifest.dsh?.profile?.bundles ?? []
+  const selectedWorkdsh = selected.filter(name => name.startsWith('workdsh-'))
+  const directWorkdsh = Object.keys(profileManifest.dependencies ?? {}).filter(name => name.startsWith('workdsh-'))
+  if (selectedWorkdsh.length !== productPackages.size || selectedWorkdsh.some(name => !productPackages.has(name))) {
+    throw new Error(`Desktop must select exactly five WorkDSH product bundles, found ${selectedWorkdsh.join(', ')}`)
+  }
+  if (directWorkdsh.length !== productPackages.size || directWorkdsh.some(name => !productPackages.has(name))) {
+    throw new Error(`Desktop must directly install exactly five WorkDSH product bundles, found ${directWorkdsh.join(', ')}`)
   }
   const lockfile = readFileSync(join(profile, 'pnpm-lock.yaml'), 'utf8')
   for (const item of release.packages) {
     if (!existsSync(join(cache, item.filename))) throw new Error(`Bundled plugin archive is missing: ${item.filename}`)
-    if (profileManifest.dependencies?.[item.name]?.replaceAll('\\', '/') !== `file:../../package-cache/${item.filename}`) {
-      throw new Error(`Bundled ${item.name} must use a portable plugin archive path`)
+    if (!productPackages.has(item.name) && Object.hasOwn(profileManifest.dependencies ?? {}, item.name)) {
+      throw new Error(`Internal WorkDSH service is a direct product dependency: ${item.name}`)
     }
+    const dependencies = productPackages.has(item.name) ? profileManifest.dependencies : profileManifest.optionalDependencies
+    if (dependencies?.[item.name]?.replaceAll('\\', '/') !== `file:../../package-cache/${item.filename}`) {
+      throw new Error(`Bundled ${item.name} must use a portable archive path in its expected dependency section`)
+    }
+  }
+  const patch = readFileSync(join(profile, 'cordis.patch.yml'), 'utf8')
+  for (const name of release.packages.map(item => item.name).filter(name => !productPackages.has(name))) {
+    if (name === 'workdsh-provider-browser-session') continue // inserted by the bundle patch
+    if (!patch.includes(`name: ${name}`)) throw new Error(`Internal WorkDSH service is missing from Profile patch: ${name}`)
   }
   if (/file:(?:\/|[a-z]:)/iu.test(lockfile)) {
     throw new Error('Bundled plugin lockfile contains a build-machine path')

@@ -14,6 +14,11 @@ const destination = join(output, 'profiles', 'workdsh')
 const packageCache = join(output, 'package-cache')
 const cli = join(destination, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
 const releaseMarker = '.workdsh-desktop-release.json'
+const profileLayout = 'five-product-plugins-v1'
+const productPackages = new Set([
+  'workdsh-plugin-experts', 'workdsh-plugin-skills', 'workdsh-plugin-connectors',
+  'workdsh-plugin-library', 'workdsh-plugin-projects',
+])
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, { stdio: 'inherit', ...options })
@@ -168,7 +173,30 @@ async function installReleasedProfile(output) {
     }
     verifyPackageDshReferences(pkg, DSH_VERSION)
   }
-  writeFileSync(join(destination, releaseMarker), JSON.stringify({ release: WORKDSH_VERSION, harness: DSH_VERSION }) + '\n')
+  const profilePath = join(destination, 'package.json')
+  const profile = JSON.parse(readFileSync(profilePath, 'utf8'))
+  profile.optionalDependencies = { ...profile.optionalDependencies }
+  for (const item of manifest.packages) {
+    if (productPackages.has(item.name)) continue
+    profile.optionalDependencies[item.name] = profile.dependencies[item.name]
+    delete profile.dependencies[item.name]
+  }
+  profile.dsh.profile.bundles = profile.dsh.profile.bundles.filter(name => !releasePackages.includes(name) || productPackages.has(name))
+  writeFileSync(profilePath, JSON.stringify(profile, null, 2) + '\n')
+  writeFileSync(join(destination, 'cordis.patch.yml'), internalPatch(destination))
+  // The published archives remain installed and active through the profile
+  // layer, while only the five product bundles are directly manageable.
+  run(process.execPath, [pnpmCli, '--dir', destination, 'install', '--lockfile-only', '--offline'])
+  run(process.execPath, [pnpmCli, '--dir', destination, 'install', '--frozen-lockfile', '--offline'])
+  const config = spawnSync(process.execPath, [cli, '--profile', 'workdsh', '--dump-config'], {
+    encoding: 'utf8', maxBuffer: 8 * 1024 * 1024, env: { ...process.env, DSH_HOME: output },
+  })
+  if (config.error) throw config.error
+  if (config.status !== 0) throw new Error(`Five-plugin Profile failed to compose: ${config.stderr}`)
+  for (const id of ['workdsh-installation-probe', 'workdsh-identity-local', 'workdsh-access', 'workdsh-audit', 'workdsh-office']) {
+    if (!config.stdout.includes(`id: ${id}`)) throw new Error(`Internal WorkDSH service is missing: ${id}`)
+  }
+  writeFileSync(join(destination, releaseMarker), JSON.stringify({ release: WORKDSH_VERSION, harness: DSH_VERSION, layout: profileLayout }) + '\n')
   rmSync(bootstrap, { recursive: true, force: true })
 }
 
@@ -216,13 +244,18 @@ const releasePackages = [
   'workdsh-plugin-activity', 'workdsh-plugin-office', 'workdsh-plugin-library',
   'workdsh-plugin-projects', 'workdsh-bundle',
 ]
-const requiredBundles = releasePackages.filter(name => name !== 'workdsh-provider-browser-session')
+const supportPackages = releasePackages.filter(name => !productPackages.has(name))
+const internalPatch = profile => {
+  const patches = supportPackages.map(name => join(profile, 'node_modules', name, 'cordis.patch.yml'))
+    .filter(existsSync).map(path => readFileSync(path, 'utf8').trim())
+  return patches.join('\n') + '\n'
+}
 const isPreparedProfile = candidate => {
   if (installedDshVersion(candidate) !== DSH_VERSION) return false
   if (!releasePackages.every(name => existsSync(join(candidate, 'node_modules', name, 'package.json')))) return false
   try {
     const marker = JSON.parse(readFileSync(join(candidate, releaseMarker), 'utf8'))
-    if (marker.release !== WORKDSH_VERSION || marker.harness !== DSH_VERSION) return false
+    if (marker.release !== WORKDSH_VERSION || marker.harness !== DSH_VERSION || marker.layout !== profileLayout) return false
     const cache = resolve(candidate, '..', '..', 'package-cache')
     const manifest = JSON.parse(readFileSync(join(cache, 'release-manifest.json'), 'utf8'))
     verifyProfileRelease(manifest, DSH_VERSION, releasePackages)
@@ -239,8 +272,15 @@ const isPreparedProfile = candidate => {
   try {
     const profile = JSON.parse(readFileSync(join(candidate, 'package.json'), 'utf8'))
     const manifest = JSON.parse(readFileSync(resolve(candidate, '..', '..', 'package-cache', 'release-manifest.json'), 'utf8'))
-    return requiredBundles.every(name => profile.dsh?.profile?.bundles?.includes(name)) &&
-      manifest.packages.every(item => profile.dependencies?.[item.name]?.replaceAll('\\', '/') === `file:../../package-cache/${item.filename}`)
+    const selected = profile.dsh?.profile?.bundles ?? []
+    return [...productPackages].every(name => selected.includes(name)) &&
+      supportPackages.every(name => !selected.includes(name)) &&
+      supportPackages.every(name => !Object.hasOwn(profile.dependencies ?? {}, name)) &&
+      readFileSync(join(candidate, 'cordis.patch.yml'), 'utf8').startsWith(internalPatch(candidate)) &&
+      manifest.packages.every(item => {
+        const dependencies = productPackages.has(item.name) ? profile.dependencies : profile.optionalDependencies
+        return dependencies?.[item.name]?.replaceAll('\\', '/') === `file:../../package-cache/${item.filename}`
+      })
   } catch {
     return false
   }

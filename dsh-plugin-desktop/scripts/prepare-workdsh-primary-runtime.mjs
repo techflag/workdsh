@@ -60,5 +60,9 @@ if (packages.some(name => profilePackage.dependencies?.[name] !== DSH_VERSION
   if (install.status !== 0) throw new Error(`Official Office plugins failed to install: ${install.status}`)
 }
 const patch = `# Official DeepSeek Harness Desktop workspace dependencies and Office skills.\n- insert:\n    - id: workspace-dependencies\n      name: '@deepseek-ai/dsh-tool-workspace-dependencies'\n      config:\n        source: !!js "process.env.DSH_BUNDLED_PRIMARY_RUNTIME"\n        root: !!js "process.getBuiltinModule('node:path').join(process.env.DSH_HOME, 'dsh-runtimes', 'dsh-primary-runtime')"\n    - id: skill-office\n      name: '@deepseek-ai/dsh-skill-office'\n      config:\n        assetRoot: !!js "process.getBuiltinModule('node:path').join(process.env.DSH_BUNDLED_PRIMARY_RUNTIME, '..', 'office-skills')"\n        node: !!js "process.getBuiltinModule('node:path').join(process.env.DSH_BUNDLED_PRIMARY_RUNTIME, 'dependencies', 'node', 'bin', process.platform === 'win32' ? 'node.exe' : 'node')"\n`
-writeFileSync(join(profile, 'cordis.patch.yml'), patch)
+const patchPath = join(profile, 'cordis.patch.yml')
+const currentPatch = existsSync(patchPath) ? readFileSync(patchPath, 'utf8') : ''
+const previousOfficial = currentPatch.indexOf('# Official DeepSeek Harness Desktop workspace dependencies and Office skills.')
+const workdshPatch = previousOfficial === -1 ? currentPatch : currentPatch.slice(0, previousOfficial)
+writeFileSync(patchPath, (workdshPatch.trim() === '[]' ? '' : workdshPatch) + patch)
 console.log(`Prepared official DeepSeek Harness ${target} primary runtime at ${output}`)
