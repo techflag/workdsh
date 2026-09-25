@@ -234,9 +234,7 @@ if (!app.requestSingleInstanceLock()) {
   })
   void app.whenReady().then(() => {
     const home = runtimeHome()
-    const profile = process.env.WORKDSH_DSH_HOME === home
-      ? join(home, 'profiles', PROFILE_NAME)
-      : materializeRuntimeProfile(home)
+    const profile = materializeRuntimeProfile(home)
     startRuntime(home, profile)
   }).catch(cause => {
     process.stderr.write(`WorkDSH failed to start: ${cause instanceof Error ? cause.stack ?? cause.message : String(cause)}\n`)
