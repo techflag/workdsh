@@ -30,7 +30,10 @@ export function apply(ctx: Context): void {
     document.head.append(style);
     return () => style.remove();
   }, 'workdsh.browserSession.styles');
-  ctx.effect(() => ctx.sidebarRightTabs.register({ id: TAB, kind: TAB, title: () => '任务浏览器' }));
+  ctx.effect(() => ctx.sidebarRightTabs.register({
+    id: TAB, kind: TAB, title: () => '任务浏览器',
+    guide: [{ id: 'managed-browser', order: 25, title: () => '任务浏览器', description: () => '查看并操作当前任务的网页' }],
+  }));
   ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register({
     name: 'sidebar.right.pane.tab', key: TAB,
   }, BrowserSessionPane));

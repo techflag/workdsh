@@ -26,17 +26,36 @@ const productViews: Readonly<Record<string, string>> = {
 };
 
 export function apply(ctx: Context): void {
-  ctx.effect(() => ctx.sidebarRightTabs.register({
-    id: agentBrowserKind, kind: agentBrowserKind, title: () => '智能体浏览器',
-    guide: [{ id: 'agent-browser', order: 25, title: () => '智能体浏览器', description: () => '查看并操作当前会话的网页' }],
-  }), 'workdsh.agent-browser.tab');
+  let legacyBrowserEnabled = false;
+  ctx.effect(() => {
+    const controller = new AbortController();
+    let disposed = false;
+    let unregister: (() => void) | undefined;
+    const registerLegacy = () => {
+      if (disposed || unregister) return;
+      legacyBrowserEnabled = true;
+      unregister = ctx.sidebarRightTabs.register({
+        id: agentBrowserKind, kind: agentBrowserKind, title: () => '智能体浏览器',
+        guide: [{ id: 'agent-browser', order: 25, title: () => '智能体浏览器', description: () => '查看并操作当前会话的网页' }],
+      });
+    };
+    // The Desktop provider owns a different Session page. Keep this legacy
+    // Playwright tab only in Web profiles where its Host route is absent.
+    void fetch('/api/workdsh-browser-session', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'content-type': 'application/json' },
+      body: '{}', signal: controller.signal,
+    }).then(response => { if (response.status === 404) registerLegacy(); })
+      .catch(() => { if (!controller.signal.aborted) registerLegacy(); });
+    return () => { disposed = true; controller.abort(); unregister?.(); };
+  }, 'workdsh.agent-browser.tab');
   ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register({ name: 'sidebar.right.pane.tab', key: agentBrowserKind }, AgentBrowserPage));
   ctx.effect(() => {
     const sessions = ctx.sessions as unknown as ISessions;
     const opened = new Set<string>();
     let pending = false;
     const poll = async () => {
-      if (pending) return;
+      if (pending || !legacyBrowserEnabled) return;
       const state = sessions.list.getSnapshot();
       const current = Object.values(state.byId).find(row => (row.retainedBy.mainView ?? 0) > 0)?.id;
       if (!current || opened.has(String(current))) return;

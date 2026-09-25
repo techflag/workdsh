@@ -135,6 +135,15 @@ execute(['plugin', '--profile', profile, 'add', `@deepseek-ai/dsh-base@${expecte
 for (const name of installOrder) {
   const item = packages.get(name);
   execute(['plugin', '--profile', profile, 'add', join(directory, item.filename)]);
+  // Installing a package does not guarantee that DSH loads its bundle. The
+  // browser-session provider is inserted by workdsh-bundle's patch instead.
+  if (!dryRun && name !== 'workdsh-provider-browser-session') {
+    const profilePackage = JSON.parse(readFileSync(profileManifest, 'utf8'));
+    const bundles = profilePackage.dsh?.profile?.bundles ?? [];
+    if (!bundles.includes(name)) bundles.push(name);
+    profilePackage.dsh = { ...profilePackage.dsh, profile: { ...profilePackage.dsh?.profile, bundles } };
+    writeFileSync(profileManifest, JSON.stringify(profilePackage, null, 2) + '\n');
+  }
 }
 
 // Keep CLI and ConfigEditor in the same Profile dependency graph (0.1.7).
