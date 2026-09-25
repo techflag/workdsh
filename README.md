@@ -5,19 +5,19 @@
 
 WorkDSH is an open-source AI workspace built on the official DeepSeek Harness. Organize conversations, material and capabilities in projects, reuse your local Library, and review editable deliverables alongside the task.
 
-**Desktop v2.0.5-alpha.12 · Web/plugins v0.1.0-alpha.10 · Alpha preview**
+**Desktop v2.0.5-alpha.20 · Web/plugins v0.1.0-alpha.13 · Alpha preview**
 
-[Desktop downloads](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.12) · [Web/plugin download](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.10) · [Release notes](docs/releases/v0.1.0-alpha.10.md) · [Quick start](#quick-start) · [Website](https://techflag.github.io/workdsh/) · [Gitee mirror](https://gitee.com/techflag/workdsh)
+[Desktop downloads](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.20) · [Web/plugin download](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.13) · [Release notes](docs/releases/v0.1.0-alpha.13.md) · [Quick start](#quick-start) · [Website](https://techflag.github.io/workdsh/) · [Gitee mirror](https://gitee.com/techflag/workdsh)
 
 ## Download WorkDSH Desktop
 
 | System | Installer |
 | --- | --- |
-| Windows x64 | [Download Setup.exe](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.12/dsh-plugin-desktop-windows-x64--WorkDSH-2.0.5-x64-Setup.exe) |
-| macOS Apple Silicon | [Download arm64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.12/dsh-plugin-desktop-macos-arm64--WorkDSH-2.0.5-arm64.dmg) |
-| macOS Intel | [Download x64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.12/dsh-plugin-desktop-macos-x64--WorkDSH-2.0.5-x64.dmg) |
+| Windows x64 | [Download Setup.exe](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-windows-x64--WorkDSH-2.0.5-x64-Setup.exe) |
+| macOS Apple Silicon | [Download arm64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-macos-arm64--WorkDSH-2.0.5-arm64.dmg) |
+| macOS Intel | [Download x64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-macos-x64--WorkDSH-2.0.5-x64.dmg) |
 
-These Alpha installers bundle WorkDSH v0.1.0-alpha.9. macOS DMGs are unsigned previews; checksums are in the [Desktop release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.12).
+These Alpha installers bundle WorkDSH v0.1.0-alpha.13 and the official Harness 0.1.7-rc.2 Profile, including Node and Python. The task browser reuses Electron; no second browser binary is bundled. macOS DMGs are unsigned previews; checksums are in the [Desktop release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.20).
 
 ![WorkDSH project home — full application in dark mode](docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
 
@@ -32,7 +32,7 @@ These Alpha installers bundle WorkDSH v0.1.0-alpha.9. macOS DMGs are unsigned pr
 | Office deliverables | Preview and edit supported document, presentation, spreadsheet, HTML and PDF working copies. Format fidelity varies. |
 | Activity | Inspect native task and child-agent activity; an expert-team label alone does not mean multiple agents are executing. |
 
-The alpha.10 bundle includes **11 installable modules**, including Projects and Library, rebuilt against the published Harness 0.1.7-rc.2 APIs. Native attachment, input and send behavior remain owned by Harness. The Desktop alpha.12 installers above still contain the earlier Web alpha.9 packages; use the Web/plugin release below for the rc.2-aligned modules until new Desktop installers are published.
+The alpha.13 bundle includes **12 installable modules**, including Projects, Library and the managed browser session provider, built against the published Harness 0.1.7-rc.2 APIs. Native attachment, input and send behavior remain owned by Harness. In Desktop, Agent browser work appears in the right sidebar on the same Electron page used by its tools.
 
 ## Screenshots
 
@@ -75,7 +75,7 @@ Earlier local preview showing the artifact workflow; it is not an alpha.8 accept
 
 Requirements: Node.js `^22.19.0 || >=24.0.0`, Corepack/pnpm and the official `dsh` CLI **0.1.7-rc.2**.
 
-1. Download all 11 `.tgz` packages, `release-manifest.json`, `SHA256SUMS` and `install-workdsh.mjs` from the [alpha.10 release](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.10) into one directory.
+1. Download all 12 `.tgz` packages, `release-manifest.json`, `SHA256SUMS` and `install-workdsh.mjs` from the [alpha.13 release](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.13) into one directory.
 2. For an upgrade, stop the target Profile and keep a recoverable backup of its configuration and data.
 3. Run from the download directory:
 
