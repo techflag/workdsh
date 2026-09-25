@@ -29,6 +29,11 @@ support packages are installed as optional runtime dependencies. The Profile's
 own `cordis.patch.yml` activates their service entries and the WorkDSH client
 composition, so they do not become separately manageable product plugins.
 The release archives remain bundled for offline installation and updates.
+This is a management boundary, not a physical package consolidation: the
+support packages still ship inside the Profile. Moving their implementation
+into Desktop-owned runtime modules would require a corresponding WorkDSH
+source and release change; hiding them from the plugin manager alone does not
+accomplish that separate change.
 
 The pinned DSH plugin manager derives its bundle inventory from the Profile's
 selected bundles and direct dependencies, as well as installation dependencies.
@@ -39,3 +44,7 @@ inputs. Installed-app acceptance still requires checking the running plugin
 manager's `listBundles()` output and exercising project, library, office,
 browser, identity, access, and audit behavior. A source-level package count or
 successful config dump alone does not prove that runtime outcome.
+Profile preparation now boots the bundled DSH plugin manager and requires its
+`listBundles()` response to contain exactly the five installed and enabled
+WorkDSH products. The installed application's UI and feature flows still need
+their own acceptance checks on both platforms.

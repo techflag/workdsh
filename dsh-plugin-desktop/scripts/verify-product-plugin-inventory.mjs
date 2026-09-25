@@ -42,6 +42,9 @@ try {
   }
   console.log(`Verified plugin manager exposes exactly five WorkDSH product bundles: ${names.join(', ')}`)
 } finally {
-  await ctx?.fiber.dispose()
-  rmSync(config, { force: true })
+  try {
+    await ctx?.fiber.dispose()
+  } finally {
+    rmSync(config, { force: true })
+  }
 }
