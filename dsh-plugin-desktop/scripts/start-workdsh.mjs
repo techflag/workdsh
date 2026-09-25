@@ -9,8 +9,8 @@ import { fileURLToPath } from 'node:url'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const runtime = join(root, 'build', 'workdsh-runtime')
 const profile = join(runtime, 'profiles', 'workdsh')
-const node = join(runtime, 'node', process.platform === 'win32' ? 'node.exe' : 'node')
 const primary = join(runtime, 'primary-runtime')
+const node = join(primary, 'dependencies', 'node', 'bin', process.platform === 'win32' ? 'node.exe' : 'node')
 for (const path of [join(root, 'lib', 'workdsh-main.js'), profile, node, primary]) {
   if (!existsSync(path)) throw new Error(`WorkDSH development runtime is missing: ${path}. Run yarn dev first.`)
 }

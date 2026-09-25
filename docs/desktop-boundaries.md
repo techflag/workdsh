@@ -4,6 +4,8 @@ The released Desktop is one Electron application. Its packaged entry point is
 `dsh-plugin-desktop/lib/workdsh-main.js`; it starts the DSH CLI from the
 bundled `workdsh-runtime/profiles/workdsh` profile. The Desktop package must
 not install or start a second DSH dependency tree from its own `node_modules`.
+The official primary runtime supplies the Node executable for both the DSH
+Host and Office skills; packaging must not add a second standalone Node copy.
 
 The pinned `deepseek-harness` submodule and the DSH version inside the bundled
 Profile are one version boundary. Upgrade to the latest official stable DSH

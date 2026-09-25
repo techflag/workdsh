@@ -40,9 +40,10 @@ function bundledNodeExecutable(): string {
   const overridden = process.env.WORKDSH_NODE_EXECUTABLE
   if (overridden !== undefined && overridden.length > 0) return overridden
   return join(
-    process.resourcesPath,
-    'workdsh-runtime',
+    bundledPrimaryRuntime(),
+    'dependencies',
     'node',
+    'bin',
     process.platform === 'win32' ? 'node.exe' : 'node',
   )
 }

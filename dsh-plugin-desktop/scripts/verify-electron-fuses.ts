@@ -43,7 +43,7 @@ export function smokeBundledWorkdshProfile(context: PackagedRuntimeContext): voi
     ? join(context.appOutDir, `${context.packager.appInfo.productFilename}.app`, 'Contents', 'Resources')
     : join(context.appOutDir, 'resources')
   const runtime = join(resources, 'workdsh-runtime')
-  const node = join(runtime, 'node', context.electronPlatformName === 'win32' ? 'node.exe' : 'node')
+  const node = join(runtime, 'primary-runtime', 'dependencies', 'node', 'bin', context.electronPlatformName === 'win32' ? 'node.exe' : 'node')
   const cli = join(runtime, 'profiles', 'workdsh', 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
   // An Intel macOS artifact is smoke-tested under Rosetta on arm64 CI runners.
   // Loading its bundled dependency graph can exceed the native 30-second limit.

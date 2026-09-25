@@ -34,6 +34,9 @@ export async function afterPack(context: PackContext): Promise<void> {
   }
 
   const runtime = join(resources, 'workdsh-runtime')
+  if (existsSync(join(runtime, 'node'))) {
+    throw new Error('Desktop contains a duplicate Node runtime outside the official primary runtime')
+  }
   const primary = JSON.parse(readFileSync(join(runtime, 'primary-runtime', 'runtime.json'), 'utf8')) as {
     desktopVersion?: string
   }

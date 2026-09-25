@@ -157,6 +157,8 @@ async function installReleasedProfile(output) {
   run(process.execPath, [installerPath, '--directory', packageCache, '--dsh', shim, '--corepack', pnpmShim], {
     env: { ...process.env, DSH_HOME: output, PATH: `${output}${delimiter}${process.env.PATH ?? ''}` },
   })
+  rmSync(shim, { force: true })
+  rmSync(pnpmShim, { force: true })
   for (const item of manifest.packages) {
     const pkg = JSON.parse(readFileSync(join(destination, 'node_modules', item.name, 'package.json'), 'utf8'))
     if (pkg.version !== item.version) {
@@ -192,33 +194,6 @@ async function installReleasedProfile(output) {
   })
   writeFileSync(join(destination, releaseMarker), JSON.stringify({ release: WORKDSH_VERSION, harness: DSH_VERSION, layout: profileLayout }) + '\n')
   rmSync(bootstrap, { recursive: true, force: true })
-}
-
-async function prepareNodeExecutable(path) {
-  mkdirSync(dirname(path), { recursive: true })
-  if (process.platform !== 'darwin') {
-    cpSync(process.execPath, path)
-    if (process.platform !== 'win32') chmodSync(path, 0o755)
-    return
-  }
-  const targetArch = process.env.WORKDSH_MAC_ARCH ?? process.arch
-  if (targetArch !== 'x64' && targetArch !== 'arm64') {
-    throw new Error(`unsupported macOS target architecture: ${targetArch}`)
-  }
-  if (targetArch === process.arch) {
-    cpSync(process.execPath, path)
-    chmodSync(path, 0o755)
-    return
-  }
-  const downloadArch = targetArch
-  const cache = join(desktopRoot, 'build', '.workdsh-node')
-  const archive = join(cache, `node-v${process.versions.node}-darwin-${downloadArch}.tar.gz`)
-  const extracted = join(cache, `node-v${process.versions.node}-darwin-${downloadArch}`, 'bin', 'node')
-  mkdirSync(cache, { recursive: true })
-  await download(`https://nodejs.org/dist/v${process.versions.node}/node-v${process.versions.node}-darwin-${downloadArch}.tar.gz`, archive)
-  if (!existsSync(extracted)) run('/usr/bin/tar', ['-xzf', archive, '-C', cache])
-  cpSync(extracted, path)
-  chmodSync(path, 0o755)
 }
 
 const candidates = [
@@ -327,6 +302,9 @@ const scanForBundledBrowser = directory => {
 }
 scanForBundledBrowser(output)
 cpSync(join(destination, 'package.json'), join(output, 'profile-package.json'))
-const nodeExecutable = join(output, 'node', process.platform === 'win32' ? 'node.exe' : 'node')
-await prepareNodeExecutable(nodeExecutable)
+// The official primary runtime supplies Node 24 for both the DSH Host and
+// Office skills. Remove a stale standalone Node left by earlier builds.
+rmSync(join(output, 'node'), { recursive: true, force: true })
+rmSync(join(output, process.platform === 'win32' ? 'dsh-runtime.cmd' : 'dsh-runtime'), { force: true })
+rmSync(join(output, process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'), { force: true })
 console.log(`Prepared WorkDSH ${WORKDSH_VERSION} runtime at ${output}`)
