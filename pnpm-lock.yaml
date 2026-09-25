@@ -1198,8 +1198,8 @@ importers:
         specifier: 0.0.80
         version: 0.0.80
       playwright-core:
-        specifier: 1.58.2
-        version: 1.58.2
+        specifier: 1.63.0-alpha-2026-08-31
+        version: 1.63.0-alpha-2026-08-31
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: 4.0.3

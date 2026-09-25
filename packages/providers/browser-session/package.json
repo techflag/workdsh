@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@playwright/mcp": "0.0.80",
-    "playwright-core": "1.58.2"
+    "playwright-core": "1.63.0-alpha-2026-08-31"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "4.0.3",
