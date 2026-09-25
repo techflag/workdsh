@@ -67,6 +67,24 @@ describe('bundled compatibility grants', () => {
     expect(grants(target)).toEqual({})
   })
 
+  it('preserves a revocation across a bundle upgrade while adding new exact pairs', () => {
+    const { source, target } = profiles()
+    writeGrants(source, { 'workdsh-plugin-projects@1.2.0': ['0.1.7-rc.2'] })
+    syncBundledCompatibility(source, target, 'bundle-1+dsh-0.1.7-rc.2')
+    writeGrants(target, {})
+    writeGrants(source, {
+      'workdsh-plugin-projects@1.2.0': ['0.1.7-rc.2', '0.1.8'],
+      'workdsh-plugin-skills@2.0.0': ['0.1.8'],
+    })
+
+    syncBundledCompatibility(source, target, 'bundle-2+dsh-0.1.8')
+
+    expect(grants(target)).toEqual({
+      'workdsh-plugin-projects@1.2.0': ['0.1.8'],
+      'workdsh-plugin-skills@2.0.0': ['0.1.8'],
+    })
+  })
+
   it('leaves malformed user grants untouched and retries after repair', () => {
     const { source, target } = profiles()
     writeGrants(source, { 'workdsh-plugin-projects@1.3.0': ['0.1.8'] })

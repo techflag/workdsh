@@ -41,26 +41,30 @@ function writeGrants(filename: string, grants: Grants): void {
  */
 export function syncBundledCompatibility(sourceProfile: string, targetProfile: string, runtimeVersion: string): void {
   const marker = join(targetProfile, '.workdsh-desktop-compatibility')
+  const previousBundledFile = join(targetProfile, '.workdsh-desktop-bundled-grants.json')
   if (existsSync(marker) && readFileSync(marker, 'utf8').trim() === runtimeVersion) return
   const source = join(sourceProfile, 'compatibility.json')
   const target = join(targetProfile, 'compatibility.json')
-  if (!existsSync(source)) {
-    writeFileSync(marker, `${runtimeVersion}\n`)
+  const bundled = existsSync(source) ? readGrants(source) : {}
+  let current: Grants = {}
+  let previousBundled: Grants = {}
+  try {
+    if (existsSync(target)) current = readGrants(target)
+    if (existsSync(previousBundledFile)) previousBundled = readGrants(previousBundledFile)
+  } catch (error) {
+    console.warn(`WorkDSH cannot update ${target}; repair its compatibility metadata to receive bundled plugin grants: ${String(error)}`)
     return
   }
-  const bundled = readGrants(source)
-  let current: Grants = {}
-  if (existsSync(target)) {
-    try {
-      current = readGrants(target)
-    } catch (error) {
-      console.warn(`WorkDSH cannot update ${target}; repair it to receive bundled plugin grants: ${String(error)}`)
-      return
-    }
-  }
   for (const [key, versions] of Object.entries(bundled)) {
-    current[key] = [...new Set([...(current[key] ?? []), ...versions])]
+    const previous = new Set(previousBundled[key] ?? [])
+    const granted = new Set(current[key] ?? [])
+    for (const version of versions) {
+      // If a user removed a previously bundled exact pair, keep it revoked.
+      if (!previous.has(version)) granted.add(version)
+    }
+    if (granted.size) current[key] = [...granted]
   }
   writeGrants(target, current)
+  writeGrants(previousBundledFile, bundled)
   writeFileSync(marker, `${runtimeVersion}\n`)
 }
