@@ -178,6 +178,7 @@
         "to": "workdsh-runtime",
         "filter": [
           "profiles/workdsh/**",
+          "package-cache/**",
           "node/**",
           "primary-runtime/**",
           "office-skills/**"

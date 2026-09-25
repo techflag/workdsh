@@ -11,6 +11,7 @@ const WORKDSH_VERSION = '0.1.0-alpha.13'
 const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const output = join(desktopRoot, 'build', 'workdsh-runtime')
 const destination = join(output, 'profiles', 'workdsh')
+const packageCache = join(output, 'package-cache')
 const cli = join(destination, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
 const releaseMarker = '.workdsh-desktop-release.json'
 
@@ -81,7 +82,7 @@ async function installReleasedProfile(output) {
   // completed local tarball add. Use the same pinned pnpm directly; the
   // release tarball hash and exact compatibility approval were checked above.
   const profileDir = join(dshHome, 'profiles', profile);
-  const added = ${installSpawn}(corepack, ['--dir', profileDir, 'add', '--save-exact', join(directory, item.filename)], { stdio: 'inherit' });
+  const added = ${installSpawn}(corepack, ['--dir', profileDir, 'add', '--save-exact', 'file:../../package-cache/' + item.filename], { stdio: 'inherit' });
   if (added.error) throw added.error;
   if (added.status !== 0) process.exit(added.status ?? 1);
   // pnpm installs the package but does not activate its DSH bundle. The
@@ -116,6 +117,11 @@ async function installReleasedProfile(output) {
   }
 
   mkdirSync(output, { recursive: true })
+  mkdirSync(packageCache, { recursive: true })
+  cpSync(manifestPath, join(packageCache, 'release-manifest.json'))
+  for (const item of manifest.packages) {
+    cpSync(join(releaseDir, item.filename), join(packageCache, item.filename))
+  }
   const bootstrap = join(output, '.dsh-cli')
   rmSync(bootstrap, { recursive: true, force: true })
   mkdirSync(bootstrap, { recursive: true })
@@ -138,7 +144,7 @@ async function installReleasedProfile(output) {
     chmodSync(shim, 0o755)
     chmodSync(pnpmShim, 0o755)
   }
-  run(process.execPath, [installerPath, '--directory', releaseDir, '--dsh', shim, '--corepack', pnpmShim], {
+  run(process.execPath, [installerPath, '--directory', packageCache, '--dsh', shim, '--corepack', pnpmShim], {
     env: { ...process.env, DSH_HOME: output, PATH: `${output}${delimiter}${process.env.PATH ?? ''}` },
   })
   for (const item of manifest.packages) {
@@ -203,6 +209,12 @@ const isPreparedProfile = candidate => {
   try {
     const marker = JSON.parse(readFileSync(join(candidate, releaseMarker), 'utf8'))
     if (marker.release !== WORKDSH_VERSION || marker.harness !== DSH_VERSION) return false
+    const cache = resolve(candidate, '..', '..', 'package-cache')
+    const manifest = JSON.parse(readFileSync(join(cache, 'release-manifest.json'), 'utf8'))
+    verifyProfileRelease(manifest, DSH_VERSION, releasePackages)
+    if (!manifest.packages.every(item => existsSync(join(cache, item.filename)))) return false
+    const lockfile = readFileSync(join(candidate, 'pnpm-lock.yaml'), 'utf8')
+    if (lockfile.includes('file:/') || lockfile.includes('file:C:') || lockfile.includes('file:c:')) return false
     for (const name of releasePackages) {
       const pkg = JSON.parse(readFileSync(join(candidate, 'node_modules', name, 'package.json'), 'utf8'))
       verifyPackageDshReferences(pkg, DSH_VERSION)
@@ -212,7 +224,9 @@ const isPreparedProfile = candidate => {
   }
   try {
     const profile = JSON.parse(readFileSync(join(candidate, 'package.json'), 'utf8'))
-    return requiredBundles.every(name => profile.dsh?.profile?.bundles?.includes(name))
+    const manifest = JSON.parse(readFileSync(resolve(candidate, '..', '..', 'package-cache', 'release-manifest.json'), 'utf8'))
+    return requiredBundles.every(name => profile.dsh?.profile?.bundles?.includes(name)) &&
+      manifest.packages.every(item => profile.dependencies?.[item.name] === `file:../../package-cache/${item.filename}`)
   } catch {
     return false
   }
@@ -229,6 +243,7 @@ if (source || !isPreparedProfile(destination) || !existsSync(cli)) {
       // electron-builder does not follow extra-resource directory links.
       if (process.platform === 'darwin') run('/bin/cp', ['-cR', resolve(source), destination])
       else cpSync(resolve(source), destination, { recursive: true, dereference: true })
+      cpSync(resolve(source, '..', '..', 'package-cache'), packageCache, { recursive: true, dereference: true })
     } else {
       // pnpm records the absolute virtual-store location. Installing under a
       // temporary path and renaming it breaks the Profile on Windows.

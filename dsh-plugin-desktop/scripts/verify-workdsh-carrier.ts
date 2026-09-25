@@ -40,6 +40,24 @@ export async function afterPack(context: PackContext): Promise<void> {
   if (primary.desktopVersion !== DSH_VERSION) {
     throw new Error(`Bundled primary runtime is ${String(primary.desktopVersion)}, expected ${DSH_VERSION}`)
   }
+  const profile = join(runtime, 'profiles', 'workdsh')
+  const cache = join(runtime, 'package-cache')
+  const release = JSON.parse(readFileSync(join(cache, 'release-manifest.json'), 'utf8')) as {
+    packages: Array<{ name: string; filename: string }>
+  }
+  const profileManifest = JSON.parse(readFileSync(join(profile, 'package.json'), 'utf8')) as {
+    dependencies?: Record<string, string>
+  }
+  const lockfile = readFileSync(join(profile, 'pnpm-lock.yaml'), 'utf8')
+  for (const item of release.packages) {
+    if (!existsSync(join(cache, item.filename))) throw new Error(`Bundled plugin archive is missing: ${item.filename}`)
+    if (profileManifest.dependencies?.[item.name] !== `file:../../package-cache/${item.filename}`) {
+      throw new Error(`Bundled ${item.name} must use a portable plugin archive path`)
+    }
+  }
+  if (/file:(?:\/|[a-z]:)/iu.test(lockfile)) {
+    throw new Error('Bundled plugin lockfile contains a build-machine path')
+  }
   const packages = join(runtime, 'profiles', 'workdsh', 'node_modules', '@deepseek-ai')
   const names = readdirSync(packages).filter(name => name === 'dsh' || name.startsWith('dsh-'))
   if (names.length === 0) throw new Error('Bundled WorkDSH Profile has no Harness packages')
