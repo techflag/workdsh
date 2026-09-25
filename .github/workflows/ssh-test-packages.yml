@@ -26,31 +26,30 @@ jobs:
       - run: corepack enable
       - run: corepack yarn install --immutable
       - run: corepack yarn check:vendored-runtime
-      - run: corepack yarn check:desktop-variants
       - run: corepack yarn workspace dsh-community-market build
-      - run: corepack yarn workspace dsh-plugin-desktop-beta build
-      - run: corepack yarn workspace dsh-plugin-desktop-beta typecheck
-      - run: corepack yarn workspace dsh-plugin-desktop-beta test
-      - run: corepack yarn workspace dsh-plugin-desktop-beta verify:closure
-      - run: corepack yarn workspace dsh-plugin-desktop-beta verify:licenses
-      - run: corepack yarn workspace dsh-plugin-desktop-beta verify:notices
-      - run: corepack yarn workspace dsh-plugin-desktop-beta verify:loader
-      - run: corepack yarn workspace dsh-plugin-desktop-beta verify:profile
-      - run: corepack yarn workspace dsh-plugin-desktop-beta verify:cli
+      - run: corepack yarn workspace dsh-plugin-desktop build
+      - run: corepack yarn workspace dsh-plugin-desktop typecheck
+      - run: corepack yarn workspace dsh-plugin-desktop test
+      - run: corepack yarn workspace dsh-plugin-desktop verify:closure
+      - run: corepack yarn workspace dsh-plugin-desktop verify:licenses
+      - run: corepack yarn workspace dsh-plugin-desktop verify:notices
+      - run: corepack yarn workspace dsh-plugin-desktop verify:loader
+      - run: corepack yarn workspace dsh-plugin-desktop verify:profile
+      - run: corepack yarn workspace dsh-plugin-desktop verify:cli
       - if: runner.os == 'macOS'
-        run: corepack yarn workspace dsh-plugin-desktop-beta package:dir
+        run: corepack yarn workspace dsh-plugin-desktop package:dir
       - if: runner.os == 'macOS'
         run: node scripts/package-ssh-macos-test.mjs
       - if: runner.os == 'Windows'
-        run: corepack yarn workspace dsh-plugin-desktop-beta dist:win
+        run: corepack yarn workspace dsh-plugin-desktop dist:win
       - if: runner.os == 'Windows'
-        run: corepack yarn workspace dsh-plugin-desktop-beta dist:win-portable
+        run: corepack yarn workspace dsh-plugin-desktop dist:win-portable
       - uses: actions/upload-artifact@v4
         with:
           name: DSH-SSH-unsigned-${{ runner.os }}-${{ runner.arch }}
           if-no-files-found: error
           path: |
-            dsh-plugin-desktop-beta/dist/*.dmg
-            dsh-plugin-desktop-beta/dist/*.sha256
-            dsh-plugin-desktop-beta/dist/**/*.exe
-            dsh-plugin-desktop-beta/dist/**/*.zip
+            dsh-plugin-desktop/dist/*.dmg
+            dsh-plugin-desktop/dist/*.sha256
+            dsh-plugin-desktop/dist/**/*.exe
+            dsh-plugin-desktop/dist/**/*.zip

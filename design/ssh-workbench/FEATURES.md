@@ -43,7 +43,7 @@
 | [仓库规则](../../AGENTS.md) | 项目约定 | 上游子模块保持原样；桌面功能 Beta 先行，共享改动同步两个包 |
 | [架构说明](../../docs/architecture.md) | 架构 | Electron、Host、Web Client 和插件边界 |
 | [插件开发](../../docs/plugin-development.md) | 开发参考 | 普通 DSH 插件与 Desktop service 的公开边界 |
-| [终端入口](../../dsh-plugin-desktop-beta/src/terminal.ts) | 实现 | Desktop 的终端入口用于打开系统终端 |
+| [终端入口](../../dsh-plugin-desktop/src/terminal.ts) | 实现 | Desktop 的终端入口用于打开系统终端 |
 | [固定运行时版本](../../upstream.json) | 配置 | stable 与 beta 固定为不同运行包版本 |
 | [XTerminal AI 文档](https://docs.xterminal.cn/advanced/xiaoyi/) | 竞品 | 文档列出 Pro 自定义 Anthropic/OpenAI 兼容接口；未做客户端实测 |
 | 固定 Beta 包 dsh-llm-pi-ai / dsh-terminal 的 README 与类型声明 | 运行包参考 | 存在多模型适配和 Agent 所有者隔离的持久终端；不据此推断已具备用户 SSH 工作台 |
@@ -55,7 +55,7 @@
 | Desktop 壳 | 窗口、托盘、配置与生命周期 | 部分匹配 | 主机中心与终端优先界面需要定义 | 评估扩展 | docs/architecture.md |
 | DSH 模型服务 | 模型适配与请求能力 | 部分匹配 | 面向普通用户的配置、测试与能力反馈 | 评估复用和完善 | vendor/dsh-runtime/0.1.3-alpha.2/deepseek-ai-dsh-llm-pi-ai-0.1.3-alpha.2.tgz |
 | Agent 持久终端 | Agent 专属终端会话与工具 | 部分匹配 | 人操作的 SSH 会话与 AI 协作关系 | 需要专门需求与设计 | vendor/dsh-runtime/0.1.3-alpha.2/deepseek-ai-dsh-terminal-0.1.3-alpha.2.tgz |
-| Desktop 终端入口 | 打开带环境配置的系统终端 | 部分匹配 | 不等同于多标签 SSH/SFTP 客户端 | 仅作边界参考 | dsh-plugin-desktop-beta/src/terminal.ts |
+| Desktop 终端入口 | 打开带环境配置的系统终端 | 部分匹配 | 不等同于多标签 SSH/SFTP 客户端 | 仅作边界参考 | dsh-plugin-desktop/src/terminal.ts |
 | 插件机制 | Host/Client 扩展和组合 | 部分匹配 | 工作台业务功能与权限约束 | 评估扩展 | docs/plugin-development.md |
 
 复用与实现方式由后续技术设计决定。原型位于独立设计目录，没有改变上述产品运行行为。

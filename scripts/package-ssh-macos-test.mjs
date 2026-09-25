@@ -5,8 +5,8 @@ import { createReadStream, existsSync, mkdtempSync, readFileSync, rmSync, symlin
 import { tmpdir } from 'node:os'
 import { resolve, join } from 'node:path'
 const root=resolve(import.meta.dirname,'..')
-const workspace=process.argv[2]??'dsh-plugin-desktop-beta'
-if(!['dsh-plugin-desktop','dsh-plugin-desktop-beta'].includes(workspace))throw new Error('Unknown desktop workspace')
+const workspace=process.argv[2]??'dsh-plugin-desktop'
+if(workspace!=='dsh-plugin-desktop')throw new Error('Unknown desktop workspace')
 if(process.platform!=='darwin')throw new Error('Run this command on macOS')
 const pkg=JSON.parse(readFileSync(join(root,workspace,'package.json'),'utf8'))
 const app=join(root,workspace,'dist',process.arch==='x64'?'mac':'mac-'+process.arch,pkg.build.productName+'.app')

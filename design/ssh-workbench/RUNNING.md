@@ -31,10 +31,10 @@ corepack yarn dev:beta
 
 ## 代码位置
 
-- `dsh-plugin-desktop-beta/src/ssh-service.ts`：连接生命周期、PTY、SFTP。
-- `dsh-plugin-desktop-beta/src/ssh.ts`：认证后的 HTTP / WebSocket 路由。
-- `dsh-plugin-desktop-beta/src/native-ui/ssh/`：xterm.js 工作区。
-- `dsh-plugin-desktop-beta/src/client/AdvancedFrame.tsx`：增强/扩展模式入口。
+- `dsh-plugin-desktop/src/ssh-service.ts`：连接生命周期、PTY、SFTP。
+- `dsh-plugin-desktop/src/ssh.ts`：认证后的 HTTP / WebSocket 路由。
+- `dsh-plugin-desktop/src/native-ui/ssh/`：xterm.js 工作区。
+- `dsh-plugin-desktop/src/client/AdvancedFrame.tsx`：增强/扩展模式入口。
 - 对应文件已同步稳定包，保留既有变体差异。
 
 ## 本轮验证结果

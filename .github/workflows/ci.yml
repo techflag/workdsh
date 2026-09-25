@@ -215,6 +215,15 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.23.2
+      - name: Require one DSH version before publication
+        run: node scripts/verify-desktop-dsh-alignment.mjs
       - name: Download desktop packages
         uses: actions/download-artifact@v5
         with:

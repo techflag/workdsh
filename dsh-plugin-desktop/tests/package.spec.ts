@@ -65,21 +65,18 @@ const workspaceManifest = JSON.parse(readFileSync(new URL('package.json', worksp
 const ciWorkflow = readFileSync(new URL('.github/workflows/ci.yml', workspaceRoot), 'utf8')
 const main = readFileSync(new URL('src/main.ts', packageRoot), 'utf8')
 const runtimeVersion = '0.1.2-rc.1'
-const betaRuntimeVersion = (JSON.parse(readFileSync(
-  new URL('dsh-plugin-desktop-beta/package.json', workspaceRoot), 'utf8',
-)) as { dependencies: Record<string, string> }).dependencies['@deepseek-ai/dsh']
 const dshResolution = (name: string): unknown =>
   workspaceManifest.resolutions?.[`${name}@npm:${runtimeVersion}`]
 
 describe('published package surface', () => {
   it('runs desktop and community market typechecks from the root command', () => {
     expect(workspaceManifest.scripts?.typecheck)
-      .toBe('yarn workspace dsh-plugin-desktop typecheck && yarn workspace dsh-plugin-desktop-beta typecheck && yarn workspace dsh-community-market typecheck && yarn workspace dsh-plugin-ssh typecheck')
+      .toBe('yarn workspace dsh-plugin-desktop typecheck && yarn workspace dsh-community-market typecheck && yarn workspace dsh-plugin-ssh typecheck')
   })
 
   it('runs desktop and community market tests from the root command', () => {
     expect(workspaceManifest.scripts?.test)
-      .toBe('yarn workspace dsh-plugin-desktop test && yarn workspace dsh-plugin-desktop-beta test && yarn workspace dsh-community-market test && yarn workspace dsh-plugin-ssh test')
+      .toBe('yarn workspace dsh-plugin-desktop test && yarn workspace dsh-community-market test && yarn workspace dsh-plugin-ssh test')
   })
 
   it('registers both npm launcher names', () => {
@@ -275,26 +272,18 @@ describe('published package surface', () => {
     )
   })
 
-  it('keeps the Stable and Beta DSH runtime families side by side', () => {
+  it('keeps one source DSH runtime family in the Desktop workspace', () => {
     const dshResolutions = Object.entries(workspaceManifest.resolutions ?? {})
       .filter(([selector]) => /^@deepseek-ai\/dsh(?:@|-)/u.test(selector))
     const stableResolutions = dshResolutions.filter(([selector]) =>
       selector.endsWith(`@npm:${runtimeVersion}`)
       || selector.endsWith(`@npm:^${runtimeVersion}`))
-    const betaResolutions = dshResolutions.filter(([selector]) =>
-      selector.endsWith(`@npm:${betaRuntimeVersion}`)
-      || selector.endsWith(`@npm:^${betaRuntimeVersion}`))
 
     expect(stableResolutions.length).toBeGreaterThan(0)
-    expect(betaResolutions.length).toBeGreaterThan(0)
-    expect(stableResolutions.length + betaResolutions.length).toBe(dshResolutions.length)
+    expect(stableResolutions.length).toBe(dshResolutions.length)
     for (const [selector, resolution] of stableResolutions) {
       expect(selector).toMatch(/@npm:\^?0\.1\.2-rc\.1$/u)
       expect(String(resolution)).toContain(runtimeVersion)
-    }
-    for (const [selector, resolution] of betaResolutions) {
-      expect(selector).toMatch(/@npm:\^?0\.1\.3-alpha\.\d+$/u)
-      expect(String(resolution)).toContain(betaRuntimeVersion)
     }
   })
 

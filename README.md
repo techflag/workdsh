@@ -118,7 +118,7 @@ Web 服务默认仅监听本机回环地址。开启“用浏览器打开”后�
 
 > **危险：** 向局域网开放不提供鉴权；所有与你处于同一局域网的人都能直接打开 DSH 并操作你的电脑。请只在完全信任的网络中谨慎开启。
 
-自动更新的固定版本检查请求会在 `X-DSH-Desktop-Version` header 中携带当前安装版本，在 `X-DSH-Desktop-Channel` 中携带 `stable` 或 `beta`，并在 `X-DSH-Desktop-Installation-Id` header 中携带一个由本机生成并持久保存的随机 UUID；它不是从硬件信息推导出的标识。安装包下载会携带通道和 `X-DSH-Desktop-Target-Version`，但下载请求及其重定向不会携带安装标识或当前版本。
+自动更新的固定版本检查请求会在 `X-DSH-Desktop-Version` header 中携带当前安装版本，在 `X-DSH-Desktop-Channel` 中携带 `stable`，并在 `X-DSH-Desktop-Installation-Id` header 中携带一个由本机生成并持久保存的随机 UUID；它不是从硬件信息推导出的标识。安装包下载会携带通道和 `X-DSH-Desktop-Target-Version`，但下载请求及其重定向不会携带安装标识或当前版本。
 
 ## 插件生态
 
@@ -162,7 +162,7 @@ WorkDSH 是基于 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-har
 
 ## 开发
 
-稳定版与 Beta 桌面包分别位于 `dsh-plugin-desktop/` 和 `dsh-plugin-desktop-beta/`。外层仓库使用 Yarn，固定的 `deepseek-harness/` 子模块继续使用自己的 pnpm workspace。从仓库根目录执行：
+Desktop 工程位于 `dsh-plugin-desktop/`。外层仓库使用 Yarn，固定的 `deepseek-harness/` 子模块继续使用自己的 pnpm workspace。从仓库根目录执行：
 
 ```sh
 git submodule update --init --recursive

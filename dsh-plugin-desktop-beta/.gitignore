@@ -1,8 +1,0 @@
-dist/
-/lib/
-node_modules/
-build/workdsh-runtime
-build/.workdsh-release-*
-build/.workdsh-node
-build/.workdsh-primary-runtime-cache
-build/official-primary-runtime
