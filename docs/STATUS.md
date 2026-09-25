@@ -1,3 +1,11 @@
+## 2026-09-25：受管浏览器会话首个代码切片
+
+`packages/providers/browser-session` 0.1 在建模块已接入官方 `SessionResources`、`McpClient`、个人本机 Connection Fetch 路由，以及官方 `sidebar.right.pane.tab` 的 Client 画面/输入组件。真实 Chromium 集成测试验证两个 Agent Session 的导航、隔离、关闭清理、失效 Session/非个人身份拒绝，以及路由点击被 MCP 快照看到；Host/Client 构建、类型检查与 `check:plan` 通过。默认 bundle 仍使用官方独立浏览器 provider；新 Client 未做实机截图、1440/1920/390 视口和键盘交互验收。用户已明确禁止在 Desktop 安装包另带浏览器；相关打包尝试已撤回。Desktop 两个变体已有隔离 Electron worker 入口，browser-session provider 已可按 Session 启动/关闭它；开发态实际入口经 Playwright 连通、导航和点击通过，变体与两套类型检查通过。安装包、官方 MCP 到右栏闭环、真实 HTTP、取消/恢复、Windows/macOS 和团队授权仍未验证；下一步先完成这些验收，再接入默认 Profile。
+
+## 2026-09-25：rc.2 模块文档口径复核
+
+核对专家、连接器、技能、项目和资料库当前包依赖后，`check:versions` 通过：556 条 DSH 锁记录均为 `0.1.7-rc.2`，Cordis 为 `4.0.3`。专家、技能、连接器 README 中仍有 0.1.6 基线和旧 tgz 示例，现已改为当前源码版本，并区分本地 Web 验证与历史 GitHub 制品。项目和资料库 README 未发现同类旧基线声明。另检查 GitHub 发布的 Desktop alpha.18 macOS arm64 DMG：有内置 Node/Python，但没有独立 Chromium；随包 Playwright 配置仍默认调用机器上的 Google Chrome。官方 Browser tab 与 Playwright provider 无共享页面契约，安装包证据和正式验收要求已回填 [rc.2 升级记录](DSH-0.1.7-UPGRADE-PLAN.md)。本轮只修改文档；未重新构建、运行模型或做 Windows/macOS 安装后实机验收。浏览器 Agent 与右栏同页操作仍未完成；下一步实现受控的 Session 浏览器与右栏同页操作，并用安装包验收。
+
 ## 2026-09-25：rc.2 Web 全新 Profile 安装复验
 
 在独立空目录 `.test-runtime/rc2-fresh-install` 用 Node 22.23.2 / pnpm 10.34.5 执行 `corepack pnpm preview:install`，21.8 秒退出码 0。安装器核对 CLI、Base、Web App 均为 `0.1.7-rc.2`，Profile 的 11 个 WorkDSH 包入口与当前构建字节一致；另行读取已安装 Sidebar Browser 为 rc.2。原先“尚未完成全新空 Profile 安装”的缺口已补齐，详见 [升级记录](DSH-0.1.7-UPGRADE-PLAN.md)。未在该隔离 Profile 运行付费模型、长时间专家任务或跨平台浏览器验收；Agent 浏览器与用户侧栏 Browser 同页操作仍未实现。下一步继续完成 Desktop 构建和浏览器集成验证。
@@ -1578,6 +1586,7 @@ D00 设计修订完成，当前 D01 集成验证进行中。已安装并锁定�
 | DOC-06 | DeepSeek Harness 官方文档全量能力审查 | D01 | completed |
 | P0-01 | 环境与发布依赖锁定 | P0 | completed |
 | P0-02 | bundle/Host/Client 安装链探针 | P0 | completed |
+| BROWSER-01 | Agent Session 受管浏览器与右栏同页操作 | P1 专项 | in_progress |
 | P0-03 | 专家预设、技能与恢复探针 | P0 | completed |
 | P0-04 | 契约与兼容门槛 | P0 | completed |
 | P0-05 | 团队身份与全路径隔离探针 | P0 | completed |

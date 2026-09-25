@@ -1,6 +1,6 @@
 # WorkDSH 专家插件 / Experts plugin
 
-一个插件管理多个专家与专家团配置。当前源码候选为 `workdsh-plugin-experts@0.1.0-alpha.8`，面向 **DeepSeek Harness 0.1.6-alpha.2 / Cordis 4.0.2**；候选代码与已经发布的安装包分别验收。
+一个插件管理多个专家与专家团配置。当前源码候选为 `workdsh-plugin-experts@0.1.0-alpha.8`，面向 **DeepSeek Harness 0.1.7-rc.2 / Cordis 4.0.3**；本地 Web 升级证据见 [rc.2 记录](../../../docs/DSH-0.1.7-UPGRADE-PLAN.md)，候选代码与已经发布的安装包仍须分别验收。
 
 WorkDSH manages authored expert assets and immutable revisions. Team execution, messaging, tasks and the Web team panel use the official DSH Agent Teams plugins.
 
@@ -63,15 +63,15 @@ corepack pnpm probe:experts:team:real
 
 ## 安装候选包
 
-新候选依赖 DSH 0.1.6-alpha.2，应使用同一次构建产出的配套 tgz；不要把旧 Release 的安装包当作已含本次迁移。先在独立 Profile 验证，再部署实际使用的 Profile：
+当前源码依赖 DSH 0.1.7-rc.2，应使用同一次构建产出的配套 tgz；不要把旧 Release 的安装包当作已含本次升级。先在独立 Profile 验证，再部署实际使用的 Profile：
 
 ```sh
 dsh --profile workdsh --from-default-profile web --dump-config
-dsh plugin --profile workdsh add /absolute/path/release/workdsh-provider-identity-local-0.1.0-alpha.5.tgz \
-  /absolute/path/release/workdsh-plugin-audit-0.1.0-alpha.4.tgz \
-  /absolute/path/release/workdsh-plugin-access-0.1.0-alpha.5.tgz \
-  /absolute/path/release/workdsh-plugin-skills-0.1.0-alpha.30.tgz \
-  /absolute/path/release/workdsh-plugin-experts-0.1.0-alpha.5.tgz
+dsh plugin --profile workdsh add /absolute/path/release/workdsh-provider-identity-local-0.1.0-alpha.6.tgz \
+  /absolute/path/release/workdsh-plugin-audit-0.1.0-alpha.5.tgz \
+  /absolute/path/release/workdsh-plugin-access-0.1.0-alpha.6.tgz \
+  /absolute/path/release/workdsh-plugin-skills-0.1.0-alpha.32.tgz \
+  /absolute/path/release/workdsh-plugin-experts-0.1.0-alpha.8.tgz
 dsh --profile workdsh
 ```
 

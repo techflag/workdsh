@@ -19,7 +19,7 @@ MCP client 是一种执行适配，复用官方 stdio/Streamable HTTP 生命周�
 
 ## 验收与下一步
 
-随包示例通过 `@deepseek-ai/dsh-mcp-client@0.1.6-alpha.2` 连接本地子进程，模型可调用 `mcp__workdsh-example__connector_status` 与 `mcp__workdsh-example__search_catalog`；官方资源工具可列出并读取 `workdsh://connector/guide` 和 `workdsh://catalog/{id}`。远程连接器使用同一个官方 MCP Client。页面状态来自实际子插件与工具发现，不凭配置存在显示“已连接”。
+当前源码的随包示例通过 `@deepseek-ai/dsh-mcp-client@0.1.7-rc.2` 连接本地子进程，模型可调用 `mcp__workdsh-example__connector_status` 与 `mcp__workdsh-example__search_catalog`；官方资源工具可列出并读取 `workdsh://connector/guide` 和 `workdsh://catalog/{id}`。远程连接器使用同一个官方 MCP Client。rc.2 的工具、资源、多实例和会话隔离探针已通过，详见 [升级记录](../../../docs/DSH-0.1.7-UPGRADE-PLAN.md)；页面状态来自实际子插件与工具发现，不凭配置存在显示“已连接”。
 
 新会话默认不选择连接器。用户在输入框的链形图标中选择后，名称显示在输入框旁，Host 在官方 `agent/created` 生命周期中只开放对应 `mcp__<server>__*` 工具命名空间。连接器的全局启用状态与当前会话选择互相独立。
 
