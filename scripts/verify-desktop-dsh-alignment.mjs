@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { DSH_VERSION } from '../dsh-plugin-desktop/scripts/runtime-version.mjs'
@@ -9,10 +10,16 @@ const upstream = readJson('upstream.json')
 const checkout = readJson('deepseek-harness/package.json')
 const problems = []
 
+const pinnedCommit = execFileSync('git', ['rev-parse', 'HEAD:deepseek-harness'], { cwd: root, encoding: 'utf8' }).trim()
+const checkoutCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: join(root, 'deepseek-harness'), encoding: 'utf8' }).trim()
+if (upstream.commit !== pinnedCommit || pinnedCommit !== checkoutCommit) {
+  problems.push(`upstream.json=${upstream.commit}, gitlink=${pinnedCommit}, checkout=${checkoutCommit}`)
+}
+
 if (upstream.version !== checkout.version || DSH_VERSION !== checkout.version) {
   problems.push(`upstream.json=${upstream.version}, Desktop=${DSH_VERSION}, checkout=${checkout.version}`)
 }
-for (const workspace of ['dsh-plugin-desktop', 'dsh-community-market']) {
+for (const workspace of ['dsh-plugin-desktop', 'dsh-community-fabric', 'dsh-community-market']) {
   const manifest = readJson(`${workspace}/package.json`)
   for (const field of ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']) {
     for (const name of Object.keys(manifest[field] ?? {})) {
