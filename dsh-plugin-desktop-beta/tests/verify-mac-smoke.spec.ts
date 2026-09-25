@@ -6,7 +6,6 @@ import {
   verifyMacSmoke,
   type MacSmokeVerificationOptions,
 } from '../scripts/verify-mac-smoke.ts'
-import { MACOS_UNIVERSAL_NATIVE_ENTRIES } from '../scripts/mac-universal.ts'
 
 const temporaryRoots: string[] = []
 
@@ -35,15 +34,7 @@ function fixture(): AppFixture {
   chmodSync(executable, 0o755)
   modeOverrides.set(executable, 0o755)
   writeFileSync(appAsar, 'packed')
-  for (const entry of MACOS_UNIVERSAL_NATIVE_ENTRIES) {
-    const path = join(`${appAsar}.unpacked`, entry.path)
-    mkdirSync(join(path, '..'), { recursive: true })
-    writeFileSync(path, 'native')
-    if (entry.path.endsWith('/spawn-helper')) {
-      chmodSync(path, 0o755)
-      modeOverrides.set(path, 0o755)
-    }
-  }
+
   return { root, infoPlist, executable, appAsar, modeOverrides }
 }
 
@@ -119,10 +110,6 @@ describe('macOS DMG smoke artifact verification', () => {
         command: 'lipo',
         args: [value.executable, '-verify_arch', 'arm64'],
       },
-      ...MACOS_UNIVERSAL_NATIVE_ENTRIES.filter(entry => entry.arch === 'arm64').map(entry => ({
-        command: 'lipo',
-        args: [join(`${value.appAsar}.unpacked`, entry.path), '-verify_arch', entry.arch],
-      })),
       { command: 'hdiutil', args: ['detach', value.root] },
     ])
     expect(harness.removeMountPoint).toHaveBeenCalledWith(value.root)

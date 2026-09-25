@@ -338,7 +338,10 @@
       "smartUnpack": true
     },
     "npmRebuild": false,
-    "afterPack": "./scripts/verify-packaged-runtime.ts",
+    "afterPack": "./scripts/verify-workdsh-carrier.ts",
+    "extraMetadata": {
+      "dependencies": null
+    },
     "afterAllArtifactBuild": "./scripts/verify-electron-fuses.ts",
     "electronFuses": {
       "enableEmbeddedAsarIntegrityValidation": true,
@@ -370,11 +373,9 @@
       "build/app-icon-mac.png",
       "build/tray-icon.svg",
       "build/tray-icon*.png",
-      "cordis.patch.yml",
-      "lib/**",
+      "lib/workdsh-main.js",
       "package.json",
-      "!node_modules/node-pty/build/**",
-      "!node_modules/fs-ext/build/**"
+      "!node_modules/**"
     ],
     "mac": {
       "asarUnpack": [
@@ -397,12 +398,10 @@
       },
       "hardenedRuntime": true,
       "icon": "build/app-icon-mac.png",
-      "mergeASARs": false,
       "notarize": true,
       "signIgnore": [
         "\\.(?:pak|dat|wasm)$"
-      ],
-      "x64ArchFiles": "**/node_modules/{node-pty/prebuilds/darwin-*/**,fs-ext/prebuilds/darwin-*/**,node-addon-require-builtin-darwin-*/**,@deepseek-ai/libreoffice-kit-darwin-*/**,@deepseek-ai/node-addon-system-darwin-*/**,@img/sharp-darwin-*/**,@img/sharp-libvips-darwin-*/**,@koromix/koffi-darwin-*/**,@napi-rs/canvas-darwin-*/**,@trycua/cua-driver-darwin-*/**,@ubjs/node-darwin-*/**,@vscode/ripgrep-darwin-*/**,sherpa-onnx-darwin-*/**}"
+      ]
     },
     "dmg": {
       "format": "UDBZ"
