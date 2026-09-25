@@ -31,6 +31,7 @@ const manifest = JSON.parse(readFileSync(new URL('package.json', packageRoot), '
     appId?: unknown
     asar?: unknown
     afterPack?: unknown
+    extraMetadata?: unknown
     afterAllArtifactBuild?: unknown
     electronFuses?: unknown
     toolsets?: Record<string, unknown>
@@ -793,13 +794,11 @@ describe('published package surface', () => {
       'build/app-icon-mac.png',
       'build/tray-icon.svg',
       'build/tray-icon*.png',
-      'cordis.patch.yml',
-      'lib/**',
+      'lib/workdsh-main.js',
       'package.json',
-      '!node_modules/node-pty/build/**',
+      '!node_modules/**',
     ])
     expect(manifest.build?.mac?.icon).toBe('build/app-icon-mac.png')
-    expect(manifest.build?.mac?.mergeASARs).toBe(false)
     expect(manifest.build?.mac?.signIgnore).toEqual(['\\.(?:pak|dat|wasm)$'])
     expect(manifest.build?.win?.icon).toBe('build/app-icon.ico')
     expect(manifest.build?.win?.target).toEqual([{
@@ -871,7 +870,8 @@ describe('published package surface', () => {
       .toBe('yarn workspace dsh-community-market build && yarn workspace dsh-plugin-desktop dist:win')
     expect(workspaceManifest.scripts?.['dist:win-portable'])
       .toBe('yarn workspace dsh-community-market build && yarn workspace dsh-plugin-desktop dist:win-portable')
-    expect(manifest.build?.afterPack).toBe('./scripts/verify-packaged-runtime.ts')
+    expect(manifest.build?.afterPack).toBe('./scripts/verify-workdsh-carrier.ts')
+    expect(manifest.build?.extraMetadata).toEqual({ dependencies: null })
     expect(manifest.build?.afterAllArtifactBuild).toBe('./scripts/verify-electron-fuses.ts')
     expect(manifest.build?.mac).toEqual(expect.objectContaining({
       extendInfo: {
@@ -880,13 +880,11 @@ describe('published package surface', () => {
         CFBundleLocalizations: ['en', 'zh_CN'],
       },
       hardenedRuntime: true,
-      mergeASARs: false,
       notarize: true,
       signIgnore: ['\\.(?:pak|dat|wasm)$'],
       target: ['dir'],
-      x64ArchFiles: expect.stringContaining('node-pty/prebuilds/darwin-*'),
     }))
-    expect(manifest.build?.files).toContain('!node_modules/node-pty/build/**')
+    expect(manifest.build?.files).toContain('!node_modules/**')
     expect(manifest.devDependencies?.['@electron/asar']).toBe('3.4.1')
     expect(manifest.devDependencies?.['@electron/fuses']).toBe('1.8.0')
   })

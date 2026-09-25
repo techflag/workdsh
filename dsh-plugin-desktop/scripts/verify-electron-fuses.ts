@@ -7,14 +7,28 @@ import {
 } from '@electron/fuses'
 import { FuseState } from '@electron/fuses/dist/constants.js'
 import { Arch, archFromString, getArchSuffix } from 'builder-util'
+import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
   resolvePackagedExecutablePath,
-  smokePackagedElectronRuntime,
   type PackagedElectronSmoke,
   type PackagedRuntimeContext,
 } from './verify-packaged-runtime.ts'
+
+/** The CLI lives in the single bundled rc.2 Profile, outside app.asar. */
+export function smokeBundledWorkdshProfile(context: PackagedRuntimeContext): void {
+  const resources = context.electronPlatformName === 'darwin'
+    ? join(context.appOutDir, `${context.packager.appInfo.productFilename}.app`, 'Contents', 'Resources')
+    : join(context.appOutDir, 'resources')
+  const runtime = join(resources, 'workdsh-runtime')
+  const node = join(runtime, 'node', context.electronPlatformName === 'win32' ? 'node.exe' : 'node')
+  const cli = join(runtime, 'profiles', 'workdsh', 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
+  const result = spawnSync(node, [cli, '--version'], { encoding: 'utf8', timeout: 30_000 })
+  if (result.error || result.status !== 0 || !result.stdout.includes('0.1.7-rc.2')) {
+    throw new Error(`Bundled Harness CLI smoke failed: ${String(result.error ?? result.stderr)}`)
+  }
+}
 
 /** Injectable official fuse reader used by focused tests. */
 export type ElectronFuseReader = (executable: string) => Promise<FuseConfig<FuseState>>
@@ -316,7 +330,7 @@ export async function afterAllArtifactBuild(
   result: ElectronArtifactBuildResult,
   read: ElectronFuseReader = getCurrentFuseWire,
   exists: (filename: string) => boolean = existsSync,
-  smoke: PackagedElectronSmoke = smokePackagedElectronRuntime,
+  smoke: PackagedElectronSmoke = smokeBundledWorkdshProfile,
 ): Promise<string[]> {
   const contexts = resolveFinalPackagedRuntimeContexts(result, exists)
   for (const context of contexts) {

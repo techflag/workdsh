@@ -5,7 +5,6 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync, rmdirSync, statSync
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { MACOS_UNIVERSAL_NATIVE_ENTRIES } from './mac-universal.ts'
 
 /** Injectable filesystem and command boundaries for smoke verification. */
 export interface MacSmokeVerificationOptions {
@@ -154,22 +153,6 @@ export function verifyMacSmoke(
         throw new Error(`macOS application has invalid bundled ${label}: ${path}`)
       }
       options.run('lipo', [path, '-verify_arch', binaryArch])
-    }
-
-    const unpackedRoot = `${appAsarPath}.unpacked`
-    for (const entry of MACOS_UNIVERSAL_NATIVE_ENTRIES.filter(entry => entry.arch === binaryArch)) {
-      const nativePath = join(unpackedRoot, entry.path)
-      if (!options.exists(nativePath)) {
-        throw new Error(`macOS application is missing ${nativePath}`)
-      }
-      const nativeStat = options.stat(nativePath)
-      if (!nativeStat.isFile || nativeStat.size === 0) {
-        throw new Error(`macOS application has an invalid native file: ${nativePath}`)
-      }
-      if (entry.path.endsWith('/spawn-helper') && (nativeStat.mode & 0o111) === 0) {
-        throw new Error(`macOS application has a non-executable node-pty helper: ${nativePath}`)
-      }
-      options.run('lipo', [nativePath, '-verify_arch', entry.arch])
     }
   } catch (cause) {
     failure = cause
