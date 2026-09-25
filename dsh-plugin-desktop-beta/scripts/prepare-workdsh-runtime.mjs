@@ -91,6 +91,20 @@ async function installReleasedProfile() {
     writeFileSync(profileManifest, JSON.stringify(profilePackage, null, 2) + '\\n');
   }`,
   )
+  if (process.platform === 'win32') {
+    // pnpm.cmd can leave cmd.exe waiting after pnpm has finished. Execute the
+    // pinned JavaScript CLI with the bundled Node process directly instead.
+    installer = installer
+      .replace(
+        "const corepack = value('--corepack', 'corepack');",
+        "const corepack = value('--corepack', 'corepack');\nconst bundledPnpmCli = join(dirname(corepack), '.dsh-cli', 'node_modules', 'pnpm', 'bin', 'pnpm.mjs');",
+      )
+      .replaceAll('portableSpawn(corepack, [', 'nativeSpawnSync(process.execPath, [bundledPnpmCli, ')
+      .replace('portableSpawn(corepack, runtimeArgs,', 'nativeSpawnSync(process.execPath, [bundledPnpmCli, ...runtimeArgs],')
+    if (installer.includes('portableSpawn(corepack,') || !installer.includes('bundledPnpmCli')) {
+      throw new Error('Windows release installer still invokes pnpm through cmd.exe')
+    }
+  }
   writeFileSync(installerPath, installer)
   for (const item of manifest.packages) {
     await download(`${base}/${item.filename}`, join(releaseDir, item.filename))
