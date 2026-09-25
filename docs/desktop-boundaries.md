@@ -19,9 +19,13 @@ those surfaces. `audit`, `access`, `identity-local`, and `browser-session` are
 internal services for the same Profile. They are not separate Desktop editions
 or downloads. The `workdsh-bundle` composes them into the single runtime.
 
-The legacy Cordis Host/Client and SSH sources under `dsh-plugin-desktop/src`
-are not copied into current installers. Their old DSH dependencies must be
-removed together with their build and test entry points before the repository
-can claim a single DSH source version. A source file being absent from the
-installer does not by itself prove its development or test entry point is
-unused.
+The former Cordis Host/Client and SSH sources have been removed from the
+Desktop release branch along with their old DSH dependencies and build entry
+points. The current carrier and packaged Profile use one DSH version.
+
+The supporting WorkDSH modules above are still installed as separate DSH
+bundles inside that Profile. They are internal runtime components, but the
+package layout has not yet been reduced to only the five user-facing product
+plugins. A future consolidation must preserve their actual behavior and be
+verified against the installed app; merely changing their labels would not
+complete this boundary.
