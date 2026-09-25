@@ -89,16 +89,7 @@ async function installReleasedProfile(output) {
   const profileDir = join(dshHome, 'profiles', profile);
   const added = ${installSpawn}(corepack, ['--dir', profileDir, 'add', '--save-exact', 'file:../../package-cache/' + item.filename], { stdio: 'inherit' });
   if (added.error) throw added.error;
-  if (added.status !== 0) process.exit(added.status ?? 1);
-  // pnpm installs the package but does not activate its DSH bundle. The
-  // browser-session provider is inserted by workdsh-bundle's patch instead.
-  if (name !== 'workdsh-provider-browser-session') {
-    const profilePackage = JSON.parse(readFileSync(profileManifest, 'utf8'));
-    const bundles = profilePackage.dsh?.profile?.bundles ?? [];
-    if (!bundles.includes(name)) bundles.push(name);
-    profilePackage.dsh = { ...profilePackage.dsh, profile: { ...profilePackage.dsh?.profile, bundles } };
-    writeFileSync(profileManifest, JSON.stringify(profilePackage, null, 2) + '\\n');
-  }`,
+  if (added.status !== 0) process.exit(added.status ?? 1);`,
     'plugin installation step',
   )
   // On some macOS runners pnpm prints "Done" but retains an idle Node handle.
