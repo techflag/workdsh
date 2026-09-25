@@ -196,6 +196,9 @@ async function installReleasedProfile(output) {
   for (const id of ['workdsh-installation-probe', 'workdsh-identity-local', 'workdsh-access', 'workdsh-audit', 'workdsh-office']) {
     if (!config.stdout.includes(`id: ${id}`)) throw new Error(`Internal WorkDSH service is missing: ${id}`)
   }
+  run(process.execPath, [join(desktopRoot, 'scripts', 'verify-product-plugin-inventory.mjs'), output], {
+    env: { ...process.env, DSH_HOME: output },
+  })
   writeFileSync(join(destination, releaseMarker), JSON.stringify({ release: WORKDSH_VERSION, harness: DSH_VERSION, layout: profileLayout }) + '\n')
   rmSync(bootstrap, { recursive: true, force: true })
 }
