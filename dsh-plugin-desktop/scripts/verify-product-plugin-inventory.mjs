@@ -3,14 +3,12 @@
 import { existsSync, rmSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { PRODUCT_PACKAGES } from './workdsh-package-boundary.mjs'
 
 const runtime = resolve(process.argv[2] ?? fileURLToPath(new URL('../build/workdsh-runtime', import.meta.url)))
 const profile = join(runtime, 'profiles', 'workdsh')
 const config = join(profile, '.workdsh-plugin-inventory-probe.yml')
-const expected = [
-  'workdsh-plugin-connectors', 'workdsh-plugin-experts', 'workdsh-plugin-library',
-  'workdsh-plugin-projects', 'workdsh-plugin-skills',
-]
+const expected = PRODUCT_PACKAGES
 const anchor = join(profile, 'node_modules', '@deepseek-ai', 'dsh', 'package.json')
 if (!existsSync(anchor)) throw new Error(`Missing bundled DSH installation: ${anchor}`)
 

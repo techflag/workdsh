@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { extractFile, listPackage } from '@electron/asar'
 import { DSH_VERSION } from './runtime-version.mjs'
+import { PRODUCT_PACKAGES } from './workdsh-package-boundary.mjs'
 
 interface PackContext {
   appOutDir: string
@@ -55,10 +56,7 @@ export async function afterPack(context: PackContext): Promise<void> {
     optionalDependencies?: Record<string, string>
     dsh?: { profile?: { bundles?: string[] } }
   }
-  const productPackages = new Set([
-    'workdsh-plugin-experts', 'workdsh-plugin-skills', 'workdsh-plugin-connectors',
-    'workdsh-plugin-library', 'workdsh-plugin-projects',
-  ])
+  const productPackages = new Set(PRODUCT_PACKAGES)
   const selected = profileManifest.dsh?.profile?.bundles ?? []
   const selectedWorkdsh = selected.filter(name => name.startsWith('workdsh-'))
   const directWorkdsh = Object.keys(profileManifest.dependencies ?? {}).filter(name => name.startsWith('workdsh-'))

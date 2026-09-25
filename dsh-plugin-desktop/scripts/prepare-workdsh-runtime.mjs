@@ -5,6 +5,7 @@ import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, re
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { DSH_VERSION } from './runtime-version.mjs'
+import { PRODUCT_PACKAGES, RELEASE_PACKAGES } from './workdsh-package-boundary.mjs'
 import { verifyPackageDshReferences, verifyProfileRelease } from './verify-profile-release.mjs'
 
 const WORKDSH_VERSION = '0.1.0-alpha.13'
@@ -15,10 +16,7 @@ const packageCache = join(output, 'package-cache')
 const cli = join(destination, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
 const releaseMarker = '.workdsh-desktop-release.json'
 const profileLayout = 'five-product-plugins-v1'
-const productPackages = new Set([
-  'workdsh-plugin-experts', 'workdsh-plugin-skills', 'workdsh-plugin-connectors',
-  'workdsh-plugin-library', 'workdsh-plugin-projects',
-])
+const productPackages = new Set(PRODUCT_PACKAGES)
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, { stdio: 'inherit', ...options })
@@ -211,12 +209,7 @@ const installedDshVersion = candidate => {
     return undefined
   }
 }
-const releasePackages = [
-  'workdsh-provider-identity-local', 'workdsh-provider-browser-session', 'workdsh-plugin-audit', 'workdsh-plugin-access',
-  'workdsh-plugin-skills', 'workdsh-plugin-experts', 'workdsh-plugin-connectors',
-  'workdsh-plugin-activity', 'workdsh-plugin-office', 'workdsh-plugin-library',
-  'workdsh-plugin-projects', 'workdsh-bundle',
-]
+const releasePackages = RELEASE_PACKAGES
 const supportPackages = releasePackages.filter(name => !productPackages.has(name))
 const internalPatch = profile => {
   const patches = supportPackages.map(name => join(profile, 'node_modules', name, 'cordis.patch.yml'))

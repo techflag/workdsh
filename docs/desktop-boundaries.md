@@ -30,6 +30,9 @@ product bundles: experts, skills, connectors, library, and projects. Its
 support packages are installed as optional runtime dependencies. The Profile's
 own `cordis.patch.yml` activates their service entries and the WorkDSH client
 composition, so they do not become separately manageable product plugins.
+`dsh-plugin-desktop/scripts/workdsh-package-boundary.mjs` is the reviewed
+inventory shared by Profile preparation and packaged-app verification; update
+it when a WorkDSH release changes package ownership.
 The release archives remain bundled for offline installation and updates.
 This is a management boundary, not a physical package consolidation: the
 support packages still ship inside the Profile. Moving their implementation
