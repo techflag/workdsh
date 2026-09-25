@@ -35,7 +35,6 @@ function baseOptions(
       calls.push({ command, args: [...args], cwd, env: { ...commandEnv } })
     },
     log: message => logs.push(message),
-    prepareRuntime: () => undefined,
   }
 }
 
@@ -45,7 +44,6 @@ describe('macOS release command boundary', () => {
     const identityEnvironments: NodeJS.ProcessEnv[] = []
     const logs: string[] = []
     const resetOutput = vi.fn()
-    const prepareRuntime = vi.fn()
     const appPassword = 'notary-password-that-must-not-be-logged'
 
     releaseMac({
@@ -57,11 +55,9 @@ describe('macOS release command boundary', () => {
         APPLE_TEAM_ID: 'TEAM123456',
       }, calls, identityEnvironments, logs),
       resetOutput,
-      prepareRuntime,
     })
 
     expect(resetOutput).toHaveBeenCalledOnce()
-    expect(prepareRuntime).toHaveBeenCalledOnce()
     expect(identityEnvironments).toEqual([{ PATH: '/usr/bin', SAFE_BUILD_VALUE: 'kept' }])
     expect(calls).toHaveLength(3)
     expect(calls[0]).toEqual({

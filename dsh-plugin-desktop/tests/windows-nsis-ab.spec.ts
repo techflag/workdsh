@@ -20,7 +20,7 @@ import verifyNsisAbPrepackagedBuild, {
   NSIS_AB_HOOK_AUTHORIZATION_FILE,
   NSIS_AB_HOOK_TOKEN_ENV,
 } from '../scripts/verify-nsis-ab-prepackaged.ts'
-import type { PackagedElectronSmoke } from '../scripts/verify-packaged-runtime.ts'
+import type { PackagedElectronSmoke } from '../scripts/verify-electron-fuses.ts'
 import {
   identifyWindowsNsisAbTree,
   normalizeWindowsNsisAbRelativePath,

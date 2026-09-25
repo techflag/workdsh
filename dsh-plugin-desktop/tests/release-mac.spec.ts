@@ -35,7 +35,6 @@ function baseOptions(
       calls.push({ command, args: [...args], cwd, env: { ...commandEnv } })
     },
     log: message => logs.push(message),
-    prepareRuntime: () => undefined,
   }
 }
 
