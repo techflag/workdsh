@@ -163,7 +163,7 @@ describe('final Electron fuse verification', () => {
     expect(() => resolveFinalPackagedRuntimeContexts(
       result([{ key: 'win', archs: [Arch.x64, Arch.arm64] }]),
       filename => filename === x64Executable,
-    )).toThrow('win/arm64 at /build/win-arm64-unpacked/WorkDSH.exe')
+    )).toThrow(`win/arm64 at ${join('/build', 'win-arm64-unpacked', 'WorkDSH.exe')}`)
   })
 
   it('checks a macOS directory build even when MacPackager omits its target', () => {
