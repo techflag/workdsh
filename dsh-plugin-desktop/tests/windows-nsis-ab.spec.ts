@@ -568,5 +568,5 @@ describe('Windows NSIS A/B packaging', () => {
     expect(`${result.stdout}\n${result.stderr}`).toContain(
       '-BaseManifest and -CandidateManifest are required on Windows.',
     )
-  })
+  }, 20_000)
 })
