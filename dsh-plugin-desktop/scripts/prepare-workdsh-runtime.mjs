@@ -12,6 +12,7 @@ const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const output = join(desktopRoot, 'build', 'workdsh-runtime')
 const destination = join(output, 'profiles', 'workdsh')
 const cli = join(destination, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
+const releaseMarker = '.workdsh-desktop-release.json'
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, { stdio: 'inherit', ...options })
@@ -140,6 +141,7 @@ async function installReleasedProfile(output) {
   run(process.execPath, [installerPath, '--directory', releaseDir, '--dsh', shim, '--corepack', pnpmShim], {
     env: { ...process.env, DSH_HOME: output, PATH: `${output}${delimiter}${process.env.PATH ?? ''}` },
   })
+  writeFileSync(join(destination, releaseMarker), JSON.stringify({ release: WORKDSH_VERSION, harness: DSH_VERSION }) + '\n')
   rmSync(bootstrap, { recursive: true, force: true })
 }
 
@@ -192,8 +194,8 @@ const isPreparedProfile = candidate => {
   if (installedDshVersion(candidate) !== DSH_VERSION) return false
   if (!releasePackages.every(name => existsSync(join(candidate, 'node_modules', name, 'package.json')))) return false
   try {
-    const bundle = JSON.parse(readFileSync(join(candidate, 'node_modules', 'workdsh-bundle', 'package.json'), 'utf8'))
-    if (bundle.version !== '0.1.0-alpha.52') return false
+    const marker = JSON.parse(readFileSync(join(candidate, releaseMarker), 'utf8'))
+    if (marker.release !== WORKDSH_VERSION || marker.harness !== DSH_VERSION) return false
   } catch {
     return false
   }
