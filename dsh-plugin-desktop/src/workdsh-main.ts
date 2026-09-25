@@ -15,6 +15,7 @@ import {
 } from 'node:fs'
 import { isAbsolute, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { syncBundledCompatibility } from './runtime-compatibility.ts'
 
 const PROFILE_NAME = 'workdsh'
 const READY_PATTERN = /dsh web:\s+(http:\/\/127\.0\.0\.1:\d+\/?\?token=[^\s]+)/u
@@ -109,14 +110,6 @@ function materializeRuntimeProfile(home: string): string {
     const from = join(source, name)
     if (existsSync(from)) cpSync(from, join(target, name), { force: true })
   }
-  // The released profile grants exact WorkDSH plugin versions permission to run
-  // with its bundled DSH runtime. Keep that approval when materializing the
-  // profile; without it the sidebar entries render but their panels are denied.
-  const sourceCompatibility = join(source, 'compatibility.json')
-  const targetCompatibility = join(target, 'compatibility.json')
-  if (existsSync(sourceCompatibility) && !existsSync(targetCompatibility)) {
-    cpSync(sourceCompatibility, targetCompatibility)
-  }
   const installedVersion = existsSync(marker) ? readFileSync(marker, 'utf8').trim() : undefined
   if (existsSync(targetModules) && installedVersion !== runtimeVersion) {
     const stat = lstatSync(targetModules)
@@ -132,6 +125,7 @@ function materializeRuntimeProfile(home: string): string {
   if (!existsSync(targetModules)) {
     symlinkSync(sourceModules, targetModules, process.platform === 'win32' ? 'junction' : 'dir')
   }
+  syncBundledCompatibility(source, target, runtimeVersion)
   writeFileSync(marker, `${runtimeVersion}\n`, 'utf8')
   return target
 }
