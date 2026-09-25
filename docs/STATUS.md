@@ -2104,3 +2104,6 @@ Office build/typecheck 以及 content/download/rich-editor 30 项相关测试通
 rc.2 官方 Team Web 探针已适配新公开服务 API：移除退役的 `remoteView()` 依赖，验证成员列表与任务板、长任务、浏览器重连、中断、失败及冷恢复。旧 0.1.6 组合探针仅作历史记录。
 
 Web 预览另已通过 WorkDSH bundle 启用官方右侧 Sidebar Browser：合成配置显示 `ui-sidebar-browser.disabled: false`，页面内可从右栏打开 Browser tab 并在 iframe 中加载 `https://example.com/`。官方 Browser tab 是用户侧页面，不是 Agent 的 Playwright 工具浏览器；两者尚未联动，不能把侧栏打开网页视为 Agent 浏览器操作已在侧栏呈现。
+## 2026-09-25：alpha.12 安装包与浏览器复用验证
+
+WorkDSH alpha.12 新增 `workdsh-provider-browser-session`，Desktop Profile 使用打包应用自带的 Electron 启动隔离 CDP worker，Web Profile 保持原浏览器路径。macOS arm64 `WorkDSH-2.0.5-arm64.dmg` 已在本地构建并通过挂载校验，大小 548 MB；解包确认内置 Python、Node 和新 provider，未发现额外 Chrome/Chromium 可执行文件。实际打包应用作为浏览器 worker 完成导航和点击，官方 Agent Session 的 MCP 双会话隔离测试直接调用该应用，通过 1/1。构建候选及相关测试已通过，但 alpha.12 与 Desktop 对应提交尚未推送 GitHub，Windows/macOS x64 新流水线与发布仍待远端验收。
