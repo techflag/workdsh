@@ -2278,7 +2278,7 @@ describe('Electron desktop runtime', () => {
     await runtime.mountScheduled()
     const activeWindow = electron.browserWindows[0]
 
-    await expect(runtime.updates.request('https://www.dshdesktop.cn/api/desktop/version', { method: 'GET' }))
+    await expect(runtime.updates.request('https://workdsh.techflag.cn/api/desktop/version', { method: 'GET' }))
       .rejects.toThrow('WorkDSH 更新源尚未配置')
     expect(electron.net.fetch).not.toHaveBeenCalled()
     expect(runtime.updates).toMatchObject({

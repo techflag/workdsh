@@ -5,7 +5,7 @@ import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rm
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const WORKDSH_VERSION = '0.1.0-alpha.10'
+const WORKDSH_VERSION = '0.1.0-alpha.11'
 const DSH_VERSION = '0.1.7-rc.2'
 const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const output = join(desktopRoot, 'build', 'workdsh-runtime')
@@ -91,6 +91,20 @@ async function installReleasedProfile() {
     writeFileSync(profileManifest, JSON.stringify(profilePackage, null, 2) + '\\n');
   }`,
   )
+  if (process.platform === 'win32') {
+    // pnpm.cmd can leave cmd.exe waiting after pnpm has finished. Execute the
+    // pinned JavaScript CLI with the bundled Node process directly instead.
+    installer = installer
+      .replace(
+        "const corepack = value('--corepack', 'corepack');",
+        "const corepack = value('--corepack', 'corepack');\nconst bundledPnpmCli = join(dirname(corepack), '.dsh-cli', 'node_modules', 'pnpm', 'bin', 'pnpm.mjs');",
+      )
+      .replaceAll('portableSpawn(corepack, [', 'nativeSpawnSync(process.execPath, [bundledPnpmCli, ')
+      .replace('portableSpawn(corepack, runtimeArgs,', 'nativeSpawnSync(process.execPath, [bundledPnpmCli, ...runtimeArgs],')
+    if (installer.includes('portableSpawn(corepack,') || !installer.includes('bundledPnpmCli')) {
+      throw new Error('Windows release installer still invokes pnpm through cmd.exe')
+    }
+  }
   writeFileSync(installerPath, installer)
   for (const item of manifest.packages) {
     await download(`${base}/${item.filename}`, join(releaseDir, item.filename))
@@ -173,6 +187,12 @@ const releasePackages = [
 const isPreparedProfile = candidate => {
   if (installedDshVersion(candidate) !== DSH_VERSION) return false
   if (!releasePackages.every(name => existsSync(join(candidate, 'node_modules', name, 'package.json')))) return false
+  try {
+    const bundle = JSON.parse(readFileSync(join(candidate, 'node_modules', 'workdsh-bundle', 'package.json'), 'utf8'))
+    if (bundle.version !== '0.1.0-alpha.50') return false
+  } catch {
+    return false
+  }
   try {
     const profile = JSON.parse(readFileSync(join(candidate, 'package.json'), 'utf8'))
     return profile.dsh?.profile?.bundles?.includes('workdsh-bundle') === true

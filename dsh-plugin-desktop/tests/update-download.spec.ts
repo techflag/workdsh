@@ -77,6 +77,13 @@ afterEach(async () => {
 })
 
 describe('desktop update installer download', () => {
+  it('uses the WorkDSH download origin', () => {
+    expect(DESKTOP_DOWNLOAD_URLS).toEqual({
+      darwin: 'https://workdsh.techflag.cn/api/downloads/mac',
+      win32: 'https://workdsh.techflag.cn/api/downloads/windows',
+    })
+  })
+
   it('streams a macOS DMG from only the fixed endpoint and atomically completes it', async () => {
     const directory = await temporaryDirectory()
     const artifact = dmgArtifact()
