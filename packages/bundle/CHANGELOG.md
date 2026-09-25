@@ -1,3 +1,7 @@
+## 0.1.0-alpha.51 — 2026-09-25
+
+- Desktop 中关闭调用系统浏览器的旧 Playwright provider，改用 Session 持有的 Electron 浏览器；Web 保留已发布的 Playwright 侧栏行为。
+
 ## 0.1.0-alpha.49 — 2026-09-25
 
 - 将 11 个 WorkDSH 运行包与官方 DSH 0.1.7-rc.2 组合，并启用官方侧栏 Browser。
