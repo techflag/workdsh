@@ -65,7 +65,7 @@ Launcher 私有的 `desktopRuntime`、`desktopPnpmBootstrap`、Electron executab
 
 仓库只构建 `dsh-plugin-desktop` 一个 Desktop 应用。旧 Beta 应用的身份仍可用于识别和迁移历史用户数据，不再对应独立工作区或安装包。未来如需预览发行通道，必须从同一源码和同一上游 DSH 版本构建。
 
-`deepseek-harness/` 子模块版本是唯一的目标 DSH 版本。发布前执行 `corepack yarn check:desktop-dsh-alignment`，确认 Desktop、社区市场、SSH 插件的源码依赖和根级 resolution 与该版本一致；安装包检查还必须确认只携带一套 DSH 运行时。当前旧源码依赖尚待迁移，发布门禁在迁移完成前会阻止新版本发布。
+`deepseek-harness/` 子模块版本是唯一的目标 DSH 版本。发布前执行 `corepack yarn check:desktop-dsh-alignment`，确认 Desktop 源码依赖与该版本一致；安装包检查还必须确认只携带一套 DSH 运行时。当前旧源码依赖尚待迁移，发布门禁在迁移完成前会阻止新版本发布。
 
 ## 维护者深入阅读
 

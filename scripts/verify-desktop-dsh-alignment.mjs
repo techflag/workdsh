@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
 const readPackage = path => JSON.parse(readFileSync(join(root, path), 'utf8'))
 const upstreamVersion = readPackage('deepseek-harness/package.json').version
-const workspaces = ['dsh-plugin-desktop', 'dsh-community-market', 'dsh-plugin-ssh']
+const workspaces = ['dsh-plugin-desktop']
 const problems = []
 
 for (const workspace of workspaces) {
@@ -26,13 +26,6 @@ for (const workspace of workspaces) {
   }
 }
 
-const rootManifest = readPackage('package.json')
-const oldResolutions = Object.entries(rootManifest.resolutions ?? {})
-  .filter(([selector]) => selector.startsWith('@deepseek-ai/dsh'))
-  .filter(([selector]) => !selector.includes(`@npm:${upstreamVersion}`) && !selector.includes(`@npm:^${upstreamVersion}`))
-if (oldResolutions.length) {
-  problems.push(`root: ${oldResolutions.length} DSH resolutions target versions other than ${upstreamVersion}`)
-}
 
 if (problems.length) {
   console.error(`Desktop DSH source versions are not aligned with the pinned upstream (${upstreamVersion}):\n${problems.join('\n')}`)

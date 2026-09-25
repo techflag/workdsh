@@ -65,7 +65,7 @@ The outer workspace uses Yarn. The pinned `deepseek-harness/` submodule keeps it
 
 The repository builds one Desktop application from `dsh-plugin-desktop`. The former Beta identity remains recognizable for migrating existing user data but has no separate workspace or installer. A future preview channel must build from the same source and pinned DSH version.
 
-The `deepseek-harness/` submodule defines the sole target DSH version. Before publication, `corepack yarn check:desktop-dsh-alignment` must confirm that Desktop, Community Market, and SSH source dependencies and root resolutions match it; packaged-artifact checks must also confirm that only one DSH runtime is carried. Legacy source dependencies still require migration, so the release gate blocks a new release until alignment is complete.
+The `deepseek-harness/` submodule defines the sole target DSH version. Before publication, `corepack yarn check:desktop-dsh-alignment` must confirm that Desktop source dependencies match it; packaged-artifact checks must also confirm that only one DSH runtime is carried. Legacy source dependencies still require migration, so the release gate blocks a new release until alignment is complete.
 
 ## Maintainer reading
 
