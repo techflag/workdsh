@@ -96,6 +96,20 @@ async function installReleasedProfile(output) {
   }`,
     'plugin installation step',
   )
+  // On some macOS runners pnpm prints "Done" but retains an idle Node handle.
+  // Bound only the final peer-closure installs, then accept a timeout solely
+  // when their exact expected package manifests are present. The following
+  // Profile validation still checks all WorkDSH packages and DSH versions.
+  installer = replaceRequired(installer,
+    `const result = ${installSpawn}(corepack, runtimeArgs, { stdio: 'inherit' });\n  if (result.error) throw result.error;\n  if (result.status !== 0) process.exit(result.status ?? 1);`,
+    `const result = ${installSpawn}(corepack, runtimeArgs, { stdio: 'inherit', timeout: 90_000, killSignal: 'SIGKILL' });\n  if (result.error?.code === 'ETIMEDOUT') {\n    const scope = join(dshHome, 'profiles', profile, 'node_modules', '@deepseek-ai');\n    if (!['dsh', 'dsh-deepseek-account', 'cordis-plugin-group'].every(name => existsSync(join(scope, name, 'package.json')))) throw result.error;\n    console.warn('Pinned pnpm finished the runtime install but did not exit; verified package manifests and continuing.');\n  } else if (result.error) throw result.error;\n  if (result.error?.code !== 'ETIMEDOUT' && result.status !== 0) process.exit(result.status ?? 1);`,
+    'bounded runtime peer installation',
+  )
+  installer = replaceRequired(installer,
+    `const result = ${installSpawn}(corepack, ['--dir', join(dshHome, 'profiles', profile), 'add', '--save-exact', ...missing.values()], { stdio: 'inherit' });\n    if (result.error) throw result.error;\n    if (result.status !== 0) process.exit(result.status ?? 1);`,
+    `const result = ${installSpawn}(corepack, ['--dir', join(dshHome, 'profiles', profile), 'add', '--save-exact', ...missing.values()], { stdio: 'inherit', timeout: 90_000, killSignal: 'SIGKILL' });\n    if (result.error?.code === 'ETIMEDOUT') {\n      if (![...missing.keys()].every(name => existsSync(join(scope, name.slice('@deepseek-ai/'.length), 'package.json')))) throw result.error;\n      console.warn('Pinned pnpm finished the peer install but did not exit; verified package manifests and continuing.');\n    } else if (result.error) throw result.error;\n    if (result.error?.code !== 'ETIMEDOUT' && result.status !== 0) process.exit(result.status ?? 1);`,
+    'bounded official peer closure',
+  )
   if (process.platform === 'win32') {
     // pnpm.cmd can leave cmd.exe waiting after pnpm has finished. Execute the
     // pinned JavaScript CLI with the bundled Node process directly instead.
