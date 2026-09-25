@@ -28,3 +28,14 @@ test('rejects a WorkDSH package built against another DSH version', () => {
     peerDependencies: { '@deepseek-ai/dsh-agent': '0.1.6-alpha.1' },
   }, DSH_VERSION), /workdsh-plugin-experts references @deepseek-ai\/dsh-agent/)
 })
+
+test('requires release package changes to be reviewed before Desktop bundles them', () => {
+  assert.doesNotThrow(() => verifyProfileRelease({
+    harness: DSH_VERSION,
+    packages: [{ name: 'workdsh-plugin-experts' }],
+  }, DSH_VERSION, ['workdsh-plugin-experts']))
+  assert.throws(() => verifyProfileRelease({
+    harness: DSH_VERSION,
+    packages: [{ name: 'workdsh-plugin-experts' }, { name: 'new-plugin' }],
+  }, DSH_VERSION, ['workdsh-plugin-experts']), /package set changed/)
+})

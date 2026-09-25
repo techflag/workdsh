@@ -72,7 +72,7 @@ async function installReleasedProfile(output) {
   }
   writeFileSync(installerPath, installer)
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-  verifyProfileRelease(manifest, DSH_VERSION)
+  verifyProfileRelease(manifest, DSH_VERSION, releasePackages)
   const installSpawn = process.platform === 'win32' ? 'portableSpawn' : 'spawnSync'
   installer = replaceRequired(readFileSync(installerPath, 'utf8'),
     "  execute(['plugin', '--profile', profile, 'add', join(directory, item.filename)]);",
@@ -141,6 +141,13 @@ async function installReleasedProfile(output) {
   run(process.execPath, [installerPath, '--directory', releaseDir, '--dsh', shim, '--corepack', pnpmShim], {
     env: { ...process.env, DSH_HOME: output, PATH: `${output}${delimiter}${process.env.PATH ?? ''}` },
   })
+  for (const item of manifest.packages) {
+    const pkg = JSON.parse(readFileSync(join(destination, 'node_modules', item.name, 'package.json'), 'utf8'))
+    if (pkg.version !== item.version) {
+      throw new Error(`Installed ${item.name} is ${pkg.version ?? 'unknown'}, expected ${item.version}`)
+    }
+    verifyPackageDshReferences(pkg, DSH_VERSION)
+  }
   writeFileSync(join(destination, releaseMarker), JSON.stringify({ release: WORKDSH_VERSION, harness: DSH_VERSION }) + '\n')
   rmSync(bootstrap, { recursive: true, force: true })
 }
