@@ -7,7 +7,7 @@
 - `dsh-plugin-desktop/` 是唯一 Electron Desktop 载体，使用根 Yarn workspace 和固定的官方 `deepseek-harness/` 子模块。
 - `workdsh-web/` 是 Web 与 WorkDSH 功能包源码，保留独立 pnpm workspace。Web 继续只依赖官方已发布 DSH 包，不直接读取或修改 Desktop 子模块。
 - `upstream.json` 是统一 DSH 版本记录。`corepack yarn check` 检查 Desktop pin、Web 包声明和 Web 规划文件；Web 的锁文件另由 `pnpm check:versions` 检查。
-- CI 对 Web 改动运行 Web 构建、类型检查与集成测试；Desktop 打包仅在 Desktop 相关改动或发布 tag 上运行。网站工作流从根 `.github/workflows/` 部署 `workdsh-web/website/`。
+- CI 对 Web 源码改动运行编译、类型检查与集成测试，不生成 Web 安装包；Desktop 打包仅在 Desktop 相关改动或发布 tag 上运行。Desktop 发布作业只依赖 Desktop 检查与安装包构建，不依赖 Web 源码作业。网站工作流从根 `.github/workflows/` 部署 `workdsh-web/website/`。
 
 Web 的功能包仍按各自的 npm 版本发布，Desktop 安装已发布的兼容包；“一个 DSH 版本”不等于所有 WorkDSH 功能包必须拥有同一个包版本。当前 Web 和 Desktop 的 DSH 基线都是 `0.1.7-rc.2`。
 
