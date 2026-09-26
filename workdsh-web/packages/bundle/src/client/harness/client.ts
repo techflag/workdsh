@@ -37,8 +37,8 @@ export function apply(ctx: Context): void {
     scope.market.setSettingsVisible(false);
     scope.effect(() => () => scope.market.setSettingsVisible(true), 'workdsh.community-market.settings-visibility');
     scope.slots.inject('plugins.item', () => scope.slots.register({
-      name: 'plugins.item', id: 'workdsh-community-market', order: 100,
-      label: '插件市场 · dsh-market',
+      name: 'plugins.item', id: 'workdsh-community-market', order: -100,
+      label: '发现社区插件',
     }, communityMarketView(scope.market)));
   });
   let legacyBrowserEnabled = false;

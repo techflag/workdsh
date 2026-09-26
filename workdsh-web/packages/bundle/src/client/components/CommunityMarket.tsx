@@ -9,7 +9,7 @@ export interface MarketHost {
 
 export function communityMarketView(market: MarketHost) {
   return function CommunityMarket({ view }: { readonly view: 'summary' | 'page' }): ReactNode {
-    if (view === 'summary') return '浏览、搜索和安装 DSH 社区插件；由第三方 dsh-market 提供。';
+    if (view === 'summary') return '进入 dsh-market 插件市场，搜索并安装 DSH 社区插件。';
     return market.render();
   };
 }
