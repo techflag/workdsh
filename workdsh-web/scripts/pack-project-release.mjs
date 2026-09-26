@@ -36,6 +36,15 @@ for (const directory of packageDirectories) {
 }
 
 const sourceCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+let sourceDirty = false;
+try {
+  // Build tools may create untracked platform-specific files. A release is
+  // dirty only when committed source or the pinned submodule gitlink changes.
+  execFileSync('git', ['diff', '--quiet', '--ignore-submodules=dirty', 'HEAD', '--'], { cwd: root, stdio: 'ignore' });
+} catch (error) {
+  if (error.status !== 1) throw error;
+  sourceDirty = true;
+}
 const packages = [];
 for (const directory of packageDirectories) {
   const manifest = JSON.parse(await readFile(join(root, directory, 'package.json'), 'utf8'));
@@ -58,7 +67,7 @@ await writeFile(join(destination, 'release-manifest.json'), JSON.stringify({
   tag,
   channel: 'github-release',
   sourceCommit,
-  sourceDirty: execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim().length > 0,
+  sourceDirty,
   harness: '0.1.7-rc.2',
   node: process.version,
   packageManager: project.packageManager,

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { spawnSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -41,7 +41,8 @@ if (source === 'local') {
   run('Pack this commit\'s WorkDSH Profile', corepack, ['pnpm', 'release:project:pack'], { cwd: webRoot })
   const version = JSON.parse(readFileSync(join(webRoot, 'package.json'), 'utf8')).version
   const manifest = JSON.parse(readFileSync(join(webRoot, '.artifacts', `project-v${version}`, 'release-manifest.json'), 'utf8'))
-  if (manifest.version !== version || manifest.sourceDirty) {
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim()
+  if (manifest.version !== version || manifest.sourceCommit !== commit || manifest.sourceDirty) {
     throw new Error('The local Web release candidate is not a clean package of this commit')
   }
 }
