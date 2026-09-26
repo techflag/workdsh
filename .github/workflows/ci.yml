@@ -301,4 +301,4 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --title "WorkDSH Desktop ${VERSION}" \
             --notes-file release-notes.md \
-            --prerelease
+            --latest
