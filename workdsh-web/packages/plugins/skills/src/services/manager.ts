@@ -208,8 +208,10 @@ export class SkillManager extends Service implements SkillManagementService {
         if (registeredFiles.has(await realpath(active.file))) continue;
         const document = await readFile(active.file, 'utf8');
         const validation = this.validateDocument(document);
+        const displayName = validation.valid ? validation.name ?? name : name;
+        if (rows.some(row => row.name === displayName)) continue;
         rows.push({
-          name,
+          name: displayName,
           description: validation.description ?? '技能文件需要修复',
           whenToUse: frontmatterValue(document, 'when-to-use'),
           modelInvocable: validation.valid,
@@ -655,6 +657,20 @@ export class SkillManager extends Service implements SkillManagementService {
     }
     const definition = await this.ctx.skills.get(name);
     if (definition?.path) return this.managedEntryForPath(definition.path);
+    // Web Profile loads filesystem skills in Agent compositions rather than the
+    // top-level registry. Resolve the installed skill's declared name locally.
+    for (const root of this.activeRoots) {
+      await mkdir(root, { recursive: true });
+      for (const row of await readdir(root, { withFileTypes: true })) {
+        if (!row.isDirectory() || !skillNamePattern.test(row.name)) continue;
+        const entry = join(root, row.name);
+        const file = join(entry, 'SKILL.md');
+        try {
+          if ((await lstat(entry)).isSymbolicLink() || (await lstat(file)).isSymbolicLink() || !await this.isSafeManagedFile(file)) continue;
+          if (frontmatterValue(await readFile(file, 'utf8'), 'name') === name) return { entry, file, directoryBundle: true };
+        } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+      }
+    }
     return undefined;
   }
 

@@ -70,6 +70,34 @@ test('SkillHub directory slug may differ from the official DSH skill name', asyn
   }
 });
 
+test('Web Profile lists SkillHub skills by declared name without a root filesystem provider', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'workdsh-skillhub-web-name-'));
+  const dshHome = join(root, 'dsh');
+  const originalDshHome = process.env.DSH_HOME; const originalAgentsHome = process.env.DSH_AGENTS_HOME;
+  const file = join(dshHome, 'skills', 'marketplace-slug', 'SKILL.md');
+  const ctx = new Context();
+  try {
+    process.env.DSH_HOME = dshHome; delete process.env.DSH_AGENTS_HOME;
+    await mkdir(join(dshHome, 'skills', 'marketplace-slug'), { recursive: true });
+    await writeFile(file, '---\nname: declared-name\ndescription: SkillHub example\n---\nInstructions\n');
+    await ctx.plugin(SkillRegistry);
+    new SkillManager(ctx);
+    const rows = await ctx.workdshSkills.list();
+    assert.equal(rows.some(row => row.name === 'marketplace-slug'), false);
+    assert.equal(rows.find(row => row.name === 'declared-name')?.state, 'enabled');
+    assert.equal((await ctx.workdshSkills.detail('declared-name'))?.manageable, true);
+    await ctx.workdshSkills.setEnabled('declared-name', false);
+    assert.equal((await ctx.workdshSkills.list()).find(row => row.name === 'declared-name')?.state, 'disabled');
+    await ctx.workdshSkills.setEnabled('declared-name', true);
+    assert.equal((await ctx.workdshSkills.list()).find(row => row.name === 'declared-name')?.state, 'enabled');
+  } finally {
+    await ctx.fiber.dispose();
+    if (originalDshHome === undefined) delete process.env.DSH_HOME; else process.env.DSH_HOME = originalDshHome;
+    if (originalAgentsHome === undefined) delete process.env.DSH_AGENTS_HOME; else process.env.DSH_AGENTS_HOME = originalAgentsHome;
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test('canonical skill paths remain manageable through a home alias without selecting a shadowed local copy', async () => {
   const root = await mkdtemp(join(tmpdir(), 'workdsh-skill-canonical-'));
   const physicalHome = join(root, 'physical-agents');
