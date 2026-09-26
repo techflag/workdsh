@@ -48,17 +48,20 @@ export async function exportAndPresent(
   // Existing destination bytes are checked; neither symlinks nor changed files are overwritten.
   const script = `const fs=require("node:fs"),crypto=require("node:crypto");fs.mkdirSync("output",{recursive:true});if(!fs.lstatSync("output").isDirectory())throw Error("Invalid output directory");const p=Buffer.from("${Buffer.from(path).toString("base64")}","base64").toString("utf8"),b=Buffer.from("${bytes.toString("base64")}","base64"),t="output/.office-${crypto.randomUUID()}.tmp";fs.writeFileSync(t,b,{flag:"wx"});try{try{fs.linkSync(t,p)}catch(e){if(e.code!=="EEXIST")throw e;if(!fs.lstatSync(p).isFile()||crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex")!=="${digest}")throw Error("Export destination conflict")}}finally{fs.unlinkSync(t)}console.log("${marker}")`;
   const commands = [`node -e '${script}'`];
-  if (bytes.length > 96 * 1024) {
+  if (bytes.length > 16 * 1024) {
+    // Base64 expands each chunk by a third. Linux limits each argv element to
+    // 128 KiB, while Windows has a much shorter process command line.
+    const chunkBytes = process.platform === "win32" ? 20 * 1024 : 64 * 1024;
     // PPTX templates, embedded PDF fonts and other large files exceed shell
     // argument/terminal-input limits. Bound commands for every format.
     // Every chunk still runs through the official bash approval and sandbox chain.
     const temp = `output/.office-${crypto.randomUUID()}.tmp`;
     const encodedPath=Buffer.from(path).toString("base64");
     commands.length=0;
-    for(let offset=0;offset<bytes.length;offset+=96*1024){
-      const chunk=bytes.subarray(offset,offset+96*1024).toString("base64");
+    for(let offset=0;offset<bytes.length;offset+=chunkBytes){
+      const chunk=bytes.subarray(offset,offset+chunkBytes).toString("base64");
       const initialize=offset===0 ? `fs.mkdirSync("output",{recursive:true});if(!fs.lstatSync("output").isDirectory())throw Error("Invalid output directory");fs.writeFileSync(t,Buffer.alloc(0),{flag:"wx"});` : "";
-      const final=offset+96*1024>=bytes.length ? `const p=Buffer.from("${encodedPath}","base64").toString("utf8");if(crypto.createHash("sha256").update(fs.readFileSync(t)).digest("hex")!=="${digest}")throw Error("Export digest mismatch");try{try{fs.linkSync(t,p)}catch(e){if(e.code!=="EEXIST")throw e;if(!fs.lstatSync(p).isFile()||crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex")!=="${digest}")throw Error("Export destination conflict")}}finally{fs.unlinkSync(t)}` : "";
+      const final=offset+chunkBytes>=bytes.length ? `const p=Buffer.from("${encodedPath}","base64").toString("utf8");if(crypto.createHash("sha256").update(fs.readFileSync(t)).digest("hex")!=="${digest}")throw Error("Export digest mismatch");try{try{fs.linkSync(t,p)}catch(e){if(e.code!=="EEXIST")throw e;if(!fs.lstatSync(p).isFile()||crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex")!=="${digest}")throw Error("Export destination conflict")}}finally{fs.unlinkSync(t)}` : "";
       commands.push(`node -e 'const fs=require("node:fs"),crypto=require("node:crypto"),t="${temp}";${initialize}if(!fs.lstatSync(t).isFile())throw Error("Invalid temporary file");fs.appendFileSync(t,Buffer.from("${chunk}","base64"));${final}console.log("${marker}")'`);
     }
   }

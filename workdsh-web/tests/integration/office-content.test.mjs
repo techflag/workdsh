@@ -837,7 +837,7 @@ test("Large template PPTX exports through bounded commands without changing pack
  const ctx={tools:{get:()=>true,execute:async input=>{
   calls.push(input);
   if(input.name!=="bash")return {content:[]};
-  assert.ok(Buffer.byteLength(input.arguments.command)<140000);
+  assert.ok(Buffer.byteLength(input.arguments.command)<(process.platform==='win32'?30000:100000));
   if(denied)return {isError:true,content:[{type:"text",text:"denied"}]};
   const {stdout}=await promisify(execFile)(process.execPath,["-e",input.arguments.command.slice(9,-1)],{cwd:home});
   return {content:[{type:"text",text:stdout}]};
