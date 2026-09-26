@@ -15,7 +15,9 @@ const destination = join(output, 'profiles', 'workdsh')
 const packageCache = join(output, 'package-cache')
 const cli = join(destination, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
 const releaseMarker = '.workdsh-desktop-release.json'
-const profileLayout = 'five-product-plugins-v1'
+const profileLayout = 'five-product-plugins-skillhub-v1'
+const SKILLHUB_PACKAGE = '@cocofhu/skillhub'
+const SKILLHUB_VERSION = '0.2.16'
 const productPackages = new Set(PRODUCT_PACKAGES)
 
 function run(command, args, options = {}) {
@@ -183,6 +185,14 @@ async function installReleasedProfile(output) {
   // layer, while only the five product bundles are directly manageable.
   run(process.execPath, [pnpmCli, '--dir', destination, 'install', '--lockfile-only', '--offline'])
   run(process.execPath, [pnpmCli, '--dir', destination, 'install', '--frozen-lockfile', '--offline'])
+  // Keep the third-party SkillHub integration in the same DSH Profile. It
+  // supplies SkillHub search and a DSH plugin catalogue without a second host.
+  run(process.execPath, [pnpmCli, '--dir', destination, 'add', '--save-exact', `${SKILLHUB_PACKAGE}@${SKILLHUB_VERSION}`])
+  const installedSkillHub = JSON.parse(readFileSync(join(destination, 'node_modules', SKILLHUB_PACKAGE, 'package.json'), 'utf8'))
+  if (installedSkillHub.version !== SKILLHUB_VERSION) throw new Error('Pinned SkillHub plugin version is missing')
+  const profileWithSkillHub = JSON.parse(readFileSync(profilePath, 'utf8'))
+  profileWithSkillHub.dsh.profile.bundles = [...new Set([...profileWithSkillHub.dsh.profile.bundles, SKILLHUB_PACKAGE])]
+  writeFileSync(profilePath, JSON.stringify(profileWithSkillHub, null, 2) + '\n')
   const config = spawnSync(process.execPath, [cli, '--profile', 'workdsh', '--dump-config'], {
     encoding: 'utf8', maxBuffer: 8 * 1024 * 1024, env: { ...process.env, DSH_HOME: output },
   })
@@ -191,6 +201,7 @@ async function installReleasedProfile(output) {
   for (const id of ['workdsh-installation-probe', 'workdsh-identity-local', 'workdsh-access', 'workdsh-audit', 'workdsh-office']) {
     if (!config.stdout.includes(`id: ${id}`)) throw new Error(`Internal WorkDSH service is missing: ${id}`)
   }
+  if (!config.stdout.includes('id: skillhub')) throw new Error('SkillHub plugin is missing from the WorkDSH Profile')
   run(process.execPath, [join(desktopRoot, 'scripts', 'verify-product-plugin-inventory.mjs'), output], {
     env: { ...process.env, DSH_HOME: output },
   })
@@ -220,6 +231,10 @@ const isPreparedProfile = candidate => {
   if (installedDshVersion(candidate) !== DSH_VERSION) return false
   if (!releasePackages.every(name => existsSync(join(candidate, 'node_modules', name, 'package.json')))) return false
   try {
+    const skillHub = JSON.parse(readFileSync(join(candidate, 'node_modules', SKILLHUB_PACKAGE, 'package.json'), 'utf8'))
+    if (skillHub.version !== SKILLHUB_VERSION) return false
+  } catch { return false }
+  try {
     const marker = JSON.parse(readFileSync(join(candidate, releaseMarker), 'utf8'))
     if (marker.release !== WORKDSH_VERSION || marker.harness !== DSH_VERSION || marker.layout !== profileLayout) return false
     const cache = resolve(candidate, '..', '..', 'package-cache')
@@ -240,6 +255,8 @@ const isPreparedProfile = candidate => {
     const manifest = JSON.parse(readFileSync(resolve(candidate, '..', '..', 'package-cache', 'release-manifest.json'), 'utf8'))
     const selected = profile.dsh?.profile?.bundles ?? []
     return [...productPackages].every(name => selected.includes(name)) &&
+      selected.includes(SKILLHUB_PACKAGE) &&
+      profile.dependencies?.[SKILLHUB_PACKAGE] === SKILLHUB_VERSION &&
       supportPackages.every(name => !selected.includes(name)) &&
       supportPackages.every(name => !Object.hasOwn(profile.dependencies ?? {}, name)) &&
       readFileSync(join(candidate, 'cordis.patch.yml'), 'utf8').startsWith(internalPatch(candidate)) &&

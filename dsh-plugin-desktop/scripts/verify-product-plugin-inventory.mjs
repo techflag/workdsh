@@ -38,6 +38,10 @@ try {
       throw new Error(`WorkDSH product bundle is inactive or invalid: ${bundle.name}: ${JSON.stringify(bundle)}`)
     }
   }
+  const skillHub = (await ctx.pluginManager.listBundles()).find(row => row.name === '@cocofhu/skillhub')
+  if (!skillHub?.enabled || !skillHub.installed || skillHub.error) {
+    throw new Error(`SkillHub DSH plugin is inactive or invalid: ${JSON.stringify(skillHub)}`)
+  }
   console.log(`Verified plugin manager exposes exactly five WorkDSH product bundles: ${names.join(', ')}`)
 } finally {
   try {
