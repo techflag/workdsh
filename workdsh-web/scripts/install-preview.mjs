@@ -23,7 +23,7 @@ const artifacts = join(root, '.artifacts');
 // pnpm includes local archive paths in its store index filename. Keep the
 // immutable archive path short even when this checkout is a nested worktree.
 const previewPacks = resolve(process.env.WORKDSH_PREVIEW_PACKS_HOME ?? join(homedir(), '.cache/workdsh-preview-packs'));
-const env = { ...process.env, DSH_HOME: home, PATH: `${join(root, 'node_modules/.bin')}:${dirname(process.execPath)}:${process.env.PATH}` };
+const env = { ...process.env, DSH_HOME: home, DSH_AGENTS_HOME: process.env.DSH_AGENTS_HOME ?? join(home, 'agents'), PATH: `${join(root, 'node_modules/.bin')}:${dirname(process.execPath)}:${process.env.PATH}` };
 const exec = promisify(execFile);
 const run = async (tool, args) => {
   await exec(process.execPath, [join(root, 'node_modules', tool), ...args], { cwd: root, env, timeout: 600_000, maxBuffer: 8 * 1024 * 1024 });

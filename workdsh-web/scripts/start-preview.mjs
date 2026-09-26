@@ -1,14 +1,13 @@
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { homedir } from 'node:os';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { withoutRedundantAgentTeamProfile } from './preview-agent-team.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const previewHome = process.env.WORKDSH_PREVIEW_HOME ?? resolve(root, '.test-runtime/preview');
-const agentsHome = process.env.DSH_AGENTS_HOME ?? resolve(homedir(), '.agents');
+const agentsHome = process.env.DSH_AGENTS_HOME ?? join(previewHome, 'agents');
 const port = process.env.WORKDSH_PREVIEW_PORT ?? '18989';
 // Preview currently needs a larger startup heap; this does not fix the underlying growth.
 const heapMb = process.env.WORKDSH_PREVIEW_HEAP_MB ?? '8192';

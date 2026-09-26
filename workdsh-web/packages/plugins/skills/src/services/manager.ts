@@ -162,7 +162,7 @@ export class SkillManager extends Service implements SkillManagementService {
   constructor(ctx: Context) {
     super(ctx, 'workdshSkills');
     const dshHome = resolve(process.env.DSH_HOME ?? join(homedir(), '.dsh'));
-    const agentsHome = resolve(process.env.DSH_AGENTS_HOME ?? join(homedir(), '.agents'));
+    const agentsHome = resolve(process.env.DSH_AGENTS_HOME ?? join(dshHome, 'agents'));
     this.activeRoots = [join(agentsHome, 'skills'), join(dshHome, 'skills')];
     this.disabledRoot = join(agentsHome, '.workdsh-disabled', 'skills');
     this.trashRoot = join(agentsHome, '.workdsh-trash', 'skills');

@@ -105,6 +105,12 @@ ${controlsCss}
 export const skillsMarketCss = `${modalCss}
 @layer workdsh-business {
 
+.wd-skills .skill-source-tabs{display:flex;gap:6px;margin:0 0 20px;border-bottom:1px solid var(--dsw-alias-border-l2)}
+.wd-skills .skill-source-tabs button{padding:10px 16px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer;font:inherit}
+.wd-skills .skill-source-tabs button.active{border-bottom-color:var(--dsw-alias-interactive-primary);color:var(--dsw-alias-label-primary);font-weight:600}
+.wd-skills .skillhub-market .card-open{text-decoration:none;color:inherit}
+.wd-skills .skillhub-meta{display:block;margin-top:8px;color:var(--dsw-alias-label-tertiary);font-size:11px}
+
 .wd-skills .skill-icon{width:46px;flex:none;object-fit:cover}
 
 

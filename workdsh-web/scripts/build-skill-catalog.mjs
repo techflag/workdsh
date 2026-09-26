@@ -10,7 +10,7 @@
 //
 // Usage:
 //   node scripts/build-skill-catalog.mjs --source /path/to/skills-marketplace
-//   node scripts/build-skill-catalog.mjs --source ... --target ~/.agents/.workdsh-catalog --dry-run
+//   node scripts/build-skill-catalog.mjs --source ... --target ~/.dsh/agents/.workdsh-catalog --dry-run
 import { createHash } from 'node:crypto';
 import { copyFile, lstat, mkdir, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
@@ -47,7 +47,7 @@ function parseArguments(argv) {
   if (!options.source) throw new Error('缺少 --source：请指向包含 .codebuddy-skill/marketplace.json、skills/ 与 icons/ 的镜像目录。');
   options.source = resolve(options.source.replace(/^~(?=\/|$)/, homedir()));
   if (!options.target) {
-    const agentsHome = resolve(process.env.DSH_AGENTS_HOME ?? join(homedir(), '.agents'));
+    const agentsHome = resolve(process.env.DSH_AGENTS_HOME ?? join(process.env.DSH_HOME ?? join(homedir(), '.dsh'), 'agents'));
     options.target = join(agentsHome, '.workdsh-catalog');
   }
   options.target = resolve(options.target.replace(/^~(?=\/|$)/, homedir()));
