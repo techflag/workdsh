@@ -59,11 +59,19 @@ async function installReleasedProfile(output) {
   const releaseDir = join(desktopRoot, 'build', `.workdsh-release-${WORKDSH_VERSION}`)
   mkdirSync(releaseDir, { recursive: true })
   const base = `https://github.com/techflag/workdsh/releases/download/v${WORKDSH_VERSION}`
+  const localReleaseDir = process.env.WORKDSH_USE_LOCAL_RELEASE === '1'
+    ? resolve(desktopRoot, '..', 'workdsh-web', '.artifacts', `project-v${WORKDSH_VERSION}`)
+    : undefined
+  if (localReleaseDir && !existsSync(join(localReleaseDir, 'release-manifest.json'))) {
+    throw new Error(`Local WorkDSH release candidate is missing: ${localReleaseDir}`)
+  }
   const manifestPath = join(releaseDir, 'release-manifest.json')
-  await download(`${base}/release-manifest.json`, manifestPath)
+  if (localReleaseDir) cpSync(join(localReleaseDir, 'release-manifest.json'), manifestPath)
+  else await download(`${base}/release-manifest.json`, manifestPath)
   const rawInstallerPath = join(releaseDir, 'install-workdsh.original.mjs')
   const installerPath = join(releaseDir, 'install-workdsh.mjs')
-  await download(`${base}/install-workdsh.mjs`, rawInstallerPath)
+  if (localReleaseDir) cpSync(join(localReleaseDir, 'install-workdsh.mjs'), rawInstallerPath)
+  else await download(`${base}/install-workdsh.mjs`, rawInstallerPath)
   let installer = readFileSync(rawInstallerPath, 'utf8')
   installer = replaceRequired(installer,
     'profilePackage.packageManager = manifest.packageManager;',
@@ -129,7 +137,8 @@ async function installReleasedProfile(output) {
   }
   writeFileSync(installerPath, installer)
   for (const item of manifest.packages) {
-    await download(`${base}/${item.filename}`, join(releaseDir, item.filename))
+    if (localReleaseDir) cpSync(join(localReleaseDir, item.filename), join(releaseDir, item.filename))
+    else await download(`${base}/${item.filename}`, join(releaseDir, item.filename))
   }
 
   mkdirSync(output, { recursive: true })
