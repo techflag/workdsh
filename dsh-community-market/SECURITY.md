@@ -2,6 +2,8 @@
 
 [中文说明](SECURITY.zh.md)
 
+This policy documents a historical Market proposal. The current Desktop does not ship this Market or its `desktopPnpm` service.
+
 ## Trust model
 
 Catalog responses are untrusted remote data. A listing, provider badge, repository link, or **Installable** result is not a security review, maintainer verification, recommendation, or compatibility guarantee.

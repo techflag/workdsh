@@ -9,7 +9,6 @@ import {
   assertMacReleaseReady,
   withoutMacReleaseSecrets,
 } from './release-preflight.ts'
-import { prepareInstalledMacUniversalRuntime } from './mac-universal.ts'
 
 /** Injectable release boundary used by focused tests. */
 export interface MacReleaseOptions {
@@ -36,8 +35,6 @@ export interface MacReleaseOptions {
   ) => void
   /** Report non-secret release progress. */
   readonly log: (message: string) => void
-  /** Validate and prepare both architecture-specific runtime trees. */
-  readonly prepareRuntime: () => void
 }
 
 function listCodeSigningIdentities(env: NodeJS.ProcessEnv): string {
@@ -73,7 +70,6 @@ function defaultReleaseOptions(): MacReleaseOptions {
     listCodeSigningIdentities,
     run,
     log: message => console.log(message),
-    prepareRuntime: () => prepareInstalledMacUniversalRuntime(desktopRoot),
   }
 }
 
@@ -101,7 +97,6 @@ export function releaseMac(options: MacReleaseOptions = defaultReleaseOptions())
     throw new Error(`unsupported macOS target architecture: ${targetArch}`)
   }
   options.resetOutput()
-  options.prepareRuntime()
   options.run('yarn', [
     'exec', 'electron-builder', '--mac', 'dmg', `--${targetArch}`,
     '--config.forceCodeSigning=true', '--config.mac.notarize=true',

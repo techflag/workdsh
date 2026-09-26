@@ -49,8 +49,6 @@ jobs:
           set -euo pipefail
           node --test scripts/bilingual-docs.test.mjs
           node scripts/verify-bilingual-docs.mjs
-          node --test scripts/market-dependency-direction.test.mjs
-          node scripts/verify-market-dependency-direction.mjs
           if [[ "$EVENT_NAME" == "workflow_dispatch" || "$REF_TYPE" == "tag" || -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
             product=true
           else
@@ -122,6 +120,7 @@ jobs:
       - run: yarn upstream:install
       - run: yarn workspace dsh-plugin-desktop check:win-package
       - name: Prepare WorkDSH release profile
+        timeout-minutes: 15
         run: yarn workspace dsh-plugin-desktop prepare:workdsh-runtime
       - name: Prepare official Python and Node runtime
         timeout-minutes: 15
@@ -174,11 +173,22 @@ jobs:
       - run: yarn install --immutable
       - run: yarn upstream:install
       - run: yarn workspace dsh-plugin-desktop check:mac-package
+      - name: Prepare WorkDSH release profile
+        timeout-minutes: 15
+        env:
+          WORKDSH_MAC_ARCH: ${{ matrix.arch }}
+        run: yarn workspace dsh-plugin-desktop prepare:workdsh-runtime
+      - name: Prepare official Python and Node runtime
+        timeout-minutes: 15
+        env:
+          WORKDSH_MAC_ARCH: ${{ matrix.arch }}
+        run: yarn workspace dsh-plugin-desktop prepare:workdsh-primary-runtime
       - name: Build macOS smoke artifact
+        timeout-minutes: 25
         env:
           DSH_PACKAGE_CHECK_ALREADY_RAN: '1'
           WORKDSH_MAC_ARCH: ${{ matrix.arch }}
-        run: yarn workspace dsh-plugin-desktop dist:mac-smoke
+        run: node dsh-plugin-desktop/scripts/package-mac.ts
       - name: Upload macOS architecture DMG
         uses: actions/upload-artifact@v4
         with:
@@ -215,6 +225,15 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.23.2
+      - name: Require one DSH version before publication
+        run: node scripts/verify-desktop-dsh-alignment.mjs
       - name: Download desktop packages
         uses: actions/download-artifact@v5
         with:

@@ -7,14 +7,56 @@ import {
 } from '@electron/fuses'
 import { FuseState } from '@electron/fuses/dist/constants.js'
 import { Arch, archFromString, getArchSuffix } from 'builder-util'
+import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import {
-  resolvePackagedExecutablePath,
-  smokePackagedElectronRuntime,
-  type PackagedElectronSmoke,
-  type PackagedRuntimeContext,
-} from './verify-packaged-runtime.ts'
+import { DSH_VERSION } from './runtime-version.mjs'
+
+export interface PackagedRuntimeContext {
+  readonly appOutDir: string
+  readonly arch?: number
+  readonly electronPlatformName: string
+  readonly packager: {
+    readonly projectDir?: string
+    readonly executableName?: string
+    readonly appInfo: { readonly productFilename: string }
+  }
+}
+
+export type PackagedElectronSmoke = (context: PackagedRuntimeContext) => void
+
+export function resolvePackagedExecutablePath(context: PackagedRuntimeContext): string {
+  const filename = context.packager.appInfo.productFilename
+  if (context.electronPlatformName === 'darwin') {
+    return join(context.appOutDir, `${filename}.app`, 'Contents', 'MacOS', filename)
+  }
+  if (context.electronPlatformName === 'win32') return join(context.appOutDir, `${filename}.exe`)
+  if (context.electronPlatformName === 'linux') {
+    return join(context.appOutDir, context.packager.executableName ?? filename)
+  }
+  throw new Error(`Unsupported Electron platform: ${context.electronPlatformName}`)
+}
+
+/** The CLI lives in the single bundled Profile, outside app.asar. */
+export function smokeBundledWorkdshProfile(context: PackagedRuntimeContext): void {
+  const resources = context.electronPlatformName === 'darwin'
+    ? join(context.appOutDir, `${context.packager.appInfo.productFilename}.app`, 'Contents', 'Resources')
+    : join(context.appOutDir, 'resources')
+  const runtime = join(resources, 'workdsh-runtime')
+  const node = join(runtime, 'primary-runtime', 'dependencies', 'node', 'bin', context.electronPlatformName === 'win32' ? 'node.exe' : 'node')
+  const cli = join(runtime, 'profiles', 'workdsh', 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
+  // An Intel macOS artifact is smoke-tested under Rosetta on arm64 CI runners.
+  // Loading its bundled dependency graph can exceed the native 30-second limit.
+  const emulatedMac = context.electronPlatformName === 'darwin'
+    && context.arch === Arch.x64 && process.arch === 'arm64'
+  const result = spawnSync(node, [cli, '--version'], {
+    encoding: 'utf8',
+    timeout: emulatedMac ? 120_000 : 30_000,
+  })
+  if (result.error || result.status !== 0 || !result.stdout.includes(DSH_VERSION)) {
+    throw new Error(`Bundled Harness CLI smoke failed: ${String(result.error ?? result.stderr)}`)
+  }
+}
 
 /** Injectable official fuse reader used by focused tests. */
 export type ElectronFuseReader = (executable: string) => Promise<FuseConfig<FuseState>>
@@ -316,7 +358,7 @@ export async function afterAllArtifactBuild(
   result: ElectronArtifactBuildResult,
   read: ElectronFuseReader = getCurrentFuseWire,
   exists: (filename: string) => boolean = existsSync,
-  smoke: PackagedElectronSmoke = smokePackagedElectronRuntime,
+  smoke: PackagedElectronSmoke = smokeBundledWorkdshProfile,
 ): Promise<string[]> {
   const contexts = resolveFinalPackagedRuntimeContexts(result, exists)
   for (const context of contexts) {

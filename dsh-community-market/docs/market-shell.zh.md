@@ -2,7 +2,7 @@
 
 [English](market-shell.md)
 
-状态：已交付并内置于 DSH Desktop。
+状态：仅保留历史设计草案。当前 Desktop 不包含 Market 运行代码。下文的 `desktopPnpm` 和恢复服务属于已删除的原型，不是可用接口。
 
 ## 归属边界
 

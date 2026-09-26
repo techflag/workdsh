@@ -4,7 +4,7 @@
 
 ## 普通用户：使用、反馈与传播
 
-- 遇到问题或异常，[提 issue](https://github.com/anywhere-labs/deepseek-harness-desktop/issues)：说明操作系统（macOS / Windows）、应用版本和复现步骤。
+- 遇到问题或异常，[提 issue](https://github.com/techflag/workdsh/issues)：说明操作系统（macOS / Windows）、应用版本和复现步骤。
 - 有功能想法或改进建议，也欢迎提 issue 讨论。
 - 参与[社区交流](README.md#社区交流)（微信群、QQ 群、Discord），帮助其他用户解决问题。
 - 写使用教程、体验文章，或帮助完善和翻译文档。
@@ -46,7 +46,7 @@ corepack yarn dev     # 有图形环境时启动应用
 
 - 提交信息使用 conventional commits 风格（例如 `fix(desktop): ...`、`docs: ...`）。
 - 提交前运行 `yarn check` 并保证全绿。
-- 变更生产依赖后，运行 `yarn workspace dsh-plugin-desktop verify:notices` 刷新第三方许可清单，并提交更新后的 `dsh-plugin-desktop/THIRD_PARTY_NOTICES.md`。
+- 变更打包依赖或 WorkDSH Profile 后，核对安装包内实际版本、许可证文件和 `dsh-plugin-desktop/THIRD_PARTY_NOTICES.md`；不得沿用旧版本的依赖清单。
 - 文档改动请中英同步，并更新 `README.i18n.yaml` 的双语 hash 记录。
 - PR 描述说明改动内容、动机和验证方式；CI 通过后再合并。
 

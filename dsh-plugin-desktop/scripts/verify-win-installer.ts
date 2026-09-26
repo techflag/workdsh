@@ -3,6 +3,7 @@
 import { closeSync, openSync, readFileSync, readSync, statSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { DSH_VERSION } from './runtime-version.mjs'
 
 /** Verify a complete in-memory Windows PE image. */
 export function assertPortableExecutableBuffer(data: Buffer, label: string, source: string): void {
@@ -104,7 +105,7 @@ export function verifyWindowsInstaller(
     python?: unknown
     node?: unknown
   }
-  if (runtime.desktopVersion !== '0.1.7-rc.2' || runtime.platform !== 'win32'
+  if (runtime.desktopVersion !== DSH_VERSION || runtime.platform !== 'win32'
     || runtime.arch !== 'x64' || runtime.python !== '3.12.14' || runtime.node !== '24.21.0') {
     throw new Error(`Windows installer has mismatched bundled primary runtime: ${JSON.stringify(runtime)}`)
   }

@@ -16,4 +16,3 @@ dsh-community-market/lib/
 .env.yarn
 /dist/
 /.test-harness/
-/dsh-plugin-ssh/lib/

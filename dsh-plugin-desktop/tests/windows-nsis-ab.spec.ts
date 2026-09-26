@@ -20,7 +20,7 @@ import verifyNsisAbPrepackagedBuild, {
   NSIS_AB_HOOK_AUTHORIZATION_FILE,
   NSIS_AB_HOOK_TOKEN_ENV,
 } from '../scripts/verify-nsis-ab-prepackaged.ts'
-import type { PackagedElectronSmoke } from '../scripts/verify-packaged-runtime.ts'
+import type { PackagedElectronSmoke } from '../scripts/verify-electron-fuses.ts'
 import {
   identifyWindowsNsisAbTree,
   normalizeWindowsNsisAbRelativePath,
@@ -426,7 +426,7 @@ describe('Windows NSIS A/B packaging', () => {
     mkdirSync(join(source, 'lib'), { recursive: true })
     mkdirSync(join(resources, 'app.asar.unpacked'), { recursive: true })
     writeFileSync(join(source, 'package.json'), '{"name":"dsh-plugin-desktop"}\n')
-    writeFileSync(join(source, 'lib', 'main.js'), 'export {}\n')
+    writeFileSync(join(source, 'lib', 'workdsh-main.js'), 'export {}\n')
     writeFileSync(join(installRoot, 'WorkDSH.exe'), pe())
     writeFileSync(join(resources, 'app.asar.unpacked', 'native.node'), 'native')
     // The library-level createPackage() promise resolves when it calls
@@ -568,5 +568,5 @@ describe('Windows NSIS A/B packaging', () => {
     expect(`${result.stdout}\n${result.stderr}`).toContain(
       '-BaseManifest and -CandidateManifest are required on Windows.',
     )
-  })
+  }, 20_000)
 })

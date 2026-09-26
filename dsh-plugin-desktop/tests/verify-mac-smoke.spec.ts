@@ -1,12 +1,12 @@
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { DSH_VERSION } from '../scripts/runtime-version.mjs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   verifyMacSmoke,
   type MacSmokeVerificationOptions,
 } from '../scripts/verify-mac-smoke.ts'
-import { MACOS_UNIVERSAL_NATIVE_ENTRIES } from '../scripts/mac-universal.ts'
 
 const temporaryRoots: string[] = []
 
@@ -38,21 +38,13 @@ function fixture(): AppFixture {
   const runtime = join(resources, 'workdsh-runtime', 'primary-runtime')
   mkdirSync(join(runtime, 'dependencies', 'python', 'bin'), { recursive: true })
   mkdirSync(join(runtime, 'dependencies', 'node', 'bin'), { recursive: true })
-  writeFileSync(join(runtime, 'runtime.json'), JSON.stringify({ desktopVersion: '0.1.7-rc.2', platform: 'darwin', arch: 'arm64', python: '3.12.14', node: '24.21.0' }))
+  writeFileSync(join(runtime, 'runtime.json'), JSON.stringify({ desktopVersion: DSH_VERSION, platform: 'darwin', arch: 'arm64', python: '3.12.14', node: '24.21.0' }))
   for (const path of [join(runtime, 'dependencies', 'python', 'bin', 'python3'), join(runtime, 'dependencies', 'node', 'bin', 'node')]) {
     writeFileSync(path, 'binary')
     chmodSync(path, 0o755)
     modeOverrides.set(path, 0o755)
   }
-  for (const entry of MACOS_UNIVERSAL_NATIVE_ENTRIES) {
-    const path = join(`${appAsar}.unpacked`, entry.path)
-    mkdirSync(join(path, '..'), { recursive: true })
-    writeFileSync(path, 'native')
-    if (entry.path.endsWith('/spawn-helper')) {
-      chmodSync(path, 0o755)
-      modeOverrides.set(path, 0o755)
-    }
-  }
+
   return { root, infoPlist, executable, appAsar, modeOverrides }
 }
 
@@ -132,10 +124,6 @@ describe('macOS DMG smoke artifact verification', () => {
         command: 'lipo',
         args: [join(value.root, 'WorkDSH.app', 'Contents', 'Resources', 'workdsh-runtime', 'primary-runtime', 'dependencies', entry), '-verify_arch', 'arm64'],
       })),
-      ...MACOS_UNIVERSAL_NATIVE_ENTRIES.filter(entry => entry.arch === 'arm64').map(entry => ({
-        command: 'lipo',
-        args: [join(`${value.appAsar}.unpacked`, entry.path), '-verify_arch', entry.arch],
-      })),
       { command: 'hdiutil', args: ['detach', value.root] },
     ])
     expect(harness.removeMountPoint).toHaveBeenCalledWith(value.root)
@@ -143,7 +131,7 @@ describe('macOS DMG smoke artifact verification', () => {
 
   it('checks only the Intel executable and native modules for an x64 DMG', () => {
     const value = fixture()
-    writeFileSync(join(value.root, 'WorkDSH.app', 'Contents', 'Resources', 'workdsh-runtime', 'primary-runtime', 'runtime.json'), JSON.stringify({ desktopVersion: '0.1.7-rc.2', platform: 'darwin', arch: 'x64', python: '3.12.14', node: '24.21.0' }))
+    writeFileSync(join(value.root, 'WorkDSH.app', 'Contents', 'Resources', 'workdsh-runtime', 'primary-runtime', 'runtime.json'), JSON.stringify({ desktopVersion: DSH_VERSION, platform: 'darwin', arch: 'x64', python: '3.12.14', node: '24.21.0' }))
     const harness = options({ targetArch: 'x64', makeMountPoint: () => value.root }, value.modeOverrides)
     verifyMacSmoke(harness.value)
     const lipoCalls = harness.calls.filter(call => call.command === 'lipo')

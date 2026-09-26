@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  万物皆「插件」，桌面本身也是「插件」。
+  官方 DSH 运行时，结合 WorkDSH 的项目、资料库、专家、技能与连接器。
 </p>
 
 <p align="center"><sub>独立的社区开源项目，与深度求索不存在隶属、合作、授权或背书关系。<br>本仓库目前无深度求索员工或 DeepSeek Harness 上游官方团队成员参与；GitHub Contributors 中显示的上游贡献者来自 fork 继承和同步的提交历史。<br>中文 · <a href="README.en.md">English</a></sub></p>
@@ -19,18 +19,18 @@
   <img src="https://img.shields.io/badge/macOS%20%7C%20Windows-4493F8?style=flat-square" alt="Supported platforms: macOS and Windows">
 </p>
 
-WorkDSH 将 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 的本地 Web UI、Host 服务和插件系统集成到原生桌面应用中。项目固定并原样运行特定上游版本；WorkDSH 提供窗口、托盘、终端、更新和工作配置，并通过 DeepSeek Harness 提供的插件机制与上游能力组合。
+WorkDSH 将 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 的本地 Web UI、Host 服务和插件系统集成到原生桌面窗口。项目固定并原样运行特定上游版本；项目、资料库、专家、技能和连接器由 WorkDSH Profile 提供。
 
 <a id="run"></a>
 
 ## 下载与安装
 
-桌面版处于 Alpha 测试阶段，目标平台为 Windows x64 和 macOS Universal。请在 [Releases](https://github.com/techflag/workdsh/releases) 中选择**包含实际安装文件**的最新 Desktop 版本；只有源码压缩包的条目不代表桌面安装包已发布。
+桌面版处于 Alpha 测试阶段，目标平台为 Windows x64，以及分别打包的 macOS Apple Silicon（arm64）和 Intel（x64）。请在 [Releases](https://github.com/techflag/workdsh/releases) 中选择**包含实际安装文件**的最新 Desktop 版本；只有源码压缩包的条目不代表桌面安装包已发布。
 
 | 平台 | 下载 | 安装方式 |
 | --- | --- | --- |
 | Windows x64 | [查看 Desktop Releases](https://github.com/techflag/workdsh/releases) | 下载该版本的 Windows Setup 或 Portable 文件；安装版直接运行，便携版解压后运行 |
-| macOS Universal | [查看 Desktop Releases](https://github.com/techflag/workdsh/releases) | 下载该版本的 macOS DMG，打开后将 WorkDSH 拖入 Applications |
+| macOS arm64 / x64 | [查看 Desktop Releases](https://github.com/techflag/workdsh/releases) | 按电脑架构选择对应 DMG，打开后将 WorkDSH 拖入 Applications |
 
 > 当前为 Alpha 预览版。项目、资料库及跨插件组合仍在持续验收；升级前请保留工作目录和 Profile 备份。
 
@@ -71,7 +71,7 @@ WorkDSH 将 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 
 | 参与统一插件 contract 讨论 | [DSH Community Fabric Draft](dsh-community-fabric/README.zh.md) |
 | 了解统一插件框架为什么这样设计 | [成熟框架与真实插件调研](dsh-community-fabric/docs/research/mature-plugin-frameworks.zh.md) |
 | 查看插件市场的产品与安全设计 | [DSH Community Market](dsh-community-market/README.zh.md) |
-| 了解桌面插件可以使用的能力 | [桌面插件接口说明](dsh-plugin-desktop/docs/plugin-services.zh.md) |
+| 了解 Desktop 与功能包的边界 | [归属约束](docs/desktop-boundaries.md) |
 | 了解桌面应用如何工作 | [架构说明](docs/architecture.md) |
 | 查阅包级构建与发布细节 | [`dsh-plugin-desktop/README.md`](dsh-plugin-desktop/README.md) |
 
@@ -91,7 +91,7 @@ WorkDSH 将 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 
   <tr>
     <td width="50%" valign="top">
       <h3>Desktop</h3>
-      <p>把上游 DeepSeek Harness 的本地 Web UI 带到原生桌面。应用自动启动和管理本地 Harness 服务，集成系统托盘与桌面窗口，无需安装 Node.js 或执行命令。</p>
+      <p>把上游 DeepSeek Harness 的本地 Web UI 带到原生桌面。应用自动启动本地 Harness 服务并打开桌面窗口，无需另行安装 Node.js。</p>
     </td>
     <td width="50%" valign="top">
       <h3>手机远程控制 <img src="https://img.shields.io/badge/%E5%8D%B3%E5%B0%86%E6%8E%A8%E5%87%BA-F59E0B?style=flat-square" alt="即将推出"></h3>
@@ -100,8 +100,8 @@ WorkDSH 将 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <h3>SSH / SFTP 插件</h3>
-      <p>独立的 <a href="dsh-plugin-ssh/README.md">SSH / SFTP + AI 插件</a>提供远程工作能力；可以按需安装，与桌面主程序分开维护。</p>
+      <h3>WorkDSH 功能插件</h3>
+      <p>专家、技能、连接器、项目和资料库共同组成 WorkDSH 的工作流程，随产品版本统一维护。</p>
     </td>
     <td width="50%" valign="top">
       <h3>共建插件生态</h3>
@@ -110,27 +110,11 @@ WorkDSH 将 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 
   </tr>
 </table>
 
-### 首次设置、浏览器与局域网访问
-
-每个尚未初始化的 profile 正常首次启动时，会先显示由 Desktop 自己提供的原生 Setup Wizard。它可以设置窗口模式与系统材质、插件市场、通知、是否用系统默认浏览器自动打开，以及 Web 访问范围；也可以直接跳过。向导完成或跳过以前，Host 和主 DSH 窗口都不会启动。完成或跳过状态按 profile 分别记录；显式恢复启动仍优先进入恢复助手。
-
-Web 服务默认仅监听本机回环地址。开启“用浏览器打开”后，Desktop 会在 Web 服务实际就绪时交给系统默认浏览器打开；这个选项不会改变网络暴露范围。“桌面设置”会在选项下显示实际的本机 URL。局域网访问是一个独立的可选设置，开启后还会显示当前可用的局域网 URL。
-
-> **危险：** 向局域网开放不提供鉴权；所有与你处于同一局域网的人都能直接打开 DSH 并操作你的电脑。请只在完全信任的网络中谨慎开启。
-
-自动更新的固定版本检查请求会在 `X-DSH-Desktop-Version` header 中携带当前安装版本，在 `X-DSH-Desktop-Channel` 中携带 `stable` 或 `beta`，并在 `X-DSH-Desktop-Installation-Id` header 中携带一个由本机生成并持久保存的随机 UUID；它不是从硬件信息推导出的标识。安装包下载会携带通道和 `X-DSH-Desktop-Target-Version`，但下载请求及其重定向不会携带安装标识或当前版本。
-
 ## 插件生态
 
-插件是给 DSH 添加能力的扩展包——模型、工具、界面、工作流都可以做成插件，像搭积木一样自由组合。
+WorkDSH 使用官方 DSH 插件机制。项目、资料库、专家、技能和连接器是 WorkDSH 的产品功能包；活动记录、Office、审计、访问控制与 provider 是同一 Profile 的支撑服务。Electron 外壳只负责窗口、启动和安装包，不包含另一套 DSH Host 或 Web Client。社区 Fabric 和 Market 仍是设计文档。
 
-WorkDSH 没有修改上游源码，也不是一个固定写死的外壳。固定版本的上游 DeepSeek Harness 原样运行；桌面壳本身——窗口、托盘、终端、更新、工作配置——作为 DSH 插件接入，并通过 DeepSeek Harness 提供的插件机制与上游能力组合进同一个运行时。从核心 agent 到桌面外壳，整个产品遵守同一条"一切皆插件"的规则：与所固定上游版本兼容的插件可以使用，桌面能力也按插件的方式组合、替换和演进。
-
-我们希望插件生态像手机应用一样：每个插件按同一套规则开发，装在一起也能一起工作、互不干扰。
-
-### 给开发者
-
-与许多其他项目不同，这个项目本身就是一个 DSH [插件](docs/plugin-development.md)：桌面壳与第三方插件使用相同的插件组合机制。Desktop 的插件能力已经可以使用。我们提供了 Desktop 服务，让插件开发者能够把插件与桌面能力集成起来：例如查看和切换工作配置，或在当前配置中安装、更新和移除插件。完整用法见[桌面插件接口说明](dsh-plugin-desktop/docs/plugin-services.zh.md)。为什么选择这样的边界、哪些能力不会暴露给第三方插件，见[为什么做 WorkDSH](docs/why-desktop.md)和[插件开发指南](docs/plugin-development.md)。
+开发者请阅读[插件开发](docs/plugin-development.md)、[架构说明](docs/architecture.md)和[归属约束](docs/desktop-boundaries.md)。当前外壳没有旧设计中的托盘、多 Profile 选择和自动更新管理器；更新请从 [Releases](https://github.com/techflag/workdsh/releases) 手动下载安装包。
 
 ## 与 DeepSeek Harness 的关系
 
@@ -141,8 +125,9 @@ WorkDSH 是基于 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-har
 上游项目提供核心的智能体能力、插件系统和 Web UI；WorkDSH 主要负责：
 
 - 桌面应用封装
-- 本地服务的启动、停止与恢复
-- 桌面窗口和系统托盘集成
+- 本地服务的启动与停止
+- 桌面窗口集成
+- 项目、资料库、专家、技能与连接器
 - macOS、Windows 安装包构建与发布
 - 更适合桌面使用的界面体验
 
@@ -162,7 +147,7 @@ WorkDSH 是基于 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-har
 
 ## 开发
 
-稳定版与 Beta 桌面包分别位于 `dsh-plugin-desktop/` 和 `dsh-plugin-desktop-beta/`。外层仓库使用 Yarn，固定的 `deepseek-harness/` 子模块继续使用自己的 pnpm workspace。从仓库根目录执行：
+Desktop 工程位于 `dsh-plugin-desktop/`。外层仓库使用 Yarn，固定的 `deepseek-harness/` 子模块继续使用自己的 pnpm workspace。从仓库根目录执行：
 
 ```sh
 git submodule update --init --recursive
