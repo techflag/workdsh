@@ -11,10 +11,19 @@ third-party notices are maintained by the upstream project:
 WorkDSH bundles and their dependencies retain their own license terms, which
 must be checked from the exact release artifacts used for an installer.
 
-The SkillHub and DSH plugin catalogue is provided by
-[`@cocofhu/skillhub`](https://www.npmjs.com/package/@cocofhu/skillhub),
-pinned at 0.2.16 in the Desktop Profile. It is a third-party project licensed
-under MIT; its source and license are at <https://github.com/cocofhu/skillhub>.
+The Desktop Profile bundles two separate third-party plugins:
+
+- [`@cocofhu/skillhub`](https://www.npmjs.com/package/@cocofhu/skillhub)
+  version 0.2.16 for SkillHub integration. Source and MIT license:
+  <https://github.com/cocofhu/skillhub>.
+- [`dshmarket`](https://www.npmjs.com/package/dshmarket) version 1.66.1 for
+  DSH community plugin discovery. Source and MIT license:
+  <https://github.com/dsh-market/dsh-market>.
+
+The SkillHub catalog and API are maintained separately by
+[`Tencent/skillhub`](https://github.com/Tencent/skillhub). The plugin catalog
+used by dshmarket is maintained by
+[`awesome-dsh-plugin`](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin).
 
 This file intentionally does not freeze a dependency inventory from an older
 DSH release. Check the bundled Profile and its license files when publishing.

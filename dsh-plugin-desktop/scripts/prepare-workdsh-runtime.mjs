@@ -8,7 +8,7 @@ import { DSH_VERSION } from './runtime-version.mjs'
 import { PRODUCT_PACKAGES, RELEASE_PACKAGES } from './workdsh-package-boundary.mjs'
 import { verifyPackageDshReferences, verifyProfileRelease } from './verify-profile-release.mjs'
 
-const WORKDSH_VERSION = '0.1.0-alpha.13'
+const WORKDSH_VERSION = '0.1.0-alpha.14'
 const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const output = join(desktopRoot, 'build', 'workdsh-runtime')
 const destination = join(output, 'profiles', 'workdsh')

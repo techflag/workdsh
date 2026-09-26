@@ -284,6 +284,11 @@ jobs:
           node-version: 22.23.2
       - name: Require one DSH version before publication
         run: node scripts/verify-desktop-dsh-alignment.mjs
+      - name: Require release tag to match Desktop package version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          node -e "const version = require('./dsh-plugin-desktop/package.json').version; if (process.env.TAG !== 'desktop-v' + version) { throw new Error('Release tag does not match Desktop package version: ' + process.env.TAG + ' != desktop-v' + version) }"
       - name: Download desktop packages
         uses: actions/download-artifact@v5
         with:
@@ -308,17 +313,14 @@ jobs:
         run: |
           VERSION="${TAG#desktop-v}"
           cat > release-notes.md <<'EOF'
-          WorkDSH Desktop 提供 Windows x64 安装版和 macOS Intel x64 与 Apple Silicon arm64 独立 DMG。
+          WorkDSH Desktop 将 WorkBuddy 风格的项目、资料、专家、技能和连接器工作台与 DeepSeek Harness 插件能力结合。
 
-          - 桌面产品名称统一为 WorkDSH
-          - 安装包内置完整 WorkDSH 运行时，启动后可直接使用项目、资料库、专家、技能和连接器
-          - 内置 Node 和 Python；Agent 使用 Playwright 浏览网页时，可在同一会话的右侧栏查看并操作页面
-          - 应用、Dock、托盘和安装包图标统一为 WorkDSH 蓝色 W 标识
-          - README 包含项目、资料库和桌面端下载说明
-          - Windows 包在原生 Windows Runner 构建和验证
-          - macOS 分别提供 Intel x64 和 Apple Silicon arm64 未签名预览包
+          - 技能页接入 SkillHub 目录，可查看技能图标、来源、版本与安装入口；本地技能仍可单独管理。
+          - 现有插件页可直接发现 DSH 社区插件，并打开第三方 dsh-market 目录进行搜索和安装。
+          - Desktop 使用锁定的官方 DSH 0.1.7-rc.2 Profile；内置 Node.js 和 Python，不额外打包浏览器。
+          - 提供 Windows x64 安装包，以及 macOS Intel x64、Apple Silicon arm64 未签名 DMG。
 
-          这是 Alpha 预发布。请在升级前备份本地配置和数据；未签名包可能触发系统安全提示。所有文件的 SHA-256 见 `SHA256SUMS`。
+          SkillHub 和 dsh-market 是独立第三方来源；目录内容并非全部预装或经 WorkDSH 审核。安装前请检查许可、依赖和版本兼容性。本次为 Alpha 预发布，升级前请备份本地配置和数据。所有文件的 SHA-256 见 `SHA256SUMS`。
           EOF
           gh release create "$TAG" release-assets/* \
             --repo "$GITHUB_REPOSITORY" \

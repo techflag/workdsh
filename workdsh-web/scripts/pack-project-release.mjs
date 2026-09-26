@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const project = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
 const tag = `v${project.version}`;
-const releaseNotes = join(root, 'docs', 'releases', `${tag}.md`);
+const releaseNotes = join(root, 'RELEASE-NOTES.md');
 const destination = join(root, '.artifacts', `project-${tag}`);
 const packageDirectories = [
   'packages/providers/identity-local',
@@ -63,12 +63,12 @@ await writeFile(join(destination, 'release-manifest.json'), JSON.stringify({
   packageManager: project.packageManager,
   runtimeOverrides: Object.fromEntries(Object.entries(project.pnpm.overrides).filter(([name]) => name.startsWith('@deepseek-ai/'))),
   packages,
-  verified: ['Package checksums generated; see docs/DSH-0.1.7-UPGRADE-PLAN.md for runtime validation evidence'],
+  verified: ['Package checksums generated; CI validates build, types, DSH version alignment and integration tests'],
   limitations: [
     'alpha preview; package APIs and stored data may change',
     'interactive OAuth, connector multi-account switching and public authorization are not complete',
     'hour-scale expert-team soak, official fork-member browser history, arbitrary Office fidelity and cross-platform acceptance remain incomplete',
-    'relative to alpha.6, the packaged expert-team long task, real-model two-stage handoff, connector isolation probe and Tencent Docs connection were not re-run on this batch artifacts',
+    'real-model end-to-end workflows and every third-party Skill or plugin remain outside automated release checks',
     'packages are GitHub assets and are not published to the npm registry',
   ],
 }, null, 2) + '\n');
