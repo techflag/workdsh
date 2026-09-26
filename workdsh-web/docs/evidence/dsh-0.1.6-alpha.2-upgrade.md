@@ -72,7 +72,7 @@
 
 ### 刷新执行（2026-09-18 补记，独立批次）
 
-- 整批替换：`docs/deepseek-harness-docs/`（375 文件 alpha.1 快照，2026-09-10 时点）→ `docs/dsh-v0.1.6-alpha.2/`（543 文件 / 337 md / 171 规范对象；新增 persistence-changes、postmortem、i18n 等章节；`subsystems/code-runtime.*` 更名重写为 `subsystems/ptc-runtime.*`，`ctx.codeRuntime`→`ctx.ptcRuntime`）。
+- 整批替换：`docs/deepseek-harness-docs/`（375 文件 alpha.1 快照，2026-09-10 时点）→ `https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/`（543 文件 / 337 md / 171 规范对象；新增 persistence-changes、postmortem、i18n 等章节；`subsystems/code-runtime.*` 更名重写为 `subsystems/ptc-runtime.*`，`ctx.codeRuntime`→`ctx.ptcRuntime`）。
 - 引用同步：全仓 44 文件 117 处旧路径 token 更新；`subsystems/code-runtime`→`subsystems/ptc-runtime`（含 3 个文档的链接标签与 prose 修订）；`.idea` IDE 状态与 `.artifacts` 历史证据不改写。
 - 行号重锚（新语料）：d07 证据 5 处引用——slots.md:147→:150、persistence-catalog.md:403-407→:473-477、tool-catalog.md:222-228→:624-630、:22→:25（slots.md:25-41 不变）。
 - 审计：专项 `p5-doc-mirror-audit` 15/15 PASS——替换完整（543 文件/337 md）、旧路径与 `subsystems/code-runtime` token 全仓扫描归零（允许残留=升级证据/STATUS/依赖清单等更名历史文件，`code-runtime` 包名限定 package.json/pnpm-lock 等 8 处）、台账 127⊆171 且 44 pending；实跑 `audit:harness-docs` PASS（127/171）；产物 `.artifacts/dsh-0.1.6-alpha.2-upgrade/p5-doc-mirror-audit.{mjs,json}`。语料内部唯一 `code-runtime` 残留为上游 `dependency-catalog.json` 快照条目（不修改镜像）。

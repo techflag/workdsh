@@ -33,13 +33,13 @@
 
 ## PPT 风格选择闭环（2026-09-14，用户优先切片）
 
-官方能力复用记录：Office-PPT-STYLE。官方文档 `docs/dsh-v0.1.6-alpha.2/subsystems/user-questions.md`、`tool-catalog.md`；锁定官方 `ask_user_question@0.1.5-rc.1` 提供等待/取消/答案协议。Office 已实现 content_open(kind:html)、html.replaceDocument、content_present，沿用同一身份、授权、持久化和 Session 预览服务。业务差异仅为四套可复用的封面设计、预览生成工具和内置技能选择规则，不新增 Agent loop、answerer 或 iframe 通信协议。
+官方能力复用记录：Office-PPT-STYLE。官方文档 `https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/user-questions.md`、`tool-catalog.md`；锁定官方 `ask_user_question@0.1.5-rc.1` 提供等待/取消/答案协议。Office 已实现 content_open(kind:html)、html.replaceDocument、content_present，沿用同一身份、授权、持久化和 Session 预览服务。业务差异仅为四套可复用的封面设计、预览生成工具和内置技能选择规则，不新增 Agent loop、answerer 或 iframe 通信协议。
 
 第一版：右侧四套真实标题封面，原生提问选择；支持红色细分、明确模板/具体风格/快速交付跳过，选定后恢复原生 PPT。HTML 卡片只预览，不伪装已提交选择。验收包括转义、窄屏、不同版式、保存/重试及现有 Office/技能回归；真实模型、认证浏览器、选择恢复和最终 PPTX 视觉须另行实测，未通过不得称完整闭环。主线 D04/TM-01 不因此标记完成。
 
 ### PPTX 模板工作副本导入（2026-09-14）
 
-复用已安装 `pptx-viewer-core` 公共 `PptxHandler.load/save` 和 Harness 0.1.5-rc.1 的 `ctx.fs.resolve/readBytes`（见 `docs/dsh-v0.1.6-alpha.2/subsystems/filesystem.md`）。新增 Office 领域导入工具，不绕过文件提供者，不修改原文件；工作副本继续走现有所有权、会话、CAS、审计和实时编辑通道。普通新建仍保留，明确要求模板时不得新建空白代替。实际客户模板仅用于本地验证，不收入公开测试资源。
+复用已安装 `pptx-viewer-core` 公共 `PptxHandler.load/save` 和 Harness 0.1.5-rc.1 的 `ctx.fs.resolve/readBytes`（见 `https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/filesystem.md`）。新增 Office 领域导入工具，不绕过文件提供者，不修改原文件；工作副本继续走现有所有权、会话、CAS、审计和实时编辑通道。普通新建仍保留，明确要求模板时不得新建空白代替。实际客户模板仅用于本地验证，不收入公开测试资源。
 
 验证：Office 集成测试包含模板导入、原包字节保留、文字替换后重新解析、所有权、幂等/取消及大模板 HTTP 人工保存。客户 31 页模板的本地导入—编辑—人工保存结果位于 `.artifacts/ppt-template-probe/import-edit-save-result.json`；只验证组件/领域通道，尚未在已认证 preview 中走完整模型对话。DemiBold 页脚重影通过同名字体 CSS 字重 600 修复，无字体替换。
 

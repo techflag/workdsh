@@ -36,7 +36,7 @@
 
 工具：`scripts/quality/audit-skills.mjs`。运行 `corepack pnpm audit:skills <目录> [目录...]`，输出 JSON；`corepack pnpm test:skill-quality` 运行相关检查。无需 API Key，不连接模型、不写用户技能、不加载技能脚本。不指定目录时显示用法并返回 2；读取失败返回 1，有建议仍返回 0。跳过符号链接、node_modules、.git、.artifacts；不等于官方技能发现结果。
 
-官方能力复用记录：任务为项目指令审查的只读工程辅助，不新增业务插件。查阅 `docs/dsh-v0.1.6-alpha.2/subsystems/skills.md`，技能注册、合并、正文加载及运行继续由官方 ctx.skills/filesystem/tool-skill 拥有；本工具仅读取用户明确指定的文件，用技能包现有 YAML 依赖解析元数据，不模拟官方加载器。未改插件版本、契约、Profile 或 currentStep。
+官方能力复用记录：任务为项目指令审查的只读工程辅助，不新增业务插件。查阅 `https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.md`，技能注册、合并、正文加载及运行继续由官方 ctx.skills/filesystem/tool-skill 拥有；本工具仅读取用户明确指定的文件，用技能包现有 YAML 依赖解析元数据，不模拟官方加载器。未改插件版本、契约、Profile 或 currentStep。
 
 现阶段检查：YAML 元数据是否可读、描述是否存在、描述超过 240 字符、正文超过 12000 字符、部分全局触发措辞、所选文件完全相同的描述。两个长度阈值是可审阅启发式，不是官方限制；英文/中文计数是 Unicode 字符数，不是 token。相同描述可能属于不同作用域；工具不判断实际运行时冲突。示例或引用中的措辞可能误报，必须人工核对。元数据读取异常也不直接宣称官方 Harness 拒绝该文件。
 

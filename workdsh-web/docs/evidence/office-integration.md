@@ -4,7 +4,7 @@
 
 用户明确授权提前扩展 P1-01 原生右侧文件面板：Word/PPT/Excel 均接入，停止额外公式计算开发，禁止服务端 Office 转换。D04 及 D15 不因此宣布完成。
 
-公开文档：dsh-v0.1.6-alpha.2/subsystems/sidebar-right.zh.md；发布包 @deepseek-ai/dsh-client-ui-sidebar-documentpreview@0.1.5-rc.1 的 ./client exports/types 提供 DocumentPreviewProps、documentPreviews 与原生 sidebar.right.tab.document。登记字节 loading=bytes-complete；ctx.effect 拥有注册注销，slots.inject 等待 owner，默认文件地址、权限读取、Tab、刷新继续由原生所有者管理。没有自建传输、Loader、文件资源注册表、模型调用或转换服务。
+公开文档：https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/sidebar-right.zh.md；发布包 @deepseek-ai/dsh-client-ui-sidebar-documentpreview@0.1.5-rc.1 的 ./client exports/types 提供 DocumentPreviewProps、documentPreviews 与原生 sidebar.right.tab.document。登记字节 loading=bytes-complete；ctx.effect 拥有注册注销，slots.inject 等待 owner，默认文件地址、权限读取、Tab、刷新继续由原生所有者管理。没有自建传输、Loader、文件资源注册表、模型调用或转换服务。
 
 Office 内容在 sandbox=allow-scripts allow-downloads 的 opaque-origin iframe 内运行；只接收匹配父窗口的文件字节消息，无应用凭据/Host API。CSP connect-src none，图片/字体只允许 data/blob，关闭 Word HTML altChunks；原件不自动覆盖，导出为浏览器下载副本。
 
@@ -39,7 +39,7 @@ probe:office:native：在独立临时 Home/Agents/工作区，由官方 CLI 安�
 
 ## CSV 表格预览（2026-09-17）
 
-用户反馈右侧面板打开 CSV 只有溢出纯文本，长行不可读。官方复用记录：任务 P1-01 / OFFICE-AI-01 右侧展示增量；官方文档 `docs/dsh-v0.1.6-alpha.2/subsystems/sidebar-right.zh.md` 的“文档渲染器”节；锁定发布包 `@deepseek-ai/dsh-client-ui-sidebar-documentpreview@0.1.6-alpha.1` 的 `./client` 公开 `ctx.documentPreviews`（`DocumentPreviewDefinition`：extensions/title/loading/wrap/priority）与 `sidebar.right.tab.document` keyed slot。复用同一注册方式：`ctx.effect` 拥有注册注销，`slots.inject` 等待官方 owner；不新增 Tab kind、传输、文件读取或状态真源。文件授权、字节读取、刷新、渲染器下拉与换行控件继续由官方所有者管理；未知扩展仍回退官方纯文本。
+用户反馈右侧面板打开 CSV 只有溢出纯文本，长行不可读。官方复用记录：任务 P1-01 / OFFICE-AI-01 右侧展示增量；官方文档 `https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/sidebar-right.zh.md` 的“文档渲染器”节；锁定发布包 `@deepseek-ai/dsh-client-ui-sidebar-documentpreview@0.1.6-alpha.1` 的 `./client` 公开 `ctx.documentPreviews`（`DocumentPreviewDefinition`：extensions/title/loading/wrap/priority）与 `sidebar.right.tab.document` keyed slot。复用同一注册方式：`ctx.effect` 拥有注册注销，`slots.inject` 等待官方 owner；不新增 Tab kind、传输、文件读取或状态真源。文件授权、字节读取、刷新、渲染器下拉与换行控件继续由官方所有者管理；未知扩展仍回退官方纯文本。
 
 WorkDSH 差异只在业务呈现：新增定义 `workdsh-office-csv`（extensions=["csv"]、loading=bytes-complete、wrap=true）与只读表格组件 `src/csv/CsvDocument.tsx`（表头、行号、单元格网格线、冻结表头/行号列、UTF-8/GB18030/UTF-16 识别、逗号/分号/制表符识别、超限截断提示）；既有 xlsx/docx/pptx 定义不变。空字节时可直接切换到官方“纯文本”，不替换回退实现。
 

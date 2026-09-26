@@ -4,7 +4,7 @@
 
 ## 官方能力复用记录（编码前）
 
-- 公开文档：docs/dsh-v0.1.6-alpha.2/cookbook/adding-a-tool.md；现有 Office U1/U2 的 Connection、Storage Domain、sidebar.right.pane.tab 生命周期证据。
+- 公开文档：https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cookbook/adding-a-tool.md；现有 Office U1/U2 的 Connection、Storage Domain、sidebar.right.pane.tab 生命周期证据。
 - 锁定包：Harness 0.1.5-rc.1，公开 defineTool/tools.execute、Storage Domain、Connection Fetch 与标准 PropsRuntime；不新增工具注册框架或传输。
 - 复用：ContentService 的可信 ActorContext、workspace/owner 授权、CAS 修订、幂等收据、人工租约、审计 outbox、展示请求及官方 bash/present 文件交付。
 - 编辑组件：已安装 Univer 0.25.1，公开 createWorkbook/save/setEditable/disposeUnit；ExcelJS 4.4.0 导出。已查阅锁定发布包 facade 类型，不扩展公式引擎。

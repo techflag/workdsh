@@ -8,11 +8,11 @@
 
 | Owner | 本地官方说明 | 核对的公开面 | 用法 |
 | --- | --- | --- | --- |
-| Client Modules | ../../dsh-v0.1.6-alpha.2/subsystems/client-modules.zh.md | package 的 dsh.client / exports["./client"] | Office 包交付浏览器构建；由官方发现、加载，不单独启动 PPTist 服务器 |
-| Slots / Renderer | ../../dsh-v0.1.6-alpha.2/subsystems/slots.zh.md | ctx.slots.inject/register、PropsRuntime；发布包 SlotComponent=(props)=>ReactNode | 插件贡献 React 容器；Vue 组件不能直接作为 Slot component 注册 |
-| Sidebar Right | ../../dsh-v0.1.6-alpha.2/subsystems/sidebar-right.zh.md | ctx.sidebarRightTabs.register、sidebar.right.pane.tab、openTab/openResource、useTabInfo、tab.signal | 复用官方会话页面、全屏和关闭生命周期；注册器放 ctx.effect |
-| Client / Host | ../../dsh-v0.1.6-alpha.2/subsystems/web-client.zh.md、../../HARNESS-OFFICIAL-DEVELOPMENT.md | 官方生成 Remote；现有外部生成兼容缺口的 Connection exact Fetch route | 继续复用现有 Office 通信和同一授权/CAS/审计服务 |
-| Client Resources | ../../dsh-v0.1.6-alpha.2/subsystems/client-resources.zh.md | ctx.resources、useResource、source | 地址式资源是官方能力；资源流与组件生命周期不同，不为接编辑器复制资源框架 |
+| Client Modules | https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/client-modules.zh.md | package 的 dsh.client / exports["./client"] | Office 包交付浏览器构建；由官方发现、加载，不单独启动 PPTist 服务器 |
+| Slots / Renderer | https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/slots.zh.md | ctx.slots.inject/register、PropsRuntime；发布包 SlotComponent=(props)=>ReactNode | 插件贡献 React 容器；Vue 组件不能直接作为 Slot component 注册 |
+| Sidebar Right | https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/sidebar-right.zh.md | ctx.sidebarRightTabs.register、sidebar.right.pane.tab、openTab/openResource、useTabInfo、tab.signal | 复用官方会话页面、全屏和关闭生命周期；注册器放 ctx.effect |
+| Client / Host | https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/web-client.zh.md、../../HARNESS-OFFICIAL-DEVELOPMENT.md | 官方生成 Remote；现有外部生成兼容缺口的 Connection exact Fetch route | 继续复用现有 Office 通信和同一授权/CAS/审计服务 |
+| Client Resources | https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/client-resources.zh.md | ctx.resources、useResource、source | 地址式资源是官方能力；资源流与组件生命周期不同，不为接编辑器复制资源框架 |
 
 文档镜像不能自动当作锁定版本 API：本次同时核对发布包声明。现有 Office 已注册 workdsh-office-live 类型及 keyed body，Tab API 可用；不需要为了 Vue 更换 Harness Renderer。
 

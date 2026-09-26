@@ -32,7 +32,6 @@ const documents = [
   'docs/adr/0011-use-official-storage-domains.md',
   'docs/adr/0012-session-and-business-fact-boundaries.md',
   'docs/research/deepseek-harness-capability-review.md',
-  'docs/research/deepseek-harness-review.json',
   'docs/research/harness-execution-capability-matrix.md',
   'docs/research/harness-governance-capability-matrix.md',
   'docs/research/harness-agent-composition-matrix.md',

@@ -1,6 +1,6 @@
 # P1-01：公共外壳复用记录
 
-- 官方依据：[Slots](../dsh-v0.1.6-alpha.2/subsystems/slots.zh.md)、[Web Client](../dsh-v0.1.6-alpha.2/subsystems/web-client.zh.md)、[右侧 Sidebar](../dsh-v0.1.6-alpha.2/subsystems/sidebar-right.zh.md) 与 [Harness 官方开发规范](../HARNESS-OFFICIAL-DEVELOPMENT.md)。
+- 官方依据：[Slots](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/slots.zh.md)、[Web Client](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/web-client.zh.md)、[右侧 Sidebar](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/sidebar-right.zh.md) 与 [Harness 官方开发规范](../HARNESS-OFFICIAL-DEVELOPMENT.md)。
 - 锁定发布包：dsh-client-ui-layout/sidebar/session/renderer、dsh-api-session-controller，均 0.1.5-rc.1；公开 /client 类型入口。
 - 复用：官方 sidebar owner 继续提供 Workspace、Session、新会话、搜索、菜单与设置；WorkDSH 仅用 `sidebar.brand.*` 和 `sidebar.panellist` 增量贡献品牌与业务入口，并以同 key `main` entry 配对；`layout.selectPanel(null)` 返回原生 Conversation。
 - 自有差异：业务入口标签、图标和对应全局管理页；ui 纯组件，无 Host、账户或存储。业务项目/权限不在本切片实现。

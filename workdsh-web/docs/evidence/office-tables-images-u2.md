@@ -18,4 +18,4 @@
 
 ## OFFICE-WORD-03：发布前真实模型与兼容性验收计划
 
-官方能力复用记录（2026-09-12）：复用 `docs/dsh-v0.1.6-alpha.2/` 的 Session/Tools/系统提示公开面和已锁定 `0.1.5-rc.1` 的 `probe-office-live.mjs --real-model` 链路；不新建 Agent loop、模型路由或写文件捷径。新增有图表资料的真实模型场景，观察 `content_open/edit/export` 回执、右栏结构与原生交付。图片采用测试生成的嵌入 PNG，不依赖联网素材。外部 Word/WPS 测试只打开隔离导出制品，不改变用户原件或系统默认程序。完成结果另写证据和 STATUS，不能把本次候选当作完整 Word。
+官方能力复用记录（2026-09-12）：复用 `https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/` 的 Session/Tools/系统提示公开面和已锁定 `0.1.5-rc.1` 的 `probe-office-live.mjs --real-model` 链路；不新建 Agent loop、模型路由或写文件捷径。新增有图表资料的真实模型场景，观察 `content_open/edit/export` 回执、右栏结构与原生交付。图片采用测试生成的嵌入 PNG，不依赖联网素材。外部 Word/WPS 测试只打开隔离导出制品，不改变用户原件或系统默认程序。完成结果另写证据和 STATUS，不能把本次候选当作完整 Word。

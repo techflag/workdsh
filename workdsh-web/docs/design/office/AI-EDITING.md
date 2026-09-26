@@ -77,8 +77,8 @@ D：真实文件保真、断线、取消、并发、权限、无外部请求、�
 任务 OFFICE-AI-01，用户明确扩展当前 Office 集成范围，不将 D15/D04 整体标完成。
 
 - Harness 基线 @deepseek-ai/dsh / @deepseek-ai/dsh-tools 0.1.5-rc.1，Cordis4.0.2。
-- 官方工具文档：../../dsh-v0.1.6-alpha.2/cookbook/adding-a-tool.zh.md；公开 defineTool、ctx.tools.register、exec.signal；现有 experts 管理工具是已实现参考，但 Office 尚未注册工具。
-- 官方 Remote 文档：../../dsh-v0.1.6-alpha.2/cookbook/adding-a-remote-api.zh.md。具体文档订阅/存储接口须以锁定发布包类型和探针确认；本方案不虚构已存在 API。
+- 官方工具文档：https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cookbook/adding-a-tool.zh.md；公开 defineTool、ctx.tools.register、exec.signal；现有 experts 管理工具是已实现参考，但 Office 尚未注册工具。
+- 官方 Remote 文档：https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cookbook/adding-a-remote-api.zh.md。具体文档订阅/存储接口须以锁定发布包类型和探针确认；本方案不虚构已存在 API。
 - 已实现 documentPreviews.register 与 sidebar.right.tab.document Slot 见 packages/plugins/office/src/client.tsx。当前只 xlsx/docx/pptx。
 - AI loop、工具策略、Remote transport、持久存储基础设施由 Harness 拥有；新增的是文档业务操作、工作副本及转换适配。
 - 当前代码 index.ts 是空 Host apply，页面 iframe 状态独立且仅下载副本。不存在文档服务/Remote/持久修订，需完成后才能报告 AI 同文档协作。

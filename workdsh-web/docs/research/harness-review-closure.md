@@ -10,26 +10,26 @@
 
 翻译提示和规则是被审查材料，不是本轮执行指令；无需翻译整个项目。产品用语与 API 标识分开，代码名保持准确。双语配对、哈希和结构通过不代表语义正确。
 
-依据：[开发](../dsh-v0.1.6-alpha.2/development.zh.md)、[国际化索引](../dsh-v0.1.6-alpha.2/i18n/README.zh.md)。
+依据：[开发](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/development.zh.md)、[国际化索引](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/i18n/README.zh.md)。
 
 ## H09 剩余 14 个子系统
 
 | 官方专题 | 可复用能力 | WorkDSH 实施边界 |
 | --- | --- | --- |
-| [PTC runtime](../dsh-v0.1.6-alpha.2/subsystems/ptc-runtime.zh.md) | 每次运行隔离、JSON 输入输出、结构化失败与取消 | isolation 标签不证明安全；取消程序后仍需结算已进入 Host 的调用。Python 后端为未发布实验，不作为公开可用能力承诺。 |
-| [Extensions](../dsh-v0.1.6-alpha.2/subsystems/extensions.zh.md) | 动态 Plugin/Package/run 标识、Host/Client 激活与检查 | 仅开发实验；Session 所有权与不可变 Package 不等于企业授权或可发布专家对象。旧 run 调用必须拒绝；inspect/inventory 需防跨主体泄露。 |
-| [Feedback](../dsh-v0.1.6-alpha.2/subsystems/feedback.zh.md) | 消息反馈 CAS、持久反馈事件、原生动作 Slot | 原生 Host 不记录认证 actor；团队入口需补授权与审计。删除只撤回当前值，历史日志仍保留。反馈不是业务验收或自动训练。 |
-| [Goal](../dsh-v0.1.6-alpha.2/subsystems/goal.zh.md) | 单 Session 目标、revision CAS、连续轮次与恢复事实 | 持久 active 不等于进程自动继续；受控恢复后才重新激活。不能替代跨会话自动化或项目目标验收。 |
-| [Invariants](../dsh-v0.1.6-alpha.2/subsystems/invariants.zh.md) | 可选不变量注册、隔离检查与卸载清理 | 检查权威状态和事件，不以服务存在作通过。上游每包要求不强制转换成 WorkDSH 空实现。 |
-| [LSP](../dsh-v0.1.6-alpha.2/subsystems/lsp.zh.md) | definition/references/implementation/hover | 可选代码能力；缺 provider 明确失败。内部 UTF-16 零基坐标与模型一基坐标要转换，不充当资料库检索。 |
-| [Plan](../dsh-v0.1.6-alpha.2/subsystems/plan.zh.md) | 计划提示、计划审核与模式事件 | 是软提示，非权限机制；不等于项目计划看板。批准必须是明确动作，不能把未答/取消解释为同意。 |
-| [Shell](../dsh-v0.1.6-alpha.2/subsystems/shell.zh.md) | resolve/spec、前后台运行与沙箱事实 | exitCode 0 仍可能已超时或中止；后台 start 不应用前台 timeout。检查 runnerFailed/enforcement，不靠退出码认定安全成功。 |
-| [Spill](../dsh-v0.1.6-alpha.2/subsystems/spill.zh.md) | 大文本落盘、不透明 locator 与读取提示 | owner/source 不是 ACL；fork 不转移所有权；保留期可能失效。保存失败可回退 inline，不能当 DLP 或硬输出配额。入库必须显式登记 AssetRevision。 |
-| [Subprocess](../dsh-v0.1.6-alpha.2/subsystems/subprocess.zh.md) | 显式 argv/环境、字节偏移读取、受管范围终止 | done 仅表示子命令退出，waitForExit 才观察受管范围清空；仍受 provider 可观测性限制。显式 env 可重新引入秘密，需执行前过滤。 |
-| [Terminal](../dsh-v0.1.6-alpha.2/subsystems/terminal.zh.md) | PTY、前台输入状态、所属 Agent 生命周期 | 持久指进程内连续使用；idle/timeout 不代表命令完成。作为开发能力复用，不另造 SSH 或跨重启终端保证。 |
-| [Todo](../dsh-v0.1.6-alpha.2/subsystems/todo.zh.md) | 整表覆盖的 content/status 列表 | 没有稳定条目 ID，不能用序号或文本作项目 WorkItem ID。项目负责人、截止时间、评论和成果继续独立持久化。 |
-| [Typert](../dsh-v0.1.6-alpha.2/subsystems/typert.zh.md) | 生成 descriptor、严格 codec、lookup/context、unary/stream 描述 | 首期选择 unary；流式发布支持待 rc.1 探针。传输流不提供业务重放保证；仍需 baseline/cursor。取消走带外 signal，不混入业务 args。 |
-| [User questions](../dsh-v0.1.6-alpha.2/subsystems/user-questions.zh.md) | 精确 live root 提问、稳定问题与答案身份 | owned child 被 DELEGATED_CALLER 拒绝，过期调用被 CALLER_NOT_LIVE 拒绝；专家团由主任务汇总提问，不伪装 root。用户回答不代替业务 Approval。 |
+| [PTC runtime](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/ptc-runtime.zh.md) | 每次运行隔离、JSON 输入输出、结构化失败与取消 | isolation 标签不证明安全；取消程序后仍需结算已进入 Host 的调用。Python 后端为未发布实验，不作为公开可用能力承诺。 |
+| [Extensions](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/extensions.zh.md) | 动态 Plugin/Package/run 标识、Host/Client 激活与检查 | 仅开发实验；Session 所有权与不可变 Package 不等于企业授权或可发布专家对象。旧 run 调用必须拒绝；inspect/inventory 需防跨主体泄露。 |
+| [Feedback](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/feedback.zh.md) | 消息反馈 CAS、持久反馈事件、原生动作 Slot | 原生 Host 不记录认证 actor；团队入口需补授权与审计。删除只撤回当前值，历史日志仍保留。反馈不是业务验收或自动训练。 |
+| [Goal](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/goal.zh.md) | 单 Session 目标、revision CAS、连续轮次与恢复事实 | 持久 active 不等于进程自动继续；受控恢复后才重新激活。不能替代跨会话自动化或项目目标验收。 |
+| [Invariants](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/invariants.zh.md) | 可选不变量注册、隔离检查与卸载清理 | 检查权威状态和事件，不以服务存在作通过。上游每包要求不强制转换成 WorkDSH 空实现。 |
+| [LSP](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/lsp.zh.md) | definition/references/implementation/hover | 可选代码能力；缺 provider 明确失败。内部 UTF-16 零基坐标与模型一基坐标要转换，不充当资料库检索。 |
+| [Plan](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/plan.zh.md) | 计划提示、计划审核与模式事件 | 是软提示，非权限机制；不等于项目计划看板。批准必须是明确动作，不能把未答/取消解释为同意。 |
+| [Shell](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/shell.zh.md) | resolve/spec、前后台运行与沙箱事实 | exitCode 0 仍可能已超时或中止；后台 start 不应用前台 timeout。检查 runnerFailed/enforcement，不靠退出码认定安全成功。 |
+| [Spill](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/spill.zh.md) | 大文本落盘、不透明 locator 与读取提示 | owner/source 不是 ACL；fork 不转移所有权；保留期可能失效。保存失败可回退 inline，不能当 DLP 或硬输出配额。入库必须显式登记 AssetRevision。 |
+| [Subprocess](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/subprocess.zh.md) | 显式 argv/环境、字节偏移读取、受管范围终止 | done 仅表示子命令退出，waitForExit 才观察受管范围清空；仍受 provider 可观测性限制。显式 env 可重新引入秘密，需执行前过滤。 |
+| [Terminal](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/terminal.zh.md) | PTY、前台输入状态、所属 Agent 生命周期 | 持久指进程内连续使用；idle/timeout 不代表命令完成。作为开发能力复用，不另造 SSH 或跨重启终端保证。 |
+| [Todo](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/todo.zh.md) | 整表覆盖的 content/status 列表 | 没有稳定条目 ID，不能用序号或文本作项目 WorkItem ID。项目负责人、截止时间、评论和成果继续独立持久化。 |
+| [Typert](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/typert.zh.md) | 生成 descriptor、严格 codec、lookup/context、unary/stream 描述 | 首期选择 unary；流式发布支持待 rc.1 探针。传输流不提供业务重放保证；仍需 baseline/cursor。取消走带外 signal，不混入业务 args。 |
+| [User questions](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/user-questions.zh.md) | 精确 live root 提问、稳定问题与答案身份 | owned child 被 DELEGATED_CALLER 拒绝，过期调用被 CALLER_NOT_LIVE 拒绝；专家团由主任务汇总提问，不伪装 root。用户回答不代替业务 Approval。 |
 
 ## 版本差异与必需探针
 

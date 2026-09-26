@@ -6,7 +6,7 @@
 
 普通用户不需要预先安装系统 Python、pip 或 Docker，就能运行我们明确支持的 Python 技能。Desktop 负责提供解释器、依赖和环境诊断；Harness 继续拥有 Agent loop、工具调用、授权、审计、取消和沙箱。运行环境决定“用什么执行”，沙箱决定“可以访问什么”，两者不互相替代。虚拟环境仅隔离依赖，不是安全沙箱。
 
-官方能力复用依据：锁定 `@deepseek-ai/dsh@0.1.5-rc.1`（2026-09-18 补记：本段写于 rc.1 时点；全仓当前锁定 `0.1.6-alpha.2`），参见 [sandbox](../../dsh-v0.1.6-alpha.2/subsystems/sandbox.md)、[ptc-runtime](../../dsh-v0.1.6-alpha.2/subsystems/ptc-runtime.md)、[Desktop 打包 ADR](../../adr/0025-desktop-packaging-via-official-pipeline.md)。本地 sandbox 是同宿主进程权限策略，不包含 Python。已发布的 PTC 运行时提供方为官方 sandboxed Node（2026-09-11 官方决定，见 `subsystems/ptc-runtime.md`）；实验性私有 Python 后端不作为依赖。容器仅为可扩展方向，本方案不宣称官方已有容器后端。
+官方能力复用依据：锁定 `@deepseek-ai/dsh@0.1.5-rc.1`（2026-09-18 补记：本段写于 rc.1 时点；全仓当前锁定 `0.1.6-alpha.2`），参见 [sandbox](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/sandbox.md)、[ptc-runtime](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/ptc-runtime.md)、[Desktop 打包 ADR](../../adr/0025-desktop-packaging-via-official-pipeline.md)。本地 sandbox 是同宿主进程权限策略，不包含 Python。已发布的 PTC 运行时提供方为官方 sandboxed Node（2026-09-11 官方决定，见 `subsystems/ptc-runtime.md`）；实验性私有 Python 后端不作为依赖。容器仅为可扩展方向，本方案不宣称官方已有容器后端。
 
 本机 WorkBuddy 对照证据：应用 Resources/vendor 中有 python.dat、node.dat，用户 ~/.workbuddy/binaries/python 中有托管解释器和默认依赖环境。本设计借鉴托管职责，绝不复制其二进制包、私有实现或以此推断所有平台实现一致。
 

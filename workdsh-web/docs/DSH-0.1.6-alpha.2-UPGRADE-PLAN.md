@@ -7,7 +7,7 @@
 - 把 WorkDSH 运行基线与全局精确锁定从 `0.1.6-alpha.1` 升到 `0.1.6-alpha.2`：根 overrides/devDependencies、各插件 package.json、bundle、锁文件与脚本引用统一。
 - 修复 alpha.2 破坏性变化（Client Session 多实例化）影响的 6 个插件 client 文件。
 - 不改变业务功能范围；不动 contracts 领域模型；不新增业务模块；不改动已发布的既有验收结论。
-- 官方文档镜像（`docs/dsh-v0.1.6-alpha.2/`）仍为 alpha.1 语料；本批以 alpha.2 发布包类型与运行实测为准，镜像刷新单独记账（§7）。（2026-09-18 补记：镜像已于同日整批刷新为 alpha.2 快照（543 文件/337 md/规范对象 171）并完成全仓引用同步；`audit:harness-docs` PASS 127/171，证据 `.artifacts/dsh-0.1.6-alpha.2-upgrade/p5-doc-mirror-audit.{mjs,json}`。）
+- 官方文档镜像（`https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/`）仍为 alpha.1 语料；本批以 alpha.2 发布包类型与运行实测为准，镜像刷新单独记账（§7）。（2026-09-18 补记：镜像已于同日整批刷新为 alpha.2 快照（543 文件/337 md/规范对象 171）并完成全仓引用同步；`audit:harness-docs` PASS 127/171，证据 `.artifacts/dsh-0.1.6-alpha.2-upgrade/p5-doc-mirror-audit.{mjs,json}`。）
 
 ## 2. 官方 alpha.2 变化（逐包 diff 核验）
 

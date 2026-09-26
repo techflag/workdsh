@@ -50,7 +50,7 @@ Host 服务授权与 Remote 调用、技能运行注册/按需读取、真实 Se
 ## C01 官方能力复用记录（2026-09-10）
 
 - 任务：D01 / P0-03，两 Session 目录隔离、技能正文按需加载。
-- 官方依据：[Skills](../dsh-v0.1.6-alpha.2/subsystems/skills.zh.md) 与 [Core/preset](../dsh-v0.1.6-alpha.2/subsystems/core.zh.md)；发布包 `dsh-agent-presets`、`dsh-skill`、`dsh-skill-filesystem` 均为 `0.1.5-rc.1`。使用包根公开导出、原生选择 UI、已观察到的 `agentPresets/select` 与 `skills/list` Remote。
+- 官方依据：[Skills](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.zh.md) 与 [Core/preset](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/core.zh.md)；发布包 `dsh-agent-presets`、`dsh-skill`、`dsh-skill-filesystem` 均为 `0.1.5-rc.1`。使用包根公开导出、原生选择 UI、已观察到的 `agentPresets/select` 与 `skills/list` Remote。
 - 选择：直接复用官方 registry/provider/preset；自有代码只增加测试断言，不实现技能解析器、目录服务或 Agent loop。新增两个精确 devDependencies 供测试消费。
 - 自有业务差异：正式 skills 插件仍需不可变 SkillRevision、组织授权及任务绑定；本轮不实现这些业务服务。
 - 验收范围：真实 Host 双 Session 查询与 B 切换不影响 A；独立发布包测试读取正文、修改后再次读取、旧结果不变、取消拒绝、provider 卸载不可再用。独立注册表测试不是 Session 内模型工具调用或团队隔离证据。
@@ -64,7 +64,7 @@ Host 服务授权与 Remote 调用、技能运行注册/按需读取、真实 Se
 
 P0-02 外部 Remote 生成遇到已复现的发布包识别边界，仍保留失败门槛。本轮在同一 D01 内继续独立的 C01，不开始 D02。
 
-- 官方依据：本仓库 `docs/dsh-v0.1.6-alpha.2/subsystems/skills.zh.md`；发布包 scope 与 skill 的公开声明。
+- 官方依据：本仓库 `https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.zh.md`；发布包 scope 与 skill 的公开声明。
 - 复用：rc.1 `dsh-scope.createScope`、`dsh-skill`、`dsh-skill-filesystem`；直接注册官方文件提供方，不自造 registry 或解析器。
 - 自有差异：仅测试 fixture，两个无身份含义的 scope 与不同临时目录；同名技能由 scope 选择。
 - 验收：两个 scope 并发读取同名技能得到各自正文；全局视图无该私有技能；卸载 B 不影响 A，B 无同名全局回退时不可读取。

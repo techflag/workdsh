@@ -6,7 +6,7 @@ skills alpha.22 / bundle alpha.34 增加真实批量管理和卸载依赖影响�
 
 创建继续进入 Harness 原生 Conversation，`skill-creator` 只调用官方 `ctx.tools.register(defineTool(...))` 注册的草稿、校验和确认发布工具。页面不复制 `/`、`@`、附件、权限、模型或发送控件。组合验收覆盖受管导入完整 `SKILL.md` 与资源、Host 销毁、冷进程重新发现以及官方 Skill 工具调用。Node 22.23.2 下 typecheck、build 与 18/18 集成测试通过；真实打包浏览器完成全局目录、详情、编辑、资源、导入、原生创建交接、依赖确认、菜单可点击、重连、移除与重装。人工 1920 宽度复核显示 16 个真实技能、5 个禁用规划分类、批量模式 15 个可管理选择项且没有混入单项开关。
 
-官方文档：../dsh-v0.1.6-alpha.2/subsystems/skills.zh.md。版本 rc.1；公开 dsh-api-remotes/client 的 remote.session.list、remote.skills.list 与 dsh-api-session-controller/client 的 sessions.open。现有 Remote 与 Session 技能消费证据见 d01-client.md、d01-presets.md。
+官方文档：https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.zh.md。版本 rc.1；公开 dsh-api-remotes/client 的 remote.session.list、remote.skills.list 与 dsh-api-session-controller/client 的 sessions.open。现有 Remote 与 Session 技能消费证据见 d01-client.md、d01-presets.md。
 
 WorkDSH 增加独立 skills Client 插件的全局目录展示、搜索、说明、复制 /name 和新增技能入口；实际 Session 与技能列表仍归官方。无全局技能缓存，无自有解析器、传输或执行器。rc.1 的公开 Remote 需要 Session，当前页面对已有 Session 目录做去重投影，不能冒充完整的组织安装台账。
 
@@ -157,7 +157,7 @@ Host 新增只读本地技能目录 `SkillCatalogStore`（默认 `~/.agents/.wor
 | 字段 | 内容 |
 | --- | --- |
 | 任务与范围 | P1-03 / D03 技能市场 UI 增量：市场页「我安装的 N」改为可点击入口，进入同一面板内的独立安装页（返回链接、标题计数、批量管理、页内搜索、已安装卡片网格）；市场页可安装/已安装分区与全部既有管理动作保持不变。 |
-| 官方能力 | `../dsh-v0.1.6-alpha.2/subsystems/slots.zh.md`（`ctx.slots.inject/register`、main 面板贡献与生命周期）；`../dsh-v0.1.6-alpha.2/subsystems/web-client.zh.md`（布局与面板选择）。锁定包 `@deepseek-ai/dsh-client-ui-slots@0.1.5-rc.1`（`PropsRuntime`/`InjectFace`）；面板注册键 `workdsh-skills` 与 URL 呈现（`workdsh-view=skills`）继续由 bundle `NavigationLocation` 承担。 |
+| 官方能力 | `https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/slots.zh.md`（`ctx.slots.inject/register`、main 面板贡献与生命周期）；`https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/web-client.zh.md`（布局与面板选择）。锁定包 `@deepseek-ai/dsh-client-ui-slots@0.1.5-rc.1`（`PropsRuntime`/`InjectFace`）；面板注册键 `workdsh-skills` 与 URL 呈现（`workdsh-view=skills`）继续由 bundle `NavigationLocation` 承担。 |
 | 复用选择 | 直接复用：安装页是同一 main 面板内的视图状态（React 局部 UI 状态），不新增第二个 main 注册、不新增 URL/路由、不改 bundle 的 `workdsh-view` 映射；卡片批量、启停、菜单、详情弹框、卸载/恢复继续复用既有 `SkillManager` 客户端与管理契约。 |
 | 自有边界 | 仅新增页面级展示状态与布局（`view=market/installed`、页内搜索、返回/标题/工具条），以及 `packages/ui` 图标集新增 `back` 路径。事实仍归官方与 `SkillManager`：已安装清单、启停、卸载、目录安装、watcher 重新发现均无第二套实现。 |
 | 证据与差异 | 既有 `scripts/probe-skills-package.mjs`（`probe:skills`）覆盖市场安装/编辑/启停/卸载/恢复与目录诊断；本轮在该探针新增安装页导航、页内搜索过滤与空结果、批量开关、返回与焦点断言。旧 `scripts/probe-browser.mjs` 技能段自 alpha.26 起已滞后（断言「技能库」标题与静态计数），不在本轮维护范围。 |

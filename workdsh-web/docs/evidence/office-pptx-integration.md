@@ -1,6 +1,6 @@
 # 当前 PPT 编辑器集成
 
-官方能力复用记录：Office PPT 集成；文档 `docs/dsh-v0.1.6-alpha.2/subsystems/client-modules.zh.md`、`client-resources.zh.md`、`slots.zh.md`；锁定 Harness 0.1.5-rc.1，公开 documentPreviews + sidebar.right.tab.document；资源字节与文件授权由原生 Owner 提供。插件 Client 按官方模块图加载，Slot/registry 由现有 ctx.effect/slots.inject 托管。不引入 iframe、Agent loop 或模型服务。
+官方能力复用记录：Office PPT 集成；文档 `https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/client-modules.zh.md`、`client-resources.zh.md`、`slots.zh.md`；锁定 Harness 0.1.5-rc.1，公开 documentPreviews + sidebar.right.tab.document；资源字节与文件授权由原生 Owner 提供。插件 Client 按官方模块图加载，Slot/registry 由现有 ctx.effect/slots.inject 托管。不引入 iframe、Agent loop 或模型服务。
 
 用户确认 19093 当前中文原生体验作为集成基线。唯一提供方 pptx-react-viewer 3.16.5 / pptx-viewer-core 3.14.3；旧 PPT 代码、构建依赖与专用实验探针退出。固定版本的工具栏/Inspector 适配在 esbuild 读取时完成；依赖发布文件未修改。CSS 通过 AST 限定在编辑器容器，locale 使用独立 i18next 实例。
 

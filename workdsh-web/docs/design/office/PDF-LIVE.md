@@ -2,7 +2,7 @@
 
 2026-09-13 用户指定只推进 PDF，画布/多维表格取消本专项开发。
 
-官方复用记录 PDF-01：沿用 docs/dsh-v0.1.6-alpha.2/subsystems/skills.md、tools.md、sidebar-right.zh.md，以及已验证 Office ContentService、官方 storageDomain/Connection/Sidebar Tab/present。业务差异是 PDF 页/元素数据及 PDF 编码器，不新增 Agent loop、文件服务器或模型路由。公共类型见 workdsh-contracts/office；接口在实现与验证后才进入工具定义。
+官方复用记录 PDF-01：沿用 https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.md、tools.md、sidebar-right.zh.md，以及已验证 Office ContentService、官方 storageDomain/Connection/Sidebar Tab/present。业务差异是 PDF 页/元素数据及 PDF 编码器，不新增 Agent loop、文件服务器或模型路由。公共类型见 workdsh-contracts/office；接口在实现与验证后才进入工具定义。
 
 首版 kind=pdf，modelVersion=1，pages 按序，每页稳定 id、尺寸 pt、背景及严格 text/rectangle 元素。坐标左上，text 显式宽高及字号/行距/颜色；单页更新保留其他页面，全文页列表替换不开放给 AI。pdf-lib 生成可选取的文字与矢量，静态字体由应用携带并完整嵌入（子集路径实测漏字，已禁用）。PDF.js 实际解码和 canvas 预览。固定修订派生文件，预览/下载/最终交付使用同一编码器；源状态为唯一真源。沿用 CAS/幂等/人工租约/授权/审计，取消不交付。
 

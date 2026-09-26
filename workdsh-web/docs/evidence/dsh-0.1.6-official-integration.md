@@ -98,7 +98,7 @@ Node 22.23.2 下执行 `corepack pnpm probe:experts:official --prepare`：通过
 ## U16-1/U16-2 官方能力复用记录
 
 - 锁定包：@deepseek-ai/dsh、dsh-skill、dsh-skill-filesystem 0.1.6-alpha.1；Cordis 4.0.2。
-- 官方依据：本地镜像 `docs/dsh-v0.1.6-alpha.2/subsystems/skills.zh.md`；已安装精确版本 dsh-skill-filesystem 的 README.md 和 dsh-skill 的公开 types。新版公开说明：path 为解析后的指令文件真实路径；resourceBase 保留发现时的路径。未修改上游。
+- 官方依据：本地镜像 `https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.zh.md`；已安装精确版本 dsh-skill-filesystem 的 README.md 和 dsh-skill 的公开 types。新版公开说明：path 为解析后的指令文件真实路径；resourceBase 保留发现时的路径。未修改上游。
 - 原生所有者：官方 SkillRegistry/provider 继续发现和加载技能。WorkDSH 仅做受管目录内的编辑、启停、冻结版本及依赖检查。
 - 实际复现：macOS 配置根 /var/folders/...，官方 path 返回 /private/var/folders/...，指向同一文件；原 fromDefinition 使用纯字符串根路径比较，将技能误判只读。123 项 integration 中 11 项失败，涉及技能详情/启停/卸载及专家冻结技能；其余 112 项通过；其中 Agent Loop 场景使用确定性模型适配器，不是付费模型。
 - 已修复：从受管根解析可操作文件，保留 symlink/真实路径边界检查，再用 realpath 比较与官方胜出定义是否为同一文件；不采用模糊前缀、去掉 /private 或按同名替换来源。

@@ -4,7 +4,7 @@
 
 ## 官方复用记录：AUTHORING-01
 
-使用 docs/dsh-v0.1.6-alpha.2/subsystems/skills.md、锁定 @deepseek-ai/dsh-skill@0.1.5-rc.1 的公开 SkillRegistration/resourceBase 与 ctx.skills.register，及已验证 systemPrompt.section 注入。沿用官方 get/render、加载优先级和可撤销注册；不增加执行器、解析器、MCP或通用流水线。已有 skill-creator-host、office-content 集成测试作为回归基础。
+使用 https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.md、锁定 @deepseek-ai/dsh-skill@0.1.5-rc.1 的公开 SkillRegistration/resourceBase 与 ctx.skills.register，及已验证 systemPrompt.section 注入。沿用官方 get/render、加载优先级和可撤销注册；不增加执行器、解析器、MCP或通用流水线。已有 skill-creator-host、office-content 集成测试作为回归基础。
 
 ## 来源、价值与适配
 

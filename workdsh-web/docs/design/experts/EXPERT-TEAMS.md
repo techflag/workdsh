@@ -198,7 +198,7 @@ Host只把已校验的TeamRevision编译为受信脚本，使用顺序等待、�
 
 继续沿用TM-01～04四个交付包，不增加隐藏阶段。TM-01先证明官方链路可行；TM-02固定定义/发布；TM-03实现一个完整SOP；TM-04完成界面与失败恢复。当前仅更新方案，没有团队运行代码或验收结果。
 
-官方依据：[Workflow](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/workflow)、[Subagent](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/subagent)；本地镜像见docs/dsh-v0.1.6-alpha.2/subsystems/workflow.zh.md与subagent.zh.md。网页、锁定发布声明与未来真实运行证据分开记录。
+官方依据：[Workflow](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/workflow)、[Subagent](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/subagent)；本地镜像见https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/workflow.zh.md与subagent.zh.md。网页、锁定发布声明与未来真实运行证据分开记录。
 
 
 ## 9. 官方子系统复核补充：subagent不能省略（2026-09-12）
@@ -239,7 +239,7 @@ Host只把已校验的TeamRevision编译为受信脚本，使用顺序等待、�
 3. 验证父子消息准入与结束区别、冷列表不唤醒、interrupt与整体清理区别、取消副作用未知状态；复用原生事实和Session projection。
 4. 得出有限推荐及失败依据，再决定是否需要最小公开适配。未通过前不提交自建团队调度器、消息系统或通用Agent管理服务。
 
-官方链接：[Subagent](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/subagent)；本地对照目录为docs/dsh-v0.1.6-alpha.2/subsystems。实验性Agent Teams的可用性须另做包版本核对，本轮仅阅读文档及检查当前lock，没有安装、升级或执行真实团队探针。
+官方链接：[Subagent](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/subagent)；本地对照目录为https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems。实验性Agent Teams的可用性须另做包版本核对，本轮仅阅读文档及检查当前lock，没有安装、升级或执行真实团队探针。
 
 
 ## 10. 下一步专家团规划（2026-09-13）
@@ -334,7 +334,7 @@ TM-01 输出能力矩阵、有限探针与推荐路径。有公开能力缺口�
 
 ### 11.4 本轮依据与验证边界
 
-- 本地官方镜像：docs/dsh-v0.1.6-alpha.2/subsystems/subagent.md、workflow.md、agent-team.md、core.md；在线交叉核对 [Subagent](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/subagent) 与 [Workflow](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/workflow)。Agent Teams 在线页本次读取失败，其描述仅按本地官方镜像记录。
+- 本地官方镜像：https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/subagent.md、workflow.md、agent-team.md、core.md；在线交叉核对 [Subagent](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/subagent) 与 [Workflow](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/workflow)。Agent Teams 在线页本次读取失败，其描述仅按本地官方镜像记录。
 - 锁定 0.1.5-rc.1 发布声明：dsh-subagent 根公开 SubagentRuntime/StartRequest/ContinuableStartSpec/Provider；dsh-agent 的 CreateAgentOptions.setup；dsh-agent-presets 的 mount/composeFrom；dsh-workflow 的 WorkflowStartRequest/WorkflowRun；dsh-workflow-worker-thread README。continuable provider 的 CreateSpec 仅提供 seed，没有 preset/setup 钩子，不能从 one-shot 适配推导其可行性。
 - 实际 WorkDSH 源码：[专家执行守卫](../../../packages/plugins/experts/src/runtime/execution-guard.ts)、[专家服务](../../../packages/plugins/experts/src/services/experts-manager.ts)、[预设编译](../../../packages/plugins/experts/src/runtime/preset-compiler.ts)。普通专家创建与子代理绑定的生命周期不同，复用业务校验需经过领域公开服务，不能从适配器直接写内部绑定表。
 - 本轮未变更运行代码、依赖或 Preview，未运行真实模型或团队探针。设计与公开契约复核完成，团队运行仍待 TM-01。

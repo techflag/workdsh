@@ -104,6 +104,6 @@ Fiber 是生命周期边界，不是进程或安全沙箱。插件仍需托管 e
 - [服务与依赖](https://deepseek-harness.github.io/deepseek-harness/develop/framework/service)：公开服务、必需/可选依赖和提供方移除后的生命周期行为。
 - [打包与安装](https://deepseek-harness.github.io/deepseek-harness/develop/basic/publish)：bundle 配置层、Profile 组合和普通依赖的区别。
 - [插件生命周期](https://deepseek-harness.github.io/deepseek-harness/develop/framework/)：ctx.plugin、Fiber 与资源所有权。
-- [Skill 官方说明本地镜像](../dsh-v0.1.6-alpha.2/subsystems/skills.zh.md)：原生 host/scope 分层目录；实际适配仍须在锁定发布包上验证。
+- [Skill 官方说明本地镜像](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.zh.md)：原生 host/scope 分层目录；实际适配仍须在锁定发布包上验证。
 
 这些官方机制不直接提供 WorkDSH 的专家引用、不可变修订保留或卸载影响策略；这些属于本方案需实现的业务职责。

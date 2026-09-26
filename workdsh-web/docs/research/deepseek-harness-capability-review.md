@@ -1,18 +1,18 @@
 # DeepSeek Harness 官方文档能力审查
 
 状态：已完成文档审查（127/127）；发布包运行验证仍在 D01
-基线：仓库内 `docs/dsh-v0.1.6-alpha.2`，2026-09-10 取得
+基线：2026-09-10 取得的上游文档快照；本地副本已清理，历史依据见上游对应 tag。
 精确进度：[审查台账](deepseek-harness-review.json)
 
 ## 目的与完成标准
 
 本审查用于决定 WorkDSH 如何通过 DeepSeek Harness 公开能力实现 WorkBuddy 类工作平台，避免重复实现已有运行时，也避免把截图表现误认成公开接口。审查完成前不进入 D02 业务插件实现。
 
-语料库含 375 个文件，其中 Markdown 249 个；122 组中英双语文档以中文对侧为主，另有 5 个无中文对侧的英文 Markdown，共形成 127 份规范审查对象。i18n 配对元数据和图片作为完整性或界面证据，不重复计作语义文档。`dsh-v0.1.6-alpha.2/AGENTS.md` 是上游文档编写规则，不是 WorkDSH 产品 API。
+语料库含 375 个文件，其中 Markdown 249 个；122 组中英双语文档以中文对侧为主，另有 5 个无中文对侧的英文 Markdown，共形成 127 份规范审查对象。i18n 配对元数据和图片作为完整性或界面证据，不重复计作语义文档。`https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/AGENTS.md` 是上游文档编写规则，不是 WorkDSH 产品 API。
 
 完成必须同时满足：127 份规范文档均登记已审；关键结论有具体文档路径；WorkBuddy 能力映射到“直接复用、公开扩展、WorkDSH 自有领域、缺口/探针”之一；现有 ARCHITECTURE、PLAN、CONTRACTS、TEAM-DESIGN、UI-DESIGN 和 ADR 完成反查；新增假设进入可执行探针，不能只写推断。
 
-运行 `pnpm audit:harness-docs` 查看机器计算的总数、已审数与下一批待审文件。只有人工读完并提取与 WorkDSH 有关的契约后，才能把路径加入台账。
+逐文件台账保留当时的审查记录；旧镜像和只针对该镜像的审阅命令已清理。后续集成以当前锁定版本的发布包与探针为准。
 
 ## 固定审查顺序
 

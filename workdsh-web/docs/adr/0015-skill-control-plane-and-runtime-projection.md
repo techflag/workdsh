@@ -72,5 +72,5 @@ flowchart LR
 ## 参考
 
 - [WorkBuddy 企业 Skill 管理](https://www.workbuddy.cn/docs/enterprise/adminguide/Skill%E7%AE%A1%E7%90%86)，作为产品管理流程参考。
-- [Harness Skills 官方说明](../dsh-v0.1.6-alpha.2/subsystems/skills.zh.md)，作为 Skill registry/provider/scope/运行接口依据。
+- [Harness Skills 官方说明](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.zh.md)，作为 Skill registry/provider/scope/运行接口依据。
 - [企业管理后台设计](../ADMIN-DESIGN.md)、[团队设计](../TEAM-DESIGN.md)、[公开契约](../CONTRACTS.md)。

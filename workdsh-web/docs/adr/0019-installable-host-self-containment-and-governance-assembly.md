@@ -66,7 +66,7 @@ ADR-0018 第 24 行称 contracts 提供“类型、校验”，与第 54 行“�
 
 ## 官方依据
 
-- 打包与安装（`docs/dsh-v0.1.6-alpha.2/user/develop/basic/publish.zh.md`）：组合包贡献配置层；无 `dsh.bundle` 的包只作普通依赖、不激活层；制品解析是激活前提。
-- 组合与 HMR（`docs/dsh-v0.1.6-alpha.2/cordis-tutorial/06-composition-and-hmr.zh.md`）：`inject` 无提供方时 Fiber 静默 PENDING（合法态）；经 `ctx.registry` + `FiberState.PENDING` 诊断。
-- 添加包（`docs/dsh-v0.1.6-alpha.2/cookbook/adding-a-package.zh.md`）：`src/index.ts` 可为 service default export 或 plugin（name/inject/apply/Config）。
+- 打包与安装（`https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/user/develop/basic/publish.zh.md`）：组合包贡献配置层；无 `dsh.bundle` 的包只作普通依赖、不激活层；制品解析是激活前提。
+- 组合与 HMR（`https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cordis-tutorial/06-composition-and-hmr.zh.md`）：`inject` 无提供方时 Fiber 静默 PENDING（合法态）；经 `ctx.registry` + `FiberState.PENDING` 诊断。
+- 添加包（`https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cookbook/adding-a-package.zh.md`）：`src/index.ts` 可为 service default export 或 plugin（name/inject/apply/Config）。
 - ADR-0018：三层依赖分别声明；默认组合用官方注册装配必需公共服务，不隐藏 applyX。

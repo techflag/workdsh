@@ -1,6 +1,6 @@
 # OFFICE-WORD-02：表格与图片扩展接入
 
-官方能力复用记录（2026-09-12）：Harness 0.1.5-rc.1，沿用 docs/dsh-v0.1.6-alpha.2/cordis-tutorial/02-lifecycle-and-effects.md 与现有 content 工具/Remote/Session 右栏探针。无新 Loader、传输、存储服务或 Agent loop。
+官方能力复用记录（2026-09-12）：Harness 0.1.5-rc.1，沿用 https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cordis-tutorial/02-lifecycle-and-effects.md 与现有 content 工具/Remote/Session 右栏探针。无新 Loader、传输、存储服务或 Agent loop。
 
 Tiptap 3.31.0 发布包公开入口 @tiptap/extension-table 的 TableKit 与 @tiptap/extension-image 的 Image，均 MIT。TableKit.configure({table:{resizable:true}}) 提供表格、单元格选择、列宽拖动、行列命令、mergeCells/splitCell；Image.configure({allowBase64:true,resize:{enabled:true}}) 提供图片节点及原生缩放 NodeView。公开类型已核对。工具栏只调用这些命令，不自建表格编辑器或图片缩放逻辑。
 

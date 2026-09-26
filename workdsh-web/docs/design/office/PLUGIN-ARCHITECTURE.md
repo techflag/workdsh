@@ -101,6 +101,6 @@ U1需先用最小真实文档能力验证包结构、服务依赖、工具与Cli
 
 ## 6. 本轮证据与仍未验证项
 
-静态确认：Office现有package包含`.`/`./client`、`dsh.bundle`/`dsh.client`及patch，Client使用documentPreviews/Slot；Host仍是空apply。构建脚本生成内嵌iframe，不能据此推导Tiptap等原生Client集成通过。Cordis4.0.2公开声明含Service/ctx.plugin/effect；官方镜像见[Service](../../dsh-v0.1.6-alpha.2/cordis-api/service.zh.md)、[工具](../../dsh-v0.1.6-alpha.2/cookbook/adding-a-tool.zh.md)、[Client模块](../../dsh-v0.1.6-alpha.2/subsystems/client-modules.zh.md)。
+静态确认：Office现有package包含`.`/`./client`、`dsh.bundle`/`dsh.client`及patch，Client使用documentPreviews/Slot；Host仍是空apply。构建脚本生成内嵌iframe，不能据此推导Tiptap等原生Client集成通过。Cordis4.0.2公开声明含Service/ctx.plugin/effect；官方镜像见[Service](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cordis-api/service.zh.md)、[工具](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cookbook/adding-a-tool.zh.md)、[Client模块](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/client-modules.zh.md)。
 
 本轮为静态Review与文档修订；上述新增服务、工具、生命周期和制品门槛全部仍待实现/运行测试，不修改已运行应用或发布包。

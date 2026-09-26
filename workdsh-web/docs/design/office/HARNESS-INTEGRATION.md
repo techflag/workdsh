@@ -30,7 +30,7 @@
 | 子智能体 | 独立调研、审阅，或分别产出报告/演示等相对独立成果 | 可选增强，先不作为八类集成依赖 |
 | 实验性Agent Teams | 需要共享任务DAG、持续成员与消息交互的团队工作 | 不作为编辑器基础层；专家团阶段单独验证成熟度与SOP映射 |
 
-官方明确：可见且注册的工具在PTC里可用 `await tools.<name>(args)`，仍走原有执行策略；不需要为PTC重写工具。[本地工具参考](../../dsh-v0.1.6-alpha.2/cookbook/adding-a-tool.zh.md)、[官网工具参考](https://deepseek-harness.github.io/deepseek-harness/reference/cookbook/adding-a-tool)。
+官方明确：可见且注册的工具在PTC里可用 `await tools.<name>(args)`，仍走原有执行策略；不需要为PTC重写工具。[本地工具参考](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cookbook/adding-a-tool.zh.md)、[官网工具参考](https://deepseek-harness.github.io/deepseek-harness/reference/cookbook/adding-a-tool)。
 
 PTC只处理内容工具允许的严格参数，不能把模型程序送到浏览器任意执行。同文档按回执revision串行await；不要对同一版本Promise.all写入。每次工具提交后页面独立刷新，即使外层run_code尚未结束也可见；这是提交批次流，不是模型每个token直通编辑器。
 
@@ -44,14 +44,14 @@ PTC只处理内容工具允许的严格参数，不能把模型程序送到浏�
 
 | 需求 | 官方证据 | 锁定版本核对/已有证据 | Office要补的差异与门槛 |
 | --- | --- | --- | --- |
-| 模型调用工具 | [adding-a-tool](../../dsh-v0.1.6-alpha.2/cookbook/adding-a-tool.zh.md)、[tools](../../dsh-v0.1.6-alpha.2/subsystems/tools.zh.md) | dsh-tools@0.1.5-rc.1根exports含defineTool，类型含ToolRuntime/exec.signal/规范output；experts已有工具实现 | content_*严格schema、授权、业务状态与真实模型探针 |
-| 程序调用工具 | 同上PTC节、[ptc-runtime](../../dsh-v0.1.6-alpha.2/subsystems/ptc-runtime.zh.md) | 安装树含 ptc-runtime 系列（`--dump-config` 实测含 `dsh-ptc-runtime-node`，版本随锁定基线；旧名 code-runtime/worker-thread 为 0.1.5 陈留）；工具发布声明含PTC类型 | 不新增执行器；验证Native与PTC返回相同修订/失败语义 |
-| 持久原子提交 | [storage](../../dsh-v0.1.6-alpha.2/subsystems/storage.zh.md) | dsh-storage-domain@0.1.5-rc.1公开KvTable.update同步纯变换；单写链，无跨表事务承诺 | state+revision+receipt一次记录提交；崩溃/重试/容量测试 |
-| Client通信 | [adding-a-remote-api](../../dsh-v0.1.6-alpha.2/cookbook/adding-a-remote-api.zh.md)、[api-gateway](../../dsh-v0.1.6-alpha.2/api-gateway.zh.md) | protocol/generator同版本；[D01生成失败记录](../../evidence/d01-remote.md)；[专家G05已验证Connection路径](../../evidence/d04-experts-g01-g06.md) | 本地版本采用Office专属认证exact Fetch、严格DTO和取消，不复制专家内部协议 |
-| 镜像/恢复 | [web-client](../../dsh-v0.1.6-alpha.2/subsystems/web-client.zh.md) | 官方定义Host→传输→Client model→UI；具体Office流式扩展未验证 | 首版500ms非重叠修订查询/快照、延迟响应防倒退、撤权与重连；不假设官方自动同步任意领域 |
-| 右侧展示 | [sidebar-right](../../dsh-v0.1.6-alpha.2/subsystems/sidebar-right.zh.md)、[client-resources](../../dsh-v0.1.6-alpha.2/subsystems/client-resources.zh.md) | 当前Office已用documentPreviews/Slot打开三类文件；工作副本Tab/展示ACK未实现 | 可信Session绑定、原生Tab kind、显示回执、A/B会话及双浏览器不串页 |
-| 子智能体 | [subagent](../../dsh-v0.1.6-alpha.2/subsystems/subagent.zh.md)、[官网](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/subagent) | 安装树有subagent、spawn/fork-in-process、tool-subagent/control@0.1.5-rc.1；根公开声明有start及能力描述 | 子任务授权/父会话展示/成果汇总待测；包存在不证明当前preset装配了能力 |
-| 团队 | [agent-team](../../dsh-v0.1.6-alpha.2/subsystems/agent-team.zh.md) | 文档明确实验性；描述task DAG与mailbox，writeScopes只是提示性前缀，不是锁 | 专家团SOP仍需领域规则；不以DAG/路径提示替代编辑写锁与资源权限 |
+| 模型调用工具 | [adding-a-tool](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cookbook/adding-a-tool.zh.md)、[tools](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/tools.zh.md) | dsh-tools@0.1.5-rc.1根exports含defineTool，类型含ToolRuntime/exec.signal/规范output；experts已有工具实现 | content_*严格schema、授权、业务状态与真实模型探针 |
+| 程序调用工具 | 同上PTC节、[ptc-runtime](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/ptc-runtime.zh.md) | 安装树含 ptc-runtime 系列（`--dump-config` 实测含 `dsh-ptc-runtime-node`，版本随锁定基线；旧名 code-runtime/worker-thread 为 0.1.5 陈留）；工具发布声明含PTC类型 | 不新增执行器；验证Native与PTC返回相同修订/失败语义 |
+| 持久原子提交 | [storage](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/storage.zh.md) | dsh-storage-domain@0.1.5-rc.1公开KvTable.update同步纯变换；单写链，无跨表事务承诺 | state+revision+receipt一次记录提交；崩溃/重试/容量测试 |
+| Client通信 | [adding-a-remote-api](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cookbook/adding-a-remote-api.zh.md)、[api-gateway](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/api-gateway.zh.md) | protocol/generator同版本；[D01生成失败记录](../../evidence/d01-remote.md)；[专家G05已验证Connection路径](../../evidence/d04-experts-g01-g06.md) | 本地版本采用Office专属认证exact Fetch、严格DTO和取消，不复制专家内部协议 |
+| 镜像/恢复 | [web-client](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/web-client.zh.md) | 官方定义Host→传输→Client model→UI；具体Office流式扩展未验证 | 首版500ms非重叠修订查询/快照、延迟响应防倒退、撤权与重连；不假设官方自动同步任意领域 |
+| 右侧展示 | [sidebar-right](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/sidebar-right.zh.md)、[client-resources](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/client-resources.zh.md) | 当前Office已用documentPreviews/Slot打开三类文件；工作副本Tab/展示ACK未实现 | 可信Session绑定、原生Tab kind、显示回执、A/B会话及双浏览器不串页 |
+| 子智能体 | [subagent](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/subagent.zh.md)、[官网](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/subagent) | 安装树有subagent、spawn/fork-in-process、tool-subagent/control@0.1.5-rc.1；根公开声明有start及能力描述 | 子任务授权/父会话展示/成果汇总待测；包存在不证明当前preset装配了能力 |
+| 团队 | [agent-team](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/agent-team.zh.md) | 文档明确实验性；描述task DAG与mailbox，writeScopes只是提示性前缀，不是锁 | 专家团SOP仍需领域规则；不以DAG/路径提示替代编辑写锁与资源权限 |
 
 官方文档有版本层次差异：web-client描述RemoteStream及恢复，而镜像api-gateway部分仍写流式/浏览器响应使用精确Fetch。不能把这些段落拼成“rc.1已支持任意自有Remote流”。发布包公开types和隔离运行探针决定是否能用，官网只作交叉核对，不静默升级版本。
 

@@ -17,14 +17,14 @@ WorkBuddy 的使用次数、计费倍数、线上专家数量和案例不写入�
 
 | 主题 | 官方文档/本地镜像 | 用途 |
 |---|---|---|
-| 外部包结构 | [adding-a-package](https://deepseek-harness.github.io/deepseek-harness/reference/cookbook/adding-a-package)、[本地镜像](../../dsh-v0.1.6-alpha.2/cookbook/adding-a-package.zh.md) | 理解 Host/Client/types；不能复制上游 monorepo 聚合配置到本仓库 |
-| Slots/owner | [用户指定 sidebar-right 说明](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/sidebar-right#slot-%E4%B8%8E-owner-props)、[Slots](../../dsh-v0.1.6-alpha.2/subsystems/slots.zh.md) | 该链接是右栏体系，不能把它当整个左栏重写授权；左栏按既有 sidebar owner/公开 Slots |
-| Agent/preset/persona | [core](../../dsh-v0.1.6-alpha.2/subsystems/core.zh.md) | setup、scope、preset、角色组合 |
-| Skill | [skills](../../dsh-v0.1.6-alpha.2/subsystems/skills.zh.md) | 分层目录、按需正文、Session cwd/preset 影响 |
-| Session/Conversation | [session](../../dsh-v0.1.6-alpha.2/subsystems/session.zh.md)、[conversation](../../dsh-v0.1.6-alpha.2/subsystems/conversation.zh.md)、[projection](../../dsh-v0.1.6-alpha.2/subsystems/session-projection.zh.md) | 原生任务、输入框和执行事实 |
-| 持久数据 | [storage](../../dsh-v0.1.6-alpha.2/subsystems/storage.zh.md) | Domain 原子单次写入、写链、事件在持久后发出；不承诺跨域事务 |
-| 子代理与流程 | [subagent](../../dsh-v0.1.6-alpha.2/subsystems/subagent.zh.md)、[workflow](../../dsh-v0.1.6-alpha.2/subsystems/workflow.zh.md) | 团队可选执行基础；不是本产品已经拥有的团队 |
-| 实验性协作 | [agent-team](../../dsh-v0.1.6-alpha.2/subsystems/agent-team.zh.md) | 后期评估；当前未锁定对应包，不可直接编码依赖 |
+| 外部包结构 | [adding-a-package](https://deepseek-harness.github.io/deepseek-harness/reference/cookbook/adding-a-package)、[本地镜像](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cookbook/adding-a-package.zh.md) | 理解 Host/Client/types；不能复制上游 monorepo 聚合配置到本仓库 |
+| Slots/owner | [用户指定 sidebar-right 说明](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/sidebar-right#slot-%E4%B8%8E-owner-props)、[Slots](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/slots.zh.md) | 该链接是右栏体系，不能把它当整个左栏重写授权；左栏按既有 sidebar owner/公开 Slots |
+| Agent/preset/persona | [core](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/core.zh.md) | setup、scope、preset、角色组合 |
+| Skill | [skills](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.zh.md) | 分层目录、按需正文、Session cwd/preset 影响 |
+| Session/Conversation | [session](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/session.zh.md)、[conversation](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/conversation.zh.md)、[projection](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/session-projection.zh.md) | 原生任务、输入框和执行事实 |
+| 持久数据 | [storage](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/storage.zh.md) | Domain 原子单次写入、写链、事件在持久后发出；不承诺跨域事务 |
+| 子代理与流程 | [subagent](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/subagent.zh.md)、[workflow](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/workflow.zh.md) | 团队可选执行基础；不是本产品已经拥有的团队 |
+| 实验性协作 | [agent-team](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/agent-team.zh.md) | 后期评估；当前未锁定对应包，不可直接编码依赖 |
 
 ## 3. 源码和公开声明核对
 

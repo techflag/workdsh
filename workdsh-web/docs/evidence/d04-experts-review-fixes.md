@@ -169,7 +169,7 @@ C预览更新：六包内容寻址重装、入口摘要核对与18989重启通�
 
 ### 2026-09-13：公共事实保真修订与不同材料复验结果
 
-指南/参考增加来源属性、未来承诺逐条核对，并要求进入生成专家的 methodology/boundaries/deliverables；不强制短成果展示冗长台账。复用官方 docs/dsh-v0.1.6-alpha.2/subsystems/skills.md、@deepseek-ai/dsh-skill@0.1.5-rc.1 ctx.skills.register/resourceBase 与已有公开专家工具、原生Agent/受信UI，不新增自动评分或Harness执行器。构建/类型检查、16项Host与3项oracle回归、计划/差异检查通过。官方CLI --offline正常更新Preview，Host/Client/参考字节匹配，重启HTTP200，用户冻结专家不变。
+指南/参考增加来源属性、未来承诺逐条核对，并要求进入生成专家的 methodology/boundaries/deliverables；不强制短成果展示冗长台账。复用官方 https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.md、@deepseek-ai/dsh-skill@0.1.5-rc.1 ctx.skills.register/resourceBase 与已有公开专家工具、原生Agent/受信UI，不新增自动评分或Harness执行器。构建/类型检查、16项Host与3项oracle回归、计划/差异检查通过。官方CLI --offline正常更新Preview，Host/Client/参考字节匹配，重启HTTP200，用户冻结专家不变。
 
 不同holdout材料各一次真实创建/发布/执行/交付：公告不再补路线图或通知承诺，但仍附五个审查小节，部分通过；研究仍添加“内部评测记录”，且把没有独立测试证据写成否，失败。新增边界确实进入生成定义，执行仍有矛盾，不宣称提示词已保证事实保真。模型信息见对应report.json，仅代表当前DeepSeek有限样本。
 

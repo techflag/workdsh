@@ -1,3 +1,7 @@
+## 2026-09-26：清理旧版上游文档与退役审阅链路
+
+移除仓库内 `0.1.6-alpha.2` 上游文档镜像及只依赖该镜像的审阅脚本；历史设计依据改为指向官方固定 tag，逐文件审查台账仍作为历史证据保留。删除无源码或文档引用的演示截图和旧赞助素材。当前代码和打包基线仍为 `0.1.7-rc.2`。已通过 `check-plan`、双语文档一致性、仓库布局、Web/Desktop 版本一致性及 `git diff --check`；未执行产品构建、运行测试或真实模型测试。后续若继续精简历史设计文档，须逐一核对计划、证据与链接依赖。
+
 ## 2026-09-25：受管浏览器会话首个代码切片
 
 `packages/providers/browser-session` 0.1 在建模块已接入官方 `SessionResources`、`McpClient`、个人本机 Connection Fetch 路由，以及官方 `sidebar.right.pane.tab` 的 Client 画面/输入组件。真实 Chromium 集成测试验证两个 Agent Session 的导航、隔离、关闭清理、失效 Session/非个人身份拒绝，以及路由点击被 MCP 快照看到；Host/Client 构建、类型检查与 `check:plan` 通过。默认 bundle 仍使用官方独立浏览器 provider；新 Client 未做实机截图、1440/1920/390 视口和键盘交互验收。用户已明确禁止在 Desktop 安装包另带浏览器；相关打包尝试已撤回。Desktop 两个变体已有隔离 Electron worker 入口，browser-session provider 已可按 Session 启动/关闭它；开发态实际入口经 Playwright 连通、导航和点击通过，变体与两套类型检查通过。安装包、官方 MCP 到右栏闭环、真实 HTTP、取消/恢复、Windows/macOS 和团队授权仍未验证；下一步先完成这些验收，再接入默认 Profile。
@@ -198,7 +202,7 @@ experts 由 α.5 bump 至 α.6（Unreleased，含 CHANGELOG/README/MODULE-VERSIO
 
 ## 2026-09-18：文档镜像刷新为 alpha.2 语料（引用同步 + 审计）
 
-按既定「镜像刷新单独批次」决策，将 alpha.1 语料镜像整批替换为 alpha.2 快照 `docs/dsh-v0.1.6-alpha.2/`（543 文件 / 337 md / 规范对象 171；新增 persistence-changes、postmortem、i18n 等章节；`subsystems/code-runtime.*` 更名重写为 `subsystems/ptc-runtime.*`，`ctx.codeRuntime`→`ctx.ptcRuntime`）。
+按既定「镜像刷新单独批次」决策，将 alpha.1 语料镜像整批替换为 alpha.2 快照 `https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/`（543 文件 / 337 md / 规范对象 171；新增 persistence-changes、postmortem、i18n 等章节；`subsystems/code-runtime.*` 更名重写为 `subsystems/ptc-runtime.*`，`ctx.codeRuntime`→`ctx.ptcRuntime`）。
 
 - 引用同步：全仓 44 文件 117 处旧路径 token 更新；`subsystems/code-runtime`→`subsystems/ptc-runtime`（含 3 个文档的链接标签与 prose 修订：office HARNESS-INTEGRATION、desktop MANAGED-RUNTIME、harness-review-closure）；`.idea` IDE 状态与 `.artifacts` 历史证据不改写。
 - 行号重锚（新语料）：d07 证据 5 处——slots.md:147→:150、persistence-catalog.md:403-407→:473-477、tool-catalog.md:222-228→:624-630、:22→:25（slots.md:25-41 不变）；`docs/HARNESS-OFFICIAL-DEVELOPMENT.md` 基线字样 0.1.5-rc.1→0.1.6-alpha.2（Typert 段保留历史探测表述）。
@@ -669,7 +673,7 @@ Office许可证文本收集10项缺项保留原报告；按用户决定用README
 
 ## 2026-09-13：更新并重启 preview
 
-用户授权安装当前插件并重启。首次实际启动发现专家 Host integration 未声明官方 agents/subagents/sessionQuery 服务注入，隔离探针此前未覆盖正式 Loader 消费者的声明。补齐现有公开服务 inject，不修改上游或用户数据；experts build 与 preview:install 退出0，官方 Loader 实际启动成功并监听18989；已打开认证预览页面。未认证请求401符合本地认证要求。未执行付费模型测试、未提交推送。官方复用依据：dsh-v0.1.6-alpha.2/config-catalog.zh.md 的服务 Requires 与锁定 Cordis 运行时报错。
+用户授权安装当前插件并重启。首次实际启动发现专家 Host integration 未声明官方 agents/subagents/sessionQuery 服务注入，隔离探针此前未覆盖正式 Loader 消费者的声明。补齐现有公开服务 inject，不修改上游或用户数据；experts build 与 preview:install 退出0，官方 Loader 实际启动成功并监听18989；已打开认证预览页面。未认证请求401符合本地认证要求。未执行付费模型测试、未提交推送。官方复用依据：https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/config-catalog.zh.md 的服务 Requires 与锁定 Cordis 运行时报错。
 
 ## 2026-09-13：按 WorkBuddy 截图拆分专家作品浏览与创建入口
 
@@ -1958,7 +1962,7 @@ PDF 当前候选已通过官方 CLI 安装到人工 Preview Profile，并核对 
 
 ### 2026-09-13：公共事实保真修订与不同材料复验结果
 
-指南/参考增加来源属性、未来承诺逐条核对，并要求进入生成专家的 methodology/boundaries/deliverables；不强制短成果展示冗长台账。复用官方 docs/dsh-v0.1.6-alpha.2/subsystems/skills.md、@deepseek-ai/dsh-skill@0.1.5-rc.1 ctx.skills.register/resourceBase 与已有公开专家工具、原生Agent/受信UI，不新增自动评分或Harness执行器。构建/类型检查、16项Host与3项oracle回归、计划/差异检查通过。官方CLI --offline正常更新Preview，Host/Client/参考字节匹配，重启HTTP200，用户冻结专家不变。
+指南/参考增加来源属性、未来承诺逐条核对，并要求进入生成专家的 methodology/boundaries/deliverables；不强制短成果展示冗长台账。复用官方 https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.md、@deepseek-ai/dsh-skill@0.1.5-rc.1 ctx.skills.register/resourceBase 与已有公开专家工具、原生Agent/受信UI，不新增自动评分或Harness执行器。构建/类型检查、16项Host与3项oracle回归、计划/差异检查通过。官方CLI --offline正常更新Preview，Host/Client/参考字节匹配，重启HTTP200，用户冻结专家不变。
 
 不同holdout材料各一次真实创建/发布/执行/交付：公告不再补路线图或通知承诺，但仍附五个审查小节，部分通过；研究仍添加“内部评测记录”，且把没有独立测试证据写成否，失败。新增边界确实进入生成定义，执行仍有矛盾，不宣称提示词已保证事实保真。模型信息见对应report.json，仅代表当前DeepSeek有限样本。
 

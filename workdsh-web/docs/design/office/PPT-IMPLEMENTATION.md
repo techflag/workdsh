@@ -6,7 +6,7 @@
 
 ## 官方能力复用记录（编码前）
 
-锁定 Harness0.1.5-rc.1 docs/dsh-v0.1.6-alpha.2/capability-seams.zh.md、公开dsh-tools README与既有ContentService/Connection/StorageDomain/Slots。PPT-01不新增底座；PPT-02需要基于类型适配器扩展现有业务服务，不能复制第二套持久化/权限/Agent执行。Konva10.5.0（npm version/license核对MIT）、PptxGenJS4.0.1（已发布包MIT）公开浏览器入口；沿用React19.2.4，不需新增react-konva包装。依赖精确锁定、后续打包实际许可文本验收，禁止商业SDK。
+锁定 Harness0.1.5-rc.1 https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/capability-seams.zh.md、公开dsh-tools README与既有ContentService/Connection/StorageDomain/Slots。PPT-01不新增底座；PPT-02需要基于类型适配器扩展现有业务服务，不能复制第二套持久化/权限/Agent执行。Konva10.5.0（npm version/license核对MIT）、PptxGenJS4.0.1（已发布包MIT）公开浏览器入口；沿用React19.2.4，不需新增react-konva包装。依赖精确锁定、后续打包实际许可文本验收，禁止商业SDK。
 
 公开文档：https://konvajs.org/docs/react/Transformer.html、Drag_And_Drop.html；https://gitbrent.github.io/PptxGenJS/docs/api-text.html 。直接复用Konva draggable/Transformer，不自写拖拽/缩放手柄。官方说明Transformer需绑定节点并将scale归一到尺寸；它不包含完整演示文稿编辑器/文本输入/导出，因此最小语义绑定是我们的业务差异，不声称Konva有完整Office工具栏。PptxGenJS承担可编辑文字/嵌入图片PPTX组装，不将截图导出冒充可编辑PPTX。
 

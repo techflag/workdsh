@@ -30,7 +30,7 @@ Office typecheck/build、16项Office集成与6项实际安装/卸载重装通过
 
 ## OFFICE-IMAGE-REF-01 官方能力复用记录（实施前）
 
-官方文档：docs/dsh-v0.1.6-alpha.2/development.zh.md、capability-seams.zh.md；锁定发布包 @deepseek-ai/dsh-tools@0.1.5-rc.1 的公开 defineTool/register，以及既有官方 StorageDomain/Connection。沿用六工具、ContentService 授权及提交，不增加资源注册表、上传服务或文件路径读取。已有 office-content / office-rich-editor 探针覆盖真实 Cordis 服务和原生图片保存。
+官方文档：https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/development.zh.md、capability-seams.zh.md；锁定发布包 @deepseek-ai/dsh-tools@0.1.5-rc.1 的公开 defineTool/register，以及既有官方 StorageDomain/Connection。沿用六工具、ContentService 授权及提交，不增加资源注册表、上传服务或文件路径读取。已有 office-content / office-rich-editor 探针覆盖真实 Cordis 服务和原生图片保存。
 
 最小业务差异：AI 工具快照将已存图片 src 投影为 office-image:<blockId>:<SHA-256>；仅允许引用本次编辑目标文档已有图片，Host 授权读取后核对哈希，解析为原始嵌入字节再走原提交。页面快照、持久模型和 DOCX 导出不变。跨文档/任意文件/网络资源接入仍后置，不能把该引用冒充官方文件资源。源图片已移除/改变的引用明确失败；已提交后源被移除的重试仍可能失败，此阶段要求重新读取，不声称通用资产幂等已完成。验收：工具不返回图片 Base64、引用字节保持一致、篡改/跨目标/跨组织拒绝、正常提交与导出回归。
 

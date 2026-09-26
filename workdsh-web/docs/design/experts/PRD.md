@@ -16,7 +16,7 @@
 
 | 现有能力 | 匹配度 | 缺口及建议 | 来源 |
 |---|---|---|---|
-| 原生工作区、任务、输入框 | 部分 | 复用；增加专家绑定和草稿交接 | [工作台目录](../../../packages/plugins/workbench)、[会话规范](../../dsh-v0.1.6-alpha.2/subsystems/conversation.zh.md) |
+| 原生工作区、任务、输入框 | 部分 | 复用；增加专家绑定和草稿交接 | [工作台目录](../../../packages/plugins/workbench)、[会话规范](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/conversation.zh.md) |
 | Skill 管理和自然语言创建 | 部分 | 复用能力目录与管理经验；新增专家定义，不混入 Skill 列表 | [Skill 目录](../../../packages/plugins/skills) |
 | 本地主体、授权、审计 | 部分 | 专家管理消费这些服务；不能宣称企业多用户已经完成 | [治理契约](../../../packages/contracts/src/governance.ts) |
 | 公共 Modal、Icon、导航 | 部分 | 复用外壳，新增专家内容组件 | [UI 出口](../../../packages/ui/src/index.ts) |

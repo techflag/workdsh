@@ -17,7 +17,7 @@
 
 - [Office包](../../../packages/plugins/office/package.json)、[Host空入口](../../../packages/plugins/office/src/index.ts)、[Client贡献](../../../packages/plugins/office/src/client.tsx)、[构建](../../../scripts/build-office.mjs)。private不妨碍本地打包，但不能宣称已发布npm。
 - [tables职责](../../../packages/plugins/tables/README.md)、[pages职责](../../../packages/plugins/pages/README.md)、[library职责](../../../packages/plugins/library/README.md)。
-- [官方工具注册与dispose](../../dsh-v0.1.6-alpha.2/cookbook/adding-a-tool.zh.md)、[服务依赖](../../dsh-v0.1.6-alpha.2/user/develop/framework/service.zh.md)、[Client模块图](../../dsh-v0.1.6-alpha.2/subsystems/client-modules.zh.md)、[打包配置层](../../dsh-v0.1.6-alpha.2/user/develop/basic/publish.zh.md)。源码checkout和上游内部实现未用于改造。
+- [官方工具注册与dispose](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cookbook/adding-a-tool.zh.md)、[服务依赖](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/user/develop/framework/service.zh.md)、[Client模块图](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/client-modules.zh.md)、[打包配置层](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/user/develop/basic/publish.zh.md)。源码checkout和上游内部实现未用于改造。
 
 修订入口：[插件架构与交付约束](PLUGIN-ARCHITECTURE.md)、[统一接口](UNIFIED-API.md)、[组件方案](OPEN-SOURCE-STACK.md)、[PLAN](../../PLAN.md)、[ADR-0024](../../adr/0024-ai-visible-browser-editing.md)。前一轮[接口Review R01—R06](UNIFIED-API-REVIEW.md)的原子性/会话/并发用例继续保留，不能以本轮文档检查替代。
 

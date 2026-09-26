@@ -175,4 +175,4 @@ TeamCreate、Agent 和 SendMessage 是原宿主工具约定。当前 WorkDSH 团
 
 ## 实施复用记录：CREATION-01
 
-官方面：docs/dsh-v0.1.6-alpha.2/subsystems/skills.md，锁定 @deepseek-ai/dsh-skill@0.1.5-rc.1 的 SkillRegistration/resourceBase（lib/types/index.d.ts）。已有 skill-creator-host 集成探针。业务增量：两套创建指南的任务导航及包内只读参考，通过 directory resourceBase 暴露；不增加 Loader、解析器或发布工具。本切片验证实际官方 get/render 的资源定位、资源进入独立包、既有发布与专家集成回归。资源树新建草稿和真实模型试用仍是独立缺口。
+官方面：https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.md，锁定 @deepseek-ai/dsh-skill@0.1.5-rc.1 的 SkillRegistration/resourceBase（lib/types/index.d.ts）。已有 skill-creator-host 集成探针。业务增量：两套创建指南的任务导航及包内只读参考，通过 directory resourceBase 暴露；不增加 Loader、解析器或发布工具。本切片验证实际官方 get/render 的资源定位、资源进入独立包、既有发布与专家集成回归。资源树新建草稿和真实模型试用仍是独立缺口。

@@ -6,7 +6,7 @@
 ## 官方能力复用记录（2026-09-10）
 
 - 任务：P0-02，验证自有 Host Remote 的生成、装配、调用与协作式取消；不启动 D02。
-- 依据：`docs/dsh-v0.1.6-alpha.2/cookbook/adding-a-remote-api.zh.md`、`docs/dsh-v0.1.6-alpha.2/api-gateway.zh.md`，及锁定发布包的 README/公开声明。
+- 依据：`https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/cookbook/adding-a-remote-api.zh.md`、`https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/api-gateway.zh.md`，及锁定发布包的 README/公开声明。
 - 复用：`@deepseek-ai/dsh-typert-generator@0.1.5-rc.1` 的 `WorkspaceTypertGenerator`；同版本 protocol 的 `TypertRemoteService`、`Remote`；官方 Loader、Registry、Gateway 与 Client Remote。生成器仅构建时运行。
 - 已有证据：bundle 安装与官方 pluginInventory Remote 浏览器链路已通过；尚不证明自有 Remote 生成与取消。
 - 自有差异：仅增加无业务数据的诊断端点、等待任务与结束状态；不实现新的传输、注册表或执行器。探针仅用于隔离的本地测试 Profile。

@@ -41,4 +41,4 @@ Excel：多表、合并、公式/显示值、格式、原生图表；PPT：分�
 - https://github.com/dream-num/dsh-univer-office/
 - https://github.com/dream-num/dsh-univer-office/blob/main/docs/architecture.md
 - https://registry.npmjs.org/dsh-univer-office/0.2.14
-- ../dsh-v0.1.6-alpha.2/subsystems/sidebar-right.zh.md
+- https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/sidebar-right.zh.md

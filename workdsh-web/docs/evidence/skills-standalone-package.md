@@ -76,7 +76,7 @@ CLI 明确提示缺少 dsh.bundle，因此只安装为普通依赖，不作为 P
 |---|---|
 | 任务 | D04 前置修复 / P1-03：Skill 0.1 独立交付，不开展专家业务或企业后台 |
 | 官方入口 | DSH 0.1.5-rc.1 的 dsh.bundle/patch、dsh.client/./client；Cordis 4.0.2 apply/inject/ctx.plugin/effect |
-| 依据 | 官方打包教程；[Client 模块镜像](../dsh-v0.1.6-alpha.2/subsystems/client-modules.zh.md)；ADR-0018 |
+| 依据 | 官方打包教程；[Client 模块镜像](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/client-modules.zh.md)；ADR-0018 |
 | 复用 | 官方 Loader 装配 Skill 独立行，官方 Client 图加载预构建浏览器产物；官方 Skill provider、原生会话与管理业务保持原所有权 |
 | 自有修正 | Skill 独立导航/生命周期、公共类型契约、可分发产物；默认产品通过官方 CLI 显式安装所选功能包，总包不隐藏初始化 Skill |
 | 待验假设 | 独立 Web Profile 能发现 Client 并操作技能；独立与产品组合都只注册一次；移除 Skill 不移除官方文件提供方、用户文件或工作台 |

@@ -23,7 +23,6 @@
     "check:versions": "node scripts/check-published-versions.mjs",
     "probe:browser": "node scripts/check-environment.mjs && node scripts/probe-install.mjs --browser",
     "probe:presets": "node scripts/check-environment.mjs && node scripts/probe-presets.mjs",
-    "audit:harness-docs": "node scripts/check-harness-doc-review.mjs",
     "probe:remote:generate": "tsc -p examples/remote-probe/packages/probe/tsconfig.json && node scripts/build-remote-probe.mjs",
     "test:remote:lifecycle": "tsc -p examples/remote-probe/packages/probe/tsconfig.json && node --test tests/remote/*.test.mjs",
     "preview:install": "node scripts/check-environment.mjs && node scripts/install-preview.mjs",

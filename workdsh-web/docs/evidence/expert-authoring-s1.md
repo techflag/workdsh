@@ -9,7 +9,7 @@
 | 字段 | 内容 |
 |---|---|
 | 任务与范围 | S1：把 `expert-manager` 创建提示词从 `src/authoring/guide.ts` 的 TS 字符串迁入随包发布的 `resources/expert-manager/SKILL.md`；TS 仅加载、解析、注册；迁移不改文案语义；build/pack 必须包含 MD 与 references；安装包资源可读；注册内容与文件一致；普通任务不被额外注入 |
-| 官方能力 | 文档：`docs/dsh-v0.1.6-alpha.2/subsystems/skills.md`（技能子系统与资源基地址）；锁定包 `@deepseek-ai/dsh-skill` 0.1.5-rc.1（`SkillRegistration`：`content` 为静态 string、注册同步、返回 Cordis effect disposer；`SkillResourceBase { kind: 'directory', path }`）、`ctx.effect` 生命周期托管；`dsh-skill-filesystem` 的 frontmatter 惯例（`name`/`description`/`when-to-use`）作格式对照 |
+| 官方能力 | 文档：`https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.6-alpha.2/docs/subsystems/skills.md`（技能子系统与资源基地址）；锁定包 `@deepseek-ai/dsh-skill` 0.1.5-rc.1（`SkillRegistration`：`content` 为静态 string、注册同步、返回 Cordis effect disposer；`SkillResourceBase { kind: 'directory', path }`）、`ctx.effect` 生命周期托管；`dsh-skill-filesystem` 的 frontmatter 惯例（`name`/`description`/`when-to-use`）作格式对照 |
 | 复用选择 | 继续使用官方 `ctx.skills.register` 与 `resourceBase`（directory 渲染给模型“Base directory for this skill”，相对路径由模型按需读取 references）；不新增 provider、第二注册表或加载器；正文唯一来源为随包 MD，运行时同步读取（`import.meta.url` 相对；`src/`、`dist/`、解包安装三种布局一致），不采用构建生成薄模块以避免生成物漂移 |
 | 自有边界 | 仅新增资源文件与薄加载模块（读取、frontmatter 解析、字段校验）；业务接口、工具、存储、连接面均未改动；Harness 未修改 |
 | 证据与差异 | pack 解包验证（tgz 资源存在、sha256 一致、解包 dist 读取包内 MD 成功）+ 集成测试（内容逐字节一致、注册可发现、catalog 摘要不含正文、dispose 撤销）；差异：preview 安装态未重装，安装可读性以 tgz 解包为准 |
