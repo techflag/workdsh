@@ -38,6 +38,33 @@ test('default managed skills stay inside the WorkDSH home', async () => {
   }
 });
 
+test('SkillHub slug installation normalizes only a mismatched frontmatter name', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'workdsh-skillhub-normalize-'));
+  const dshHome = join(root, 'dsh');
+  const originalDshHome = process.env.DSH_HOME;
+  const originalAgentsHome = process.env.DSH_AGENTS_HOME;
+  const ctx = new Context();
+  try {
+    process.env.DSH_HOME = dshHome;
+    delete process.env.DSH_AGENTS_HOME;
+    const file = join(dshHome, 'skills', 'published-slug', 'SKILL.md');
+    await mkdir(join(dshHome, 'skills', 'published-slug'), { recursive: true });
+    await writeFile(file, '---\nname: original-name\ndescription: Published skill\n---\nInstructions\n');
+    await ctx.plugin(SkillRegistry);
+    await ctx.plugin(filesystem, { dshHome, agentsHome: join(dshHome, 'agents'), watch: false });
+    new SkillManager(ctx);
+    assert.equal((await ctx.workdshSkills.list()).find(row => row.name === 'published-slug')?.state, 'invalid');
+    await ctx.workdshSkills.normalizeSkillHub('published-slug');
+    assert.match(await readFile(file, 'utf8'), /^---\nname: published-slug\n/);
+    assert.equal((await ctx.workdshSkills.list()).find(row => row.name === 'published-slug')?.state, 'enabled');
+  } finally {
+    await ctx.fiber.dispose();
+    if (originalDshHome === undefined) delete process.env.DSH_HOME; else process.env.DSH_HOME = originalDshHome;
+    if (originalAgentsHome === undefined) delete process.env.DSH_AGENTS_HOME; else process.env.DSH_AGENTS_HOME = originalAgentsHome;
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test('canonical skill paths remain manageable through a home alias without selecting a shadowed local copy', async () => {
   const root = await mkdtemp(join(tmpdir(), 'workdsh-skill-canonical-'));
   const physicalHome = join(root, 'physical-agents');

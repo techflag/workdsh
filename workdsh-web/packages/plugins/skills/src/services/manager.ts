@@ -289,6 +289,33 @@ export class SkillManager extends Service implements SkillManagementService {
     });
   }
 
+  /** SkillHub installs by catalog slug, while some published SKILL.md files use another name. */
+  async normalizeSkillHub(name: string): Promise<ManagedSkillDetail> {
+    this.assertName(name);
+    return this.withSkillLock(name, async () => {
+      const file = join(this.activeRoots[1], name, 'SKILL.md');
+      const entry = await this.activeEntry(name);
+      if (!entry?.directoryBundle || entry.file !== file) throw new Error('skill/not-manageable');
+      const original = await readFile(file, 'utf8');
+      const validation = this.validateDocument(original, name);
+      if (!validation.valid) {
+        if (validation.diagnostics.some(diagnostic => diagnostic.code !== 'name-mismatch')) throw new Error('skill/skillhub-invalid-document');
+        const header = original.match(/^---\s*\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+        if (!header) throw new Error('skill/skillhub-invalid-document');
+        const lines = header[1].split(/\r?\n/);
+        const index = lines.findIndex(line => /^name\s*:/.test(line));
+        if (index < 0 || lines.filter(line => /^name\s*:/.test(line)).length !== 1) throw new Error('skill/skillhub-invalid-document');
+        lines[index] = `name: ${name}`;
+        const normalized = original.replace(header[1], lines.join(header[0].includes('\r\n') ? '\r\n' : '\n'));
+        if (!this.validateDocument(normalized, name).valid) throw new Error('skill/skillhub-invalid-document');
+        await this.atomicWrite(file, normalized);
+      }
+      const detail = await this.detail(name);
+      if (!detail || detail.state === 'invalid') throw new Error('skill/reload-failed');
+      return detail;
+    });
+  }
+
   validateDocument(document: string, expectedName?: string): SkillValidationResult {
     const diagnostics: SkillDiagnostic[] = [];
     if (Buffer.byteLength(document) > maximumDocumentBytes) diagnostics.push({ code: 'document-too-large', message: 'SKILL.md 超过 1 MiB 上限。', path: 'SKILL.md' });

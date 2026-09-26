@@ -49,6 +49,7 @@ export function createSkillManagementClient(ctx: Context, lifetime?: AbortSignal
     catalog: () => invoke<SkillCatalogSummary>('catalog', {}),
     installFromCatalog: (name: string) => invoke<SkillMutationReceipt>('install-catalog', { name }),
     detail: (name: string) => invoke<ManagedSkillDetail>('detail', { name }),
+    normalizeSkillHub: (name: string) => invoke<ManagedSkillDetail>('normalize-skillhub', { name }),
     update: (request: SkillWriteRequest) => invoke<ManagedSkillDetail>('update', request),
     resource: (name: string, resourcePath: string) => invoke<ManagedSkillResource>('resource', { name, path: resourcePath }),
     writeResource: (request: SkillResourceWriteRequest) => invoke<ManagedSkillResource>('write-resource', request),

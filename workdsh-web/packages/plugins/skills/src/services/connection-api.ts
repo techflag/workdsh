@@ -54,6 +54,7 @@ function publicFailure(error: unknown): ConnectionRpcResult<never> {
     'skill/catalog-entry-unknown': '本地技能目录中没有该技能。',
     'skill/catalog-entry-over-limit': '该技能的体积或文件数超过导入上限，不能从目录安装。',
     'skill/catalog-payload-missing': '本地技能目录缺少该技能的安装负载，请重新生成目录。',
+    'skill/skillhub-invalid-document': 'SkillHub 技能文档还有其他格式错误，无法启用。',
   };
   return fail(code, messages[code] ?? '技能操作失败，请重试。');
 }
@@ -91,6 +92,7 @@ async function dispatch(manager: SkillManagementService, rawEndpoint: unknown, p
       const detail = await manager.detail(name, signal);
       return detail ? ok(detail) : fail('skill/not-found', '未找到该技能。');
     }
+    if (endpoint === 'normalize-skillhub') return ok(await manager.normalizeSkillHub(name));
     if (endpoint === 'update') {
       const input = record(payload);
       if (typeof input?.document !== 'string' || input.document.length > 1024 * 1024 || typeof input.expectedRevision !== 'string') {
