@@ -1,9 +1,7 @@
 import { ShellAppearance } from '../components/ShellAppearance.js';
-import { CommunityPlugins } from '../components/CommunityPlugins.js';
 import type { Context } from '@deepseek-ai/cordis';
 import type {} from '@deepseek-ai/dsh-api-remotes/client';
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client';
-import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client';
 import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client';
 import type {} from '@deepseek-ai/dsh-client-ui-sidebar-right/client';
 import type {} from '@deepseek-ai/dsh-client-ui-session/client';
@@ -28,10 +26,6 @@ const productViews: Readonly<Record<string, string>> = {
 };
 
 export function apply(ctx: Context): void {
-  ctx.slots.inject('plugins.item', () => ctx.slots.register({
-    name: 'plugins.item', id: 'workdsh-community-plugins', order: 100,
-    label: 'WorkDSH · 发现社区插件',
-  }, CommunityPlugins));
   let legacyBrowserEnabled = false;
   ctx.effect(() => {
     const controller = new AbortController();
