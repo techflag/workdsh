@@ -1,6 +1,5 @@
 {
   "meta": {
-    "title": "Resource access control",
     "description": "Controls access to local resources, sessions and tools."
   }
 }

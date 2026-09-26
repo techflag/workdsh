@@ -1,6 +1,5 @@
 {
   "meta": {
-    "title": "WorkDSH application bundle",
     "description": "Composes the WorkDSH workspace, capabilities and default DSH plugins."
   }
 }
