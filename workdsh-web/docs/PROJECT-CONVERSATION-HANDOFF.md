@@ -1,7 +1,7 @@
 # 项目任务会话与 `@` 引用闭环：当前实现和待解决问题
 
-更新时间：2026-09-17  
-分支：`codex/dsh-0.1.6-upgrade`  
+更新时间：2026-09-17<br>
+分支：`codex/dsh-0.1.6-upgrade`<br>
 仓库：`/Users/techflag/project/workdsh`
 
 ## 用户目标
@@ -51,7 +51,7 @@ value 分析
 project ▱ 项目 / Host持久化验证
 ```
 
-对应脚本（忽略文件）：`.artifacts/check-project-at.mjs`  
+对应脚本（忽略文件）：`.artifacts/check-project-at.mjs`<br>
 截图（忽略文件）：`.artifacts/project-at-menu.png`
 
 ### 项目指令和资料上下文
@@ -85,7 +85,7 @@ inside 1
 url http://127.0.0.1:18989/?workdsh-view=projects
 ```
 
-对应脚本（忽略文件）：`.artifacts/check-project-task-view.mjs`  
+对应脚本（忽略文件）：`.artifacts/check-project-task-view.mjs`<br>
 截图（忽略文件）：`.artifacts/project-task-in-project.png`
 
 ## 问题与闭环状态
