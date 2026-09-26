@@ -2,29 +2,9 @@
 
 用户已授权实施 [升级计划](DSH-0.1.7-UPGRADE-PLAN.md)。本专项优先于历史当前切片；业务阶段验收状态保留。
 
-## 2026-09-15：官方 Team 替换自有专家团（用户明确授权）
+## 历史决策
 
-用户要求直接废弃自有专家团执行实现。当前专项改为：移除 TeamRunsManager、SOP 运行状态机、workdsh_expert_team_* 工具和 workdsh-expert one-shot provider；以 0.1.6-alpha.1 官方 Agent Teams、九项工具及官方 Web 团队面板实现。角色/技能/WorkBuddy 导入和已发布专家内容保留为资产配置，协作场景作为工作指导，运行事实仅由官方 Session 日志和 Team 拥有。旧运行数据保留原地，不再续跑旧调度器；新任务使用官方 Team。公开查询缺陷单独实测和修复，不再作为保留旧执行器的理由。
-
-复用：发布包 @deepseek-ai/dsh-experimental-agent-team、dsh-experimental-tool-agent-team、dsh-experimental-client-ui-agent-team；公开 agent/created、agentTeams.tryMembership 和 Agent 局部 persona/skill-filesystem 组合。已有 V1 证据包含并行、角色/技能隔离、fresh/fork、未知成员拒绝、中断和冷恢复；本次必须补生产插件测试，不能用独立探针替代。保持原有资产授权，禁止复制上游实现或增加团队运行表。未验收完整真实模型业务，不对其宣称完成。
-
-# 当前有效计划（2026-09-15升级前置验证更新）
-
-## 当前专项：DSH 0.1.6 升级与公开预览版
-
-执行 [DSH 0.1.6 升级计划](DSH-0.1.6-UPGRADE-PLAN.md)：按用户最新顺序，先在隔离环境升级到底座 0.1.6-alpha.1，跑构建、安装、启动及现有功能，逐项修复实际适配错误；再验证官方新能力和专家团迁移路线，最终公开发布预览版，不等待 RC。暂时找不到接口不能推导为功能不可实现，需实测默认组合、配置与其他公开接点。官方 Team 替换已按最新授权实施并完成隔离运行/Web 验证，自建执行器已删除；专业成果仍单独验收。
-
-U16-0/U16-1 的隔离升级与基础启动已完成；下一执行项为 U16-2 剩余协议、旧数据及长任务回归。V1—V3 的剩余专业场景与故障检查继续跟踪，不再以保留旧执行器作为过渡条件。主线 D04/TM-01 完成状态及后续业务步骤不变，现有历史证据不代表 0.1.6 验收。
-
-本次升级同时交付官方新能力接入，不能只恢复旧功能。专项计划已列 U16-F01—F12：终端/归档/预览、官方 Team、浏览器操作、电脑操作、MCP 资源、SSH 工作区、Headless、自动审核、长任务/PTC、图片与 Messages、可见过程/重连及插件配置恢复。逐项验证有效 Profile/preset、实际用户入口或调用示例、真实任务及失败路径；外部条件未就绪保持待办，包已安装不等于可用。优先继承官方所有者，WorkDSH 负责现有业务适配和必要组合，不另建执行、审批、连接或调度底座。
-
-专家专项进一步以减少自有实现为目标：不预设保留整套 ExpertsManager、preset 编译器与协作服务。先验证不依赖旧专家绑定的官方 Team/Persona/Skill，再按实际业务差异留下最小导入、编辑、授权与成果验收适配；保留用户作品和历史，不要求旧内部结构原样沿用。
-
-当前状态摘要与验收边界见[开发台账](STATUS.md)。机器可读主线以[开发顺序](development-order.json)为准，模块实现状态以[模块登记](modules.json)为准。发布状态与模块完成状态分别记录。
-
-主线 D04、TM-01 整体业务验收保持 in_progress；本轮官方 Team 替换已通过真实运行 9 项和独立 Web 7 项检查。原自建文件签收/尝试预算状态机已经退役，其早期验收记录只作历史。真实模型完整专业流程仍待验收。
-
-本轮5模块GitHub alpha已公开发行；不发布npm。Office专项暂停保留，Word和Excel新增开发不恢复；PPT当前使用React viewer路线，旧Konva/CreatPPT/PPTist选型只作历史。画布/多维表格移出Office专项，D15长期范围保留。D05及后续未开发模块顺序不变，LIMS尚未立项。本次只整理文档台账。
+旧版 Team 与 DSH 0.1.6 升级过程已完成；现行执行边界见 [官方 Agent Teams 决策](adr/0033-official-agent-team.md)和 [DSH 0.1.7 升级记录](DSH-0.1.7-UPGRADE-PLAN.md)。过程原文保留在 Git 历史，不再作为当前待办。
 
 ## 当前追加：内置技能工程化
 
@@ -82,7 +62,7 @@ U16-0/U16-1 的隔离升级与基础启动已完成；下一执行项为 U16-2 �
 
 ## 当前 PPT-02：CreatPPT 原生接入
 
-用户确认单独采用 CreatPPT。执行 [ADR-0026](adr/0026-creatppt-native-editor.md)：原生领域适配与编辑导出实测 → 既有 ContentService 类型接入 → 原生页面在官方右侧 Tab 装配 → AI 自动打开与修订同步 → 制品生命周期验收。自建 Konva 探针停止扩展；八类范围保留，Word 暂停后续开发。
+用户确认单独采用 CreatPPT。执行 [ADR-0026](https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/adr/0026-creatppt-native-editor.md)：原生领域适配与编辑导出实测 → 既有 ContentService 类型接入 → 原生页面在官方右侧 Tab 装配 → AI 自动打开与修订同步 → 制品生命周期验收。自建 Konva 探针停止扩展；八类范围保留，Word 暂停后续开发。
 
 2026-09-12 PPT-01：Word后续开发暂停；下一阶段先验证MIT Konva/PptxGenJS原生交互、语义操作和导出，再以PPT-02接入既有统一内容服务/工具/右侧实时页面，最后独立插件制品验收；不提前启用PPT菜单，不新增Agent loop或第二套存储。见design/office/PPT-IMPLEMENTATION.md。
 
@@ -127,7 +107,7 @@ U16-0/U16-1 的隔离升级与基础启动已完成；下一执行项为 U16-2 �
 2026-09-12 Office U2 增量：成果卡片/右侧 DOCX 下载/自动跟随已完成有限验收，见 [文档交付记录](evidence/office-document-delivery-u2.md)。下载当前保存修订；完整表格、保真导入/导出和八类实时链路仍按既有后续计划推进，主线与 activeSlice 不变。
 
 
-> 2026-09-12 历史范围：用户要求 Univer 截图全部组件类别。统一版本迁移、原生编辑与浏览器约束见 [ADR-0023](adr/0023-univer-complete-browser-component-scope.md)，逐类状态见 [完整组件验证](evidence/univer-complete-components.md)。后续已按用户要求改为上方开源组件路线；此处保留探针历史。
+> 2026-09-12 历史范围：用户要求 Univer 截图全部组件类别。统一版本迁移、原生编辑与浏览器约束见 [ADR-0023](https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/adr/0023-univer-complete-browser-component-scope.md)，逐类状态见 [完整组件验证](evidence/univer-complete-components.md)。后续已按用户要求改为上方开源组件路线；此处保留探针历史。
 
 > 用户最新指令：直接集成 Word/PPT/Excel 浏览器编辑，不扩展公式计算。作为已授权 P1-01 右侧产物扩展新增 office 插件；三类 Office 导入和导出分别记录实际范围，不提前声明 D15 完成。
 

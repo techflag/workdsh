@@ -59,7 +59,7 @@
 
 机器可读交接：[专家定义 Schema](expert-definition.schema.json)、[原创默认专家示例](example-expert-definition.json)。两者是设计制品，未注册为运行能力。
 
-决策依据：[ADR-0017](../../adr/0017-expert-definition-and-runtime-binding.md)；专家团SOP新增[ADR-0020提议](../../adr/0020-expert-team-sop-on-native-workflow.md)与[具体执行方案第8节](EXPERT-TEAMS.md#8-落地架构专家执行工作sop约束协作)。仓库约束以 [AGENTS](../../../AGENTS.md)、[官方开发规范](../../HARNESS-OFFICIAL-DEVELOPMENT.md)、[架构](../../ARCHITECTURE.md) 为前提。
+决策依据：[ADR-0017](../../adr/0017-expert-definition-and-runtime-binding.md)；专家团执行使用[官方 Agent Teams 决策](../../adr/0033-official-agent-team.md)。历史 SOP 候选见[方案分析](EXPERT-TEAMS.md)，不再作为运行实现依据。仓库约束以 [AGENTS](../../../AGENTS.md)、[官方开发规范](../../HARNESS-OFFICIAL-DEVELOPMENT.md)、[架构](../../ARCHITECTURE.md) 为前提。
 
 ## 3. 接手时的真实基线
 

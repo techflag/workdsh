@@ -102,7 +102,7 @@ electron-builder 经 `extraResources` 把快照内 `.desktop-build/targets/mac-a
 | 用途 | 仅桌面测试版打包（隔离、gitignored，不入依赖图/CI） | Web 运行、开发、测试与发布 |
 | 工具链 | electron `^44.0.0`、快照自带 `pnpm@11.7.0` | 仓库 `pnpm@10.34.5`、Node 22 LTS |
 
-- 2026-09-12 选快照时其与当时 WorkDSH 基线一致；此后全仓基线升级至 `0.1.6-alpha.2`（证据见 [dsh-0.1.6-alpha.2-upgrade](evidence/dsh-0.1.6-alpha.2-upgrade.md)），快照未随之刷新，桌面测试版因此落后一个版本族。
+- 2026-09-12 选快照时其与当时 WorkDSH 基线一致；此后全仓基线升级至 `0.1.6-alpha.2`（证据见 [dsh-0.1.6-alpha.2-upgrade](https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/evidence/dsh-0.1.6-alpha.2-upgrade.md)），快照未随之刷新，桌面测试版因此落后一个版本族。
 - 影响：`0.1.6-alpha.2` 的官方行为与插件面变化**不会**出现在桌面测试版；对比桌面与 Web 行为差异时先核对宿主版本；桌面冒烟结论不能替代 Web 基线验收。
 - 升级路径（**未实施**，应作为独立任务立项）：重新选择与基线对应的官方快照 → 逐个复核/重做 9 补丁（窗口壳补丁依赖官方 web UI 类名，升级后可能失效）→ 重打 7 包 tarball → 重跑准备序列 → 打包冒烟 → 记录版本对照证据。
 

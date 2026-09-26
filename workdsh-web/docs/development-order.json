@@ -301,7 +301,7 @@
       "id": "expert-team-tm01",
       "task": "P1-02",
       "status": "paused",
-      "decision": "docs/adr/0020-expert-team-sop-on-native-workflow.md",
+      "decision": "docs/adr/0033-official-agent-team.md",
       "scope": "用户 2026-09-15 明确要求自建专家团执行器退役，改用官方 Agent Teams。旧 TeamRuns/SOP 运行表、委派 provider 与工具已删除，资产管理/固定修订/授权保留。官方真实运行9项和七包独立Web7项检查通过，专业成果/官方fork查询问题/其余0.1.6新能力继续验收，不签收D04或D11全部范围，不推进后续业务模块。",
       "evidence": [
         "docs/evidence/expert-team-tm01.md",

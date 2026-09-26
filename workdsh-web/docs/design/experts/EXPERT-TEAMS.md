@@ -122,7 +122,7 @@ TM-04 后即完成该团队范围。通用 workflow 设计器、实验性 agent-
 
 ## 8. 落地架构：专家执行工作，SOP约束协作
 
-本节保留固定 SOP 使用原生 workflow 的候选设计，尚未实现。2026-09-13第12节与[ADR-0020](../../adr/0020-expert-team-sop-on-native-workflow.md)更新路线选择：首版必须有SOP，但不预先指定唯一执行服务；先评估同版本官方Agent Teams，workflow用于适合的固定执行段。通用设计器仍后置，不调整D04当前任务、D11前置D10或企业后台后置计划。
+本节是 2026-09-13 的历史候选设计，未按该方案实施。当前执行归属见[官方 Agent Teams 决策](../../adr/0033-official-agent-team.md)；不得将本节的自有 SOP 运行设想作为待实现要求。
 
 ```mermaid
 flowchart TD

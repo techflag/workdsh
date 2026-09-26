@@ -1,3 +1,7 @@
+## 2026-09-26：退役旧升级计划、决策与过程验收
+
+删除已完成的 DSH 0.1.6 升级计划与两份对应过程证据，以及已被现行实现取代的自建专家团执行、服务端 Office 转换、Univer 全组件、CreatPPT 和 PPTist 决策。当前 DSH 基线仍为 0.1.7-rc.2，专家团执行以 ADR-0033 为准；仍被开发顺序与当前设计依赖的验收记录保留。历史引用改为固定提交链接，原文仍可从 Git 历史追溯。本轮仅清理文档，不改变运行代码或发行包。
+
 ## 2026-09-26：退役独立 UI 演示原型
 
 核对后确认 `docs/ui/` 的 D01 静态原型未被当前应用构建或正式页面使用，唯一直接消费它的 `check-ui-proposal.mjs` 也未接入工程命令。移除原型、生成图和该脚本；同步更新 UI 规范与开发规则，以实际 Host 页面为视觉验收对象。历史 PLAN/STATUS 中对当时原型工作的记载保留为历史，不表示原型仍在仓库。删除一个与现有调研内容不符的空白研究目录说明。已运行规划链接、双语文档与 diff 检查；未执行产品构建、真实页面交互或模型测试。
@@ -232,7 +236,7 @@ experts 由 α.5 bump 至 α.6（Unreleased，含 CHANGELOG/README/MODULE-VERSIO
 
 ## 2026-09-18：DSH 0.1.6-alpha.2 升级（依赖/编译/运行/新能力全流程 + 收口）
 
-运行基线与全局精确锁定 alpha.1 → alpha.2：根 overrides/devDependencies、12 个功能包 + bundle 的 DSH 依赖、锁文件与脚本引用全量对齐；迁移 alpha.2 破坏性变化（Client Session 多实例化）影响的 6 个插件 client 文件；不改变业务功能范围；contracts 领域模型仅新增项目任务上下文只读契约（补记 α.9 bump，见 P5）。计划与逐项记录：[DSH-0.1.6-alpha.2-UPGRADE-PLAN.md](DSH-0.1.6-alpha.2-UPGRADE-PLAN.md)；命令/结果/未覆盖项：[升级证据](evidence/dsh-0.1.6-alpha.2-upgrade.md)。
+运行基线与全局精确锁定 alpha.1 → alpha.2：根 overrides/devDependencies、12 个功能包 + bundle 的 DSH 依赖、锁文件与脚本引用全量对齐；迁移 alpha.2 破坏性变化（Client Session 多实例化）影响的 6 个插件 client 文件；不改变业务功能范围；contracts 领域模型仅新增项目任务上下文只读契约（补记 α.9 bump，见 P5）。计划与逐项记录：[https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/DSH-0.1.6-alpha.2-UPGRADE-PLAN.md](https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/DSH-0.1.6-alpha.2-UPGRADE-PLAN.md)；命令/结果/未覆盖项：[升级证据](https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/evidence/dsh-0.1.6-alpha.2-upgrade.md)。
 
 - 依赖面（P1）：480 处替换（root 273 + 12 包 198 + scripts/tests 9）；新增 override 9 条（预判 8 + install 暴露 `@deepseek-ai/dsh-lazy-require`）；`check:versions` PASS（513 条锁文件条目全部 α2、Cordis 4.0.2）。
 - 编译面（P2）：6 个 client 文件迁移——projects（startTask 改 retain(`workdshProjectTaskStart`)→ready→轮询 binding.ctx→send→finally release；openTask 改 `uiWorkspace.openSession`）、experts（`subagentAddress` 判成员 + 3 处 openSession）、skills/library（current 改 `retainedBy.mainView` 推导 + openSession）、office（current 推导 ×3）、activity（成员观测 retain(`workdshActivityMember`)→ready→release 重写）；B5 修复（`CsvDocument.tsx` 三变体显式收窄）；全仓 typecheck PASS（13 包）。
@@ -360,15 +364,15 @@ UI-DESIGN §8 记录：chip 属插件内局部 UI，不新增公共组件；视�
 
 真实 Loader/AgentLoop/Team/Skill/persistence、确定性模型的实测表明：默认队友无需旧 binding 可运行；通过公开 `agent/created`、`tryMembership` 和 `agent.ctx.plugin()` 的 Persona/Skill Filesystem 局部挂载，两名原生队友同时 running，首请求角色和实际读取技能分别正确，父级/兄弟目录未污染。fresh/fork、初始化失败不发请求、官方中断、关闭 runtime 和独立进程通过消息唤醒原队友均已跑到；冷恢复包含原 fresh 与 fork Session ID 的实际新回合。`agent.ctx.loader.create()` 的 Persona 重复注册、把 Context 当 Skill scope 及错误恢复参数均属于探针调用问题，已按公开契约修正后复测。
 
-主流程 9 项、冷进程 3 项断言通过；但官方 `sessionQuery.readSession` 的分叉历史读取在默认组合、局部专家组合和冷恢复中仍报 inherited prefix 错误，总结果明确 partial、退出 2。公开 persistence 读取可用，探针据此继续其他断言，没有把查询失败计为通过。完整 Web Profile 与进一步公开查询方案尚未验证。旧专家 baseline 也已在 0.1.6 复跑，确认旧 binding Guard 阻止默认子代理，不能据此说官方不能运行专家。详见[证据](evidence/dsh-0.1.6-official-integration.md)及 .artifacts/dsh-0.1.6-upgrade/official-expert-composition/。
+主流程 9 项、冷进程 3 项断言通过；但官方 `sessionQuery.readSession` 的分叉历史读取在默认组合、局部专家组合和冷恢复中仍报 inherited prefix 错误，总结果明确 partial、退出 2。公开 persistence 读取可用，探针据此继续其他断言，没有把查询失败计为通过。完整 Web Profile 与进一步公开查询方案尚未验证。旧专家 baseline 也已在 0.1.6 复跑，确认旧 binding Guard 阻止默认子代理，不能据此说官方不能运行专家。详见[证据](https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/evidence/dsh-0.1.6-official-integration.md)及 .artifacts/dsh-0.1.6-upgrade/official-expert-composition/。
 
 本轮修改的是探针、命令与迁移计划，生产专家实现尚未切换，用户 preview 未部署重启。下一步验证用户作品/固定修订到官方局部配置的关联、官方工具 Guard 与专业签收，继续定位分叉历史查询与 U16-2 回归。真实模型、用户数据迁移、资源权限、热卸载、Web UI 与整体升级验收未执行；不删除仍在使用的旧路径，不标记 D04/TM-01 完成。
 
 ## 2026-09-15 — 升级范围补齐官方新能力接入
 
-按用户要求，DSH 0.1.6 升级交付同时包含现有功能回归与官方新能力落地。更新[专项计划](DSH-0.1.6-UPGRADE-PLAN.md)及 PLAN，列出 U16-F01—F12：会话工作区、官方 Team、浏览器操作、电脑操作、MCP 资源、SSH 工作区、Headless、自动审核、长任务/PTC、图片与 Messages、可见过程与重连、插件配置恢复。每项均明确官方所有者、WorkDSH 接入责任、实际任务和失败路径验收；V4 最小接点验证不再等同于产品交付。外部环境未就绪保持待办，不静默删功能；保留用户配置和权限。
+按用户要求，DSH 0.1.6 升级交付同时包含现有功能回归与官方新能力落地。更新[专项计划](https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/DSH-0.1.6-UPGRADE-PLAN.md)及 PLAN，列出 U16-F01—F12：会话工作区、官方 Team、浏览器操作、电脑操作、MCP 资源、SSH 工作区、Headless、自动审核、长任务/PTC、图片与 Messages、可见过程与重连、插件配置恢复。每项均明确官方所有者、WorkDSH 接入责任、实际任务和失败路径验收；V4 最小接点验证不再等同于产品交付。外部环境未就绪保持待办，不静默删功能；保留用户配置和权限。
 
-核对已发布 0.1.6-alpha.1 的 web-app/base patch、MCP Resources 与 agent-presets README：官方已声明终端、归档、预览、资源工具与公开组合查询。WorkDSH 安装脚本不会重新初始化已有 Profile，旧专家保存的 preset 也须单独迁移验证。四个公开来源的版本/声明及摘要回执见 .artifacts/dsh-0.1.6-upgrade/official-feature-inventory.json，新增[证据记录](evidence/dsh-0.1.6-official-integration.md)。这里只确认公开声明和工程组合方式，不代表最终配置已启用或功能运行通过。
+核对已发布 0.1.6-alpha.1 的 web-app/base patch、MCP Resources 与 agent-presets README：官方已声明终端、归档、预览、资源工具与公开组合查询。WorkDSH 安装脚本不会重新初始化已有 Profile，旧专家保存的 preset 也须单独迁移验证。四个公开来源的版本/声明及摘要回执见 .artifacts/dsh-0.1.6-upgrade/official-feature-inventory.json，新增[证据记录](https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/evidence/dsh-0.1.6-official-integration.md)。这里只确认公开声明和工程组合方式，不代表最终配置已启用或功能运行通过。
 
 check:plan 通过（29 模块/50 文档）；12 个独立工作项、三份计划/证据文档的本地引用与空白检查、git diff --check 通过。本轮只更新计划与证据，未执行新增功能运行探针、类型检查、构建、模型任务、部署、重启或发布。F01—F12 待产品验收，下一步继续 U16-2 旧数据/协议/长任务回归及必要适配，再按计划批次推进 U16-3。上一轮隔离升级回归结果保持，D04/TM-01 仍未整体验收。
 
@@ -378,13 +382,13 @@ check:plan 通过（29 模块/50 文档）；12 个独立工作项、三份计�
 
 已建立 codex/dsh-0.1.6-upgrade 分支并保存原有差异。frozen-lockfile 安装、475 项版本锁定、全工程类型和构建通过。首轮 integration 112/123，11 项失败定位到新版官方 Skill path 已规范为真实路径，/var 与 /private/var 别名被原字符串比较误判为不可管理，影响技能编辑/启停/卸载及专家发布冻结。修正 skills/src/services/manager.ts：受管目录与 symlink 检查后对比真实文件身份；同名外部技能仍只读，不能误操作本地副本。新增实际 provider 的别名/重名来源回归，修复后 integration 124/124、activity 9/9、技能 build/typecheck 通过。
 
-七层官方 Web Profile 工程外安装、Host 鉴权、专家原生 Session 固定绑定、DOCX/PPTX/XLSX 原生 Tab 共 6 项通过、浏览器错误 0；现有 --team 确定性协作 10/10、14 个原生子 Session 与实际文件验收通过；修复后的技能独立包浏览器与冷移除/重装 8 项通过。两个隔离 Profile 的 agent/session/skill/skill-filesystem/client-connection 均解析为 0.1.6-alpha.1。证据见 [隔离升级与适配记录](evidence/dsh-0.1.6-official-integration.md)，原始日志、机器汇总及截图位于 .artifacts/dsh-0.1.6-upgrade/20260915-154820/。规划检查 29 模块/50 文档及 git diff --check 通过。
+七层官方 Web Profile 工程外安装、Host 鉴权、专家原生 Session 固定绑定、DOCX/PPTX/XLSX 原生 Tab 共 6 项通过、浏览器错误 0；现有 --team 确定性协作 10/10、14 个原生子 Session 与实际文件验收通过；修复后的技能独立包浏览器与冷移除/重装 8 项通过。两个隔离 Profile 的 agent/session/skill/skill-filesystem/client-connection 均解析为 0.1.6-alpha.1。证据见 [隔离升级与适配记录](https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/evidence/dsh-0.1.6-official-integration.md)，原始日志、机器汇总及截图位于 .artifacts/dsh-0.1.6-upgrade/20260915-154820/。规划检查 29 模块/50 文档及 git diff --check 通过。
 
 下一步继续 U16-2 的真实旧数据/协议/长任务回归，再进入 U16-3 官方新增能力与 Team 替换。当前通过的是原有协作在新底座运行，V1—V3 官方 Team 替换、V4 全部新能力、付费模型、实际用户数据升级/回退和长时间资源检查未执行。用户 preview 未部署重启，未提交/推送/公开发布；D04/TM-01 保持未整体验收。
 
 ## 2026-09-15 — DSH 0.1.6 升级计划复审与验证前置
 
-新增 [DSH 0.1.6 升级计划](DSH-0.1.6-UPGRADE-PLAN.md)，以用户最新要求覆盖早期对话方案：不等 RC、公开预览版、官方运行与自有业务展示；“未找到官方接点”只表示待验证，不直接认定不可实现或删减功能。首要工作是隔离复跑旧 A/B 专家绑定失败场景，并验证默认组合、官方配置及公开 Provider/生命周期/Guard 接点，随后验证技能快照、SOP专业验收、冷恢复和实际 UI。新路径未通过前不删除既有执行适配或业务校验。
+新增 [DSH 0.1.6 升级计划](https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/DSH-0.1.6-UPGRADE-PLAN.md)，以用户最新要求覆盖早期对话方案：不等 RC、公开预览版、官方运行与自有业务展示；“未找到官方接点”只表示待验证，不直接认定不可实现或删减功能。首要工作是隔离复跑旧 A/B 专家绑定失败场景，并验证默认组合、官方配置及公开 Provider/生命周期/Guard 接点，随后验证技能快照、SOP专业验收、冷恢复和实际 UI。新路径未通过前不删除既有执行适配或业务校验。
 
 计划同时补齐旧 Profile/preset 兼容修订、数据备份与回退演练、Messages/Files API/事件上报配置、不同运行面实验能力的实际条件，以及公开制品回读验证。上轮试升级变更仍未提交；此前版本检查、类型检查、构建通过不代表 0.1.6 功能验收。D04/TM-01 完成状态不变；下一执行项 U16-0 → U16-V1。
 
@@ -982,7 +986,7 @@ CreatPPT 0.1.4 已通过同一 Office ContentService/六工具/官方右侧 Tab 
 
 ## 当前：CreatPPT 单编辑器接入（2026-09-12）
 
-用户在 19091 体验后确认继续。采用 CreatPPT 0.1.4 发布包，停止自建 PPT 画布扩展；依据 [ADR-0026](adr/0026-creatppt-native-editor.md) 接既有 Office 服务与原生页面。独立页面不等于应用接入完成，PPT 菜单暂不启用。Word 与已发布 alpha.2 保持当前范围。
+用户在 19091 体验后确认继续。采用 CreatPPT 0.1.4 发布包，停止自建 PPT 画布扩展；依据 [ADR-0026](https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/adr/0026-creatppt-native-editor.md) 接既有 Office 服务与原生页面。独立页面不等于应用接入完成，PPT 菜单暂不启用。Word 与已发布 alpha.2 保持当前范围。
 
 本轮薄适配器与原生保存/重开/PPTX 下载实测完成，10/10 内容回归和 Office 类型检查通过。无图默认封面原生阻止导出，纯文字生成改用原生 statement/planSlide；未关闭质量检查。证据 [office-creatppt-u1.md](evidence/office-creatppt-u1.md)。正式服务类型、六工具、右侧页面同步、真实模型与制品生命周期仍未执行；下一步从既有 ContentService 扩展 presentation 分支，不新建存储。
 
@@ -1252,7 +1256,7 @@ Office类型检查与规划/差异检查通过；正式业务全量、真实模�
 
 ## 本轮：Office 服务端预览接入调查（2026-09-12）
 
-新增用户要求：客户端不依赖本机 Office/LibreOffice，调查 dsh-univer-office。隔离 npm 包完整性验证通过；严格 peer 安装失败，当前声明范围不覆盖 Harness 0.1.5-rc.1。发布包默认 Viewer URL 指向 Host loopback，远程 Web 尚不满足。已记录[证据与有限实施计划](evidence/univer-office-compatibility.md)及[Proposed ADR-0021](adr/0021-server-office-preview-bridge.md)。未改 Profile、运行代码或依赖锁；未完成运行、远程 Web 与 Office 保真验收，不宣布预览交付。企业后台与专家团阶段不因本次调查自动提前。
+新增用户要求：客户端不依赖本机 Office/LibreOffice，调查 dsh-univer-office。隔离 npm 包完整性验证通过；严格 peer 安装失败，当前声明范围不覆盖 Harness 0.1.5-rc.1。发布包默认 Viewer URL 指向 Host loopback，远程 Web 尚不满足。已记录[证据与有限实施计划](evidence/univer-office-compatibility.md)及[Proposed ADR-0021](https://github.com/techflag/workdsh/blob/1dd9eadc4f/workdsh-web/docs/adr/0021-server-office-preview-bridge.md)。未改 Profile、运行代码或依赖锁；未完成运行、远程 Web 与 Office 保真验收，不宣布预览交付。企业后台与专家团阶段不因本次调查自动提前。
 
 ## 本轮：发布单个专家alpha.1（2026-09-12）
 
@@ -1264,7 +1268,7 @@ Office类型检查与规划/差异检查通过；正式业务全量、真实模�
 
 ## 本轮：专家团SOP架构修订（2026-09-12，仅方案）
 
-根据用户“多专家＋SOP工作流”的反馈修订[专家团方案](design/experts/EXPERT-TEAMS.md)第2～4/8节及[ADR-0020提议](adr/0020-expert-team-sop-on-native-workflow.md)：首版即复用原生WorkflowEngine，后置通用设计器；区分原生运行事实与业务阶段验收，明确前置、并行、成果交接、评审和有界返工。核对锁定0.1.5-rc.1公开声明，发现原生spawn不直接选择专家preset、composeFrom继承父组合、phase仅显示，以及直接调用engine不保证自动持久化tool-workflow呈现事件。这些纳入TM-01公开适配探针，未宣称可运行。
+根据用户“多专家＋SOP工作流”的反馈修订[专家团方案](design/experts/EXPERT-TEAMS.md)第2～4/8节及当时的 ADR-0020 提议（已由[ADR-0033](adr/0033-official-agent-team.md)取代）：首版即复用原生WorkflowEngine，后置通用设计器；区分原生运行事实与业务阶段验收，明确前置、并行、成果交接、评审和有界返工。核对锁定0.1.5-rc.1公开声明，发现原生spawn不直接选择专家preset、composeFrom继承父组合、phase仅显示，以及直接调用engine不保证自动持久化tool-workflow呈现事件。这些纳入TM-01公开适配探针，未宣称可运行。
 
 本轮未编码、调用模型、升级依赖、修改用户任务或提交推送。D04仍in_progress，上一轮专业报告验收缺口保留；D11仍todo及既定前置D10，TM-01～04范围保留，企业后台继续后置。架构提议供审阅，不将其当作当前插件已实现能力。
 

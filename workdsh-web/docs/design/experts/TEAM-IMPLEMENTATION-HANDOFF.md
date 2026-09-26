@@ -11,7 +11,7 @@
 5. SOP核心在`packages/plugins/experts/src/domain/team-sop.ts`，内部纯策略、未声明生产API。`scripts/probe-expert-sop.mjs`提供隔离Host验证：预检业务规则、预留指定成员，再以业务CAS关联；冲突遗留的未关联预留无法执行。工具的`exec.agent`来自真实AgentLoop；原生completed文本输出生成版本摘要；模型只提交评审提议，Host核对正常结束后终结。provider在领取前及每次pre-step重新检查授权。`node scripts/probe-expert-team.mjs --sop`复现实测，`tests/integration/expert-sop-policy.test.mjs`覆盖领域拒绝分支。
 6. 第五批已完成TM-01收口：`services/team-runs.ts`（TeamRunsManager）与`storage/team-domain.ts`、`tools/team-tools.ts`（六项AI工具）进入插件正式装配；签收/交接/交付三闸门在Host重读真实文件字节校验；`scripts/probe-expert-production.mjs`与主探针`--team`模式复现。第四批已验证：目标Profile组合（工具/写入路径/沙箱）、真实文件版本回执（`SopReceipt.artifacts`+`verifySopArtifacts`，复现脚本`scripts/probe-expert-integration.mjs`）及预留/领取/派发不确定的对账规则。下一步是TM-01整体验收（用户）与TM-02团队草稿/发布/UI，不在本批自行启动；不能将探针的正文摘要、fixture身份或单工具guard直接当完整生产Profile验收。不要求同时接Agent Teams和WorkflowEngine。
 
-状态：2026-09-13，TM-01最小适配、有限SOP、第四批应用集成验证及第五批运行接入均已通过；TM-01整体退出（完整生产Profile安装、团队页面、付费模型、AT-T01～07）等待用户验收。本文是团队功能的实施入口，替代历史分析中互相冲突的“首版固定 one-shot / workflow 唯一首选”表述。产品需求以 [PRD](PRD.md) 为准，选型依据见 [ADR-0020](../../adr/0020-expert-team-sop-on-native-workflow.md)，分析过程见 [EXPERT-TEAMS](EXPERT-TEAMS.md)。
+状态：2026-09-13 的历史交接记录；其中自有 SOP 运行方案已被官方 Agent Teams 决策取代，不再作为团队功能的实施入口。产品需求以 [PRD](PRD.md) 为准，当前执行归属见 [ADR-0033](../../adr/0033-official-agent-team.md)，历史分析过程见 [EXPERT-TEAMS](EXPERT-TEAMS.md)。
 
 **当前状态：第五批运行接入已完成并通过隔离实测（`--team`退出0、7项检查全过，见第五批证据）。**TM-01整体退出与TM-02～04准入等待用户验收；下一实现内容为TM-02团队定义与发布（含创建页面）与TM-04界面，但不得在验收前自行启动。专家团优先切片已登记在PLAN、development-order和ADR；主线D04与D11前置D10保留，不假报其他模块完成。
 
