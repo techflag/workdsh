@@ -127,6 +127,9 @@ jobs:
         run: pnpm typecheck
       - working-directory: workdsh-web
         run: pnpm check:versions
+      - name: Install browser for Web integration tests
+        working-directory: workdsh-web
+        run: pnpm exec playwright install --with-deps chromium
       - working-directory: workdsh-web
         run: pnpm test:integration
 
