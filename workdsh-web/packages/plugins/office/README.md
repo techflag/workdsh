@@ -15,9 +15,9 @@ Word 预览版 `0.1.0-alpha.2`（表格/图片增量；历史文本预览版为 
 当前候选复用 Tiptap 3.31.0 MIT 的 TableKit 与 Image 扩展：工具栏靠前提供「表格」「插入图片」，增删行列、标题行、合并/拆分，以及原生列宽拖动和图片缩放；选中图片后可对齐。Word 图表使用 Office 插件自己的结构化 `chart` 块，浏览器绘制 SVG，DOCX 导出写入原生 Chart XML 和嵌入工作簿，不把图表生成 PNG。AI 使用同一个受授权内容服务分批写入，右侧实时显示。保存重开及 DOCX 导出保留表格、图片、图表数据和文字样式；DOCX 导入为非无损独立工作副本，现阶段不会把任意外部原生图表反向解析成结构化块。每张 PNG/JPEG 512 KiB，图表最多10个系列/50个分类，表格50行/50列且最多500单元格，批次1 MiB、文档2 MiB。嵌套表格、单元格内图片、复杂浮动布局、完整页眉页脚与 Word 分页仍未完成。历史记录描述 alpha.1 能力时以对应版本为准。
 
 
-后续交付范围已扩展为Word、PPT、Excel、PDF、画布、多维表格、HTML、Markdown八类，见[组件采用方案](../../../docs/design/office/OPEN-SOURCE-STACK.md)与[统一AI接口](../../../docs/design/office/UNIFIED-API.md)。HTML源码/实时预览、Markdown正文/源码编辑均须接入同一内容服务。当前原生 document 新建/编辑/修订同步已打通；以下文件表格是原有适配器范围，完整八类统一接口尚未完成。
+后续交付范围已扩展为Word、PPT、Excel、PDF、画布、多维表格、HTML、Markdown八类。HTML源码/实时预览、Markdown正文/源码编辑均须接入同一内容服务。当前原生 document 新建/编辑/修订同步已打通；以下文件表格是原有适配器范围，完整八类统一接口尚未完成。
 
-插件复审后的实施边界见[PLUGIN-ARCHITECTURE](../../../docs/design/office/PLUGIN-ARCHITECTURE.md)：本包独立分发；Host根通过官方ctx.plugin组合内容服务、工具和Connection，Client进入官方模块图，默认WorkDSH组合仅装配本包。Host 内容服务、六个原生工具和原生 Tiptap 页现已实现；package的private标记不等于已发布npm。新增能力必须通过OP-T01—07的干净安装、生命周期、恢复和资源制品验收。
+当前实施边界：本包独立分发；Host根通过官方ctx.plugin组合内容服务、工具和Connection，Client进入官方模块图，默认WorkDSH组合仅装配本包。Host 内容服务、六个原生工具和原生 Tiptap 页现已实现；package的private标记不等于已发布npm。新增能力必须通过OP-T01—07的干净安装、生命周期、恢复和资源制品验收。
 
 新原生文档：AI 调用 `content_open` 新建即自动打开当前会话右侧、`content_edit` 分批提交后页面自动更新；`content_present` 仅用于再次展示；用户点击“编辑”后直接在正文修改，完成编辑后 AI 用 `content_read` 获取最新内容。`content_capabilities` 列出已实现操作。Host/页面共享有修订和幂等收据的工作副本，不需要子智能体或外部 MCP。只接受可信 Session 绑定及同工作区授权。
 
@@ -119,7 +119,7 @@ content_open/content_read 的模型快照将图片 src 投影为 `office-image:<
 
 模型快照仅为投影；页面、持久状态、DOCX 保留嵌入图片，未增加资产注册表或文件访问底座。范围仅限可读取的 Office 工作副本文档，尚不支持新文件资料/远程 URL/其余七类编辑器的跨格式制作。失效来源须重新读取；源删除后的旧引用重试仍可能失败，通用资产幂等未完成。新图片仍使用已有 PNG/JPEG 嵌入输入。
 
-下一阶段开发计划：[PPT 实时制作 → 其他六类（Word 后续暂停）](../../../docs/design/office/NEXT-STAGE.md)。各阶段以真实文件、实时编辑和独立插件生命周期验收，规划不代表能力已完成。
+后续范围以真实文件和发行验收为准。各阶段以真实文件、实时编辑和独立插件生命周期验收，规划不代表能力已完成。
 
 ### Excel 工作副本（Preview）
 
