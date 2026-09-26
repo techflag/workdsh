@@ -36,6 +36,6 @@ Exactly one source is selected for browsing. Source failure never silently selec
 
 ## Reporting a vulnerability
 
-Report suspected vulnerabilities privately to [t4wefan@qq.com](mailto:t4wefan@qq.com). Include the affected version or commit, operating system, reproduction steps, expected impact, and a minimal proof of concept that can be shared safely.
+For suspected vulnerabilities, first check the repository [Security page](https://github.com/techflag/workdsh/security) for an available private reporting option. If none is available, open a [GitHub issue](https://github.com/techflag/workdsh/issues) requesting a private channel without disclosing vulnerability details. Once a private channel is agreed, include the affected version or commit, operating system, reproduction steps, expected impact, and a minimal proof of concept that can be shared safely.
 
 Do not include secrets or personal data, and do not open a public issue for an unpatched vulnerability. Ordinary bugs, catalog corrections, and feature requests may use the public issue tracker.

@@ -36,6 +36,6 @@
 
 ## 报告安全问题
 
-请通过 [t4wefan@qq.com](mailto:t4wefan@qq.com) 私下报告可能的安全问题，并提供受影响版本或 commit、操作系统、复现步骤、预期影响，以及可安全分享的最小 proof of concept。
+发现可能的安全问题时，请先查看仓库的 [Security 页面](https://github.com/techflag/workdsh/security) 是否提供私密报告入口。若没有，可在 [GitHub Issues](https://github.com/techflag/workdsh/issues) 请求私密联系渠道，但不要公开漏洞细节。确定私密渠道后，再提供受影响版本或 commit、操作系统、复现步骤、预期影响，以及可安全分享的最小 proof of concept。
 
 不要发送 secret 或个人数据，也不要为未修复漏洞创建公开 issue。普通 bug、目录修正和功能建议可以使用公开 issue tracker。

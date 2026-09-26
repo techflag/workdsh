@@ -52,7 +52,7 @@ corepack yarn dev     # 有图形环境时启动应用
 
 ## 加入技术团队
 
-如果你希望加入我们的技术团队，欢迎通过 [t4wefan@qq.com](mailto:t4wefan@qq.com) 联系我们。
+如果你希望参与维护 WorkDSH，请在 [GitHub Issues](https://github.com/techflag/workdsh/issues) 提出建议或说明可参与的方向。
 
 ## 行为准则
 

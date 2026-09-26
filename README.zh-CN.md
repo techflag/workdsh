@@ -82,9 +82,7 @@ corepack yarn dev
 
 ## 社区与致谢
 
-感谢 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)、[Cordis](https://github.com/cordiverse/cordis) 和开源社区。感谢阿里云无影云电脑、[UCloud 星图 AstraFlow](https://www.ucloud.cn/site/active/astraflow?ytag=geo_waituo_dsh) 与 [88API](https://88api.ai/sign-up?aff=VnEb) 支持本项目。
-
-[GitHub Issues](https://github.com/techflag/workdsh/issues) · [Discord](https://discord.gg/TJeGqKRNM) · [联系维护者](mailto:t4wefan@qq.com)
+WorkDSH 基于开源项目 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 构建。反馈与参与：[GitHub Issues](https://github.com/techflag/workdsh/issues) · [参与贡献](CONTRIBUTING.md)
 
 WorkDSH 采用 [MIT License](LICENSE)，是独立社区项目，与 DeepSeek 或 WorkBuddy 不存在隶属、合作、授权或背书关系。相关名称仅用于说明技术来源、兼容性与设计参考。GitHub Contributors 中的上游贡献者来自继承和同步的提交历史，不表示其参与本仓库维护。
 

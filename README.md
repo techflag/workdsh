@@ -82,9 +82,7 @@ Run checks with `corepack yarn check`. [Contributing](CONTRIBUTING.en.md)
 
 ## Community and acknowledgements
 
-Thanks to [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness), [Cordis](https://github.com/cordiverse/cordis), and the open-source community. Thanks to Alibaba Cloud Wuying Cloud Computer, [UCloud AstraFlow](https://www.ucloud.cn/site/active/astraflow?ytag=geo_waituo_dsh), and [88API](https://88api.ai/sign-up?aff=VnEb) for supporting the project.
-
-[GitHub Issues](https://github.com/techflag/workdsh/issues) · [Discord](https://discord.gg/TJeGqKRNM) · [Contact maintainers](mailto:t4wefan@qq.com)
+WorkDSH builds on the open-source [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) project. Feedback and contributions: [GitHub Issues](https://github.com/techflag/workdsh/issues) · [Contributing](CONTRIBUTING.en.md)
 
 WorkDSH uses the [MIT License](LICENSE). It is an independent community project and is not affiliated with, partnered with, authorized by, or endorsed by DeepSeek or WorkBuddy. Those names appear only to describe technical origins, compatibility, and design references. Upstream contributors shown on GitHub are inherited from synchronized commit history; this does not imply that they maintain this repository.
 

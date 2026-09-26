@@ -60,9 +60,10 @@ representative at an online or offline event.
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-[t4wefan@qq.com](mailto:t4wefan@qq.com).
+To report abusive, harassing, or otherwise unacceptable behavior, use
+[GitHub Issues](https://github.com/techflag/workdsh/issues) to request a private
+channel with the maintainers. Do not disclose incident details or personal
+information in a public issue.
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the

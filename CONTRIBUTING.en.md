@@ -48,7 +48,7 @@ corepack yarn dev     # launch the application when a graphical session is avail
 
 ## Join the technical team
 
-If you would like to join our technical team, contact us at [t4wefan@qq.com](mailto:t4wefan@qq.com).
+If you would like to help maintain WorkDSH, open a [GitHub issue](https://github.com/techflag/workdsh/issues) to suggest an area where you can contribute.
 
 ## Code of conduct
 
