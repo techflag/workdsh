@@ -1,0 +1,3 @@
+Source: https://github.com/ueberdosis/tiptap-ui-components/tree/799929bea4804c73767562b69f8acc2acdb8ac86/apps/web/src
+MIT, Copyright (c) 2025 Tiptap.
+Toolbar and group implementation retained; alias imports localized, Separator rendered as decorative div; navigation adapted for native select/input, dynamic disabled and Tab exit. Button retains official no-tooltip branch, native title used for tooltips. Official SVG icons unchanged. Scoped CSS translates fixed Toolbar layout and ghost Button appearance to existing Office theme; mobile bottom positioning omitted because this is a sidebar pane. No second editor instance.

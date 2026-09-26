@@ -1,0 +1,29 @@
+{
+  "baseMonth": "2026-05",
+  "targetMonth": "2026-06",
+  "baseRevenue": 55000,
+  "targetRevenue": 46000,
+  "change": -9000,
+  "changePercent": -16.363636363636363,
+  "baseVisitors": 2500,
+  "targetVisitors": 2300,
+  "baseOrders": 350,
+  "targetOrders": 280,
+  "stores": {
+    "A": {
+      "baseRevenue": 20000,
+      "targetRevenue": 16000,
+      "change": -4000
+    },
+    "B": {
+      "baseRevenue": 20000,
+      "targetRevenue": 15000,
+      "change": -5000
+    },
+    "C": {
+      "baseRevenue": 15000,
+      "targetRevenue": 15000,
+      "change": 0
+    }
+  }
+}

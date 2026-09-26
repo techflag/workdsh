@@ -1,0 +1,24 @@
+node_modules/
+.pnpm-store/
+.idea/
+.DS_Store
+coverage/
+**/dist/
+**/lib/
+*.tsbuildinfo
+.test-runtime/
+.artifacts/
+**/.playwright-mcp/
+tmp/
+.env
+.env.*
+!.env.example
+/docs/
+/.qoder/
+**/__pycache__/
+*.py[cod]
+
+packages/plugins/office/src/presentation/native-react/native.css
+
+# Locally generated task deliverables
+/output/

@@ -1,0 +1,7 @@
+- insert:
+    - id: workdsh-identity-local
+      name: workdsh-provider-identity-local
+      config:
+        principalId: local-user
+        organizationId: local-personal
+        organizationName: 本地个人空间

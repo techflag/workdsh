@@ -1,0 +1,112 @@
+{
+  "name": "workdsh-plugin-office",
+  "version": "0.1.0-alpha.9",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "default": "./dist/client.browser.js"
+    }
+  },
+  "files": [
+    "dist",
+    "cordis.patch.yml",
+    "README.md",
+    "THIRD-PARTY-NOTICES.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "node ../../../scripts/build-office.mjs",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-sidebar-documentpreview",
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-sidebar-right",
+        "@deepseek-ai/dsh-api-session-controller",
+        "@deepseek-ai/dsh-client-connection",
+        "@deepseek-ai/dsh-client-ui-chat",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-input-trigger"
+      ]
+    }
+  },
+  "dependencies": {
+    "@ai-sdk/react": "4.0.76",
+    "@pdf-lib/fontkit": "1.1.1",
+    "@tiptap/core": "3.31.0",
+    "@tiptap/extension-image": "3.31.0",
+    "@tiptap/extension-table": "3.31.0",
+    "@tiptap/extension-text-align": "3.31.0",
+    "@tiptap/extension-text-style": "3.31.0",
+    "@tiptap/pm": "3.31.0",
+    "@tiptap/starter-kit": "3.31.0",
+    "@univerjs/preset-sheets-core": "0.25.1",
+    "@univerjs/presets": "0.25.1",
+    "ai": "7.0.0",
+    "docx-preview": "0.4.0",
+    "exceljs": "4.4.0",
+    "i18next": "26.4.2",
+    "jszip": "3.10.1",
+    "lucide-react": "1.45.0",
+    "papaparse": "5.7.0",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "5.4.624",
+    "pptx-react-viewer": "3.16.5",
+    "pptx-viewer-core": "3.14.3",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-i18next": "17.0.13",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "4.0.3",
+    "@deepseek-ai/dsh-agent": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-api-session-controller": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-connection": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-ui-chat": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-ui-conversation": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-ui-input-trigger": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-ui-renderer": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-ui-session": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-ui-sidebar-documentpreview": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-ui-sidebar-right": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-ui-slots": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-storage-domain": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-system-prompt": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-tools": "0.1.7-rc.2",
+    "@types/node": "22.19.0",
+    "@types/papaparse": "5.5.2",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@univerjs/docs-ui": "0.25.1",
+    "@univerjs/preset-docs-core": "0.25.1",
+    "@univerjs/slides": "0.25.1",
+    "@univerjs/slides-ui": "0.25.1",
+    "workdsh-contracts": "workspace:*",
+    "@deepseek-ai/dsh-fs": "0.1.7-rc.2"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "4.0.3",
+    "@deepseek-ai/dsh-agent": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-connection": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-storage-domain": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-system-prompt": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-tools": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-fs": "0.1.7-rc.2"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-fs": {
+      "optional": true
+    }
+  }
+}

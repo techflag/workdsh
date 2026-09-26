@@ -1,0 +1,336 @@
+{
+  "currentStep": "D04",
+  "steps": [
+    {
+      "id": "D00",
+      "title": "修复设计审查",
+      "tasks": [
+        "DOC-05"
+      ],
+      "dependsOn": [],
+      "status": "completed",
+      "evidence": [
+        "docs/evidence/d00-resolution.md"
+      ]
+    },
+    {
+      "id": "D01",
+      "title": "安装链、官方接口与本地治理基线",
+      "tasks": [
+        "P0-01",
+        "P0-02",
+        "P0-03",
+        "P0-04",
+        "P0-05"
+      ],
+      "dependsOn": [
+        "D00"
+      ],
+      "status": "completed",
+      "evidence": [
+        "docs/evidence/d01-installation.md",
+        "docs/evidence/d01-client.md",
+        "docs/evidence/d01-remote.md",
+        "docs/evidence/d01-presets.md",
+        "docs/evidence/d01-governance-contracts.md",
+        "docs/evidence/d01-access-audit.md"
+      ]
+    },
+    {
+      "id": "D02",
+      "title": "基础插件与工作台最小版本",
+      "tasks": [
+        "P1-09",
+        "P1-01"
+      ],
+      "dependsOn": [
+        "D01"
+      ],
+      "status": "completed",
+      "evidence": [
+        "docs/evidence/d02-foundation.md"
+      ]
+    },
+    {
+      "id": "D03",
+      "title": "技能插件",
+      "tasks": [
+        "P1-03"
+      ],
+      "dependsOn": [
+        "D02"
+      ],
+      "status": "completed",
+      "evidence": [
+        "docs/evidence/skills-browser.md",
+        "docs/evidence/d02-foundation.md",
+        "docs/evidence/skills-standalone-package.md"
+      ]
+    },
+    {
+      "id": "D04",
+      "title": "专家插件",
+      "tasks": [
+        "P1-02"
+      ],
+      "dependsOn": [
+        "D03"
+      ],
+      "status": "in_progress",
+      "evidence": [
+        "docs/evidence/d04-experts-g01-g06.md",
+        "docs/evidence/d04-experts-ep07-verification.md",
+        "docs/evidence/d04-experts-review-fixes.md",
+        "docs/adr/0019-installable-host-self-containment-and-governance-assembly.md"
+      ]
+    },
+    {
+      "id": "D05",
+      "title": "连接器插件",
+      "tasks": [
+        "P1-04"
+      ],
+      "dependsOn": [
+        "D04"
+      ],
+      "status": "todo",
+      "evidence": []
+    },
+    {
+      "id": "D06",
+      "title": "资料库插件",
+      "tasks": [
+        "P1-06"
+      ],
+      "dependsOn": [
+        "D05"
+      ],
+      "status": "todo",
+      "evidence": []
+    },
+    {
+      "id": "D07",
+      "title": "项目插件",
+      "tasks": [
+        "P1-11"
+      ],
+      "dependsOn": [
+        "D06"
+      ],
+      "status": "todo",
+      "evidence": []
+    },
+    {
+      "id": "D08",
+      "title": "行业应用插件",
+      "tasks": [
+        "P1-05"
+      ],
+      "dependsOn": [
+        "D07"
+      ],
+      "status": "todo",
+      "evidence": []
+    },
+    {
+      "id": "D09",
+      "title": "企业后台首期",
+      "tasks": [
+        "P1-10"
+      ],
+      "dependsOn": [
+        "D08"
+      ],
+      "status": "todo",
+      "evidence": []
+    },
+    {
+      "id": "D10",
+      "title": "首期集成与组合验收",
+      "tasks": [
+        "P1-07",
+        "P1-08"
+      ],
+      "dependsOn": [
+        "D09"
+      ],
+      "status": "todo",
+      "evidence": []
+    },
+    {
+      "id": "D11",
+      "title": "专家团",
+      "tasks": [
+        "P2-01",
+        "P2-02"
+      ],
+      "dependsOn": [
+        "D10"
+      ],
+      "status": "todo",
+      "evidence": []
+    },
+    {
+      "id": "D12",
+      "title": "自动化插件",
+      "tasks": [
+        "P2-03",
+        "P2-04"
+      ],
+      "dependsOn": [
+        "D11"
+      ],
+      "status": "todo",
+      "evidence": []
+    },
+    {
+      "id": "D13",
+      "title": "提供方示例完善",
+      "tasks": [
+        "P2-05"
+      ],
+      "dependsOn": [
+        "D12"
+      ],
+      "status": "todo",
+      "evidence": []
+    },
+    {
+      "id": "D14",
+      "title": "团队部署与团队资料",
+      "tasks": [
+        "P3-01",
+        "P3-02"
+      ],
+      "dependsOn": [
+        "D13"
+      ],
+      "status": "todo",
+      "evidence": []
+    },
+    {
+      "id": "D15",
+      "title": "表格、页面与业务场景",
+      "tasks": [
+        "P3-03",
+        "P3-04",
+        "P3-05",
+        "P3-06"
+      ],
+      "dependsOn": [
+        "D14"
+      ],
+      "status": "todo",
+      "evidence": []
+    }
+  ],
+  "activeSlice": {
+    "id": "project-workspace",
+    "task": "P1-11",
+    "status": "completed",
+    "decision": "docs/PROJECT-DESIGN.md",
+    "scope": "用户要求任务时间倒序及项目同名空间；使用原生工作区，不继承最近会话目录，历史会话不迁移。 构建、11项测试及真实原生工作区/排序验证通过，开发预览已更新；未执行真实模型。",
+    "evidence": [
+      "docs/evidence/project-workspace.md"
+    ]
+  },
+  "completedSlices": [
+    {
+      "id": "skill-create-loop",
+      "task": "P1-03",
+      "status": "completed",
+      "decision": "docs/adr/0015-skill-control-plane-and-runtime-projection.md",
+      "scope": "Skill 0.1 使用 Harness 默认/本地技能并完成个人本地管理闭环；当前不开发公共市场、公共目录、SkillHub 或套件。企业服务端、管理 Web、组织目录、分类、版本和下发策略列入后期 ToDo，各模块开始时独立建立 0.1 版本线，不预先建立 Skill 0.2。",
+      "evidence": [
+        "docs/evidence/skills-browser.md",
+        "docs/releases/v0.1.0-alpha.1.md"
+      ]
+    },
+    {
+      "id": "dsh-0.1.7-upgrade",
+      "task": "P0-02",
+      "status": "completed",
+      "decision": "docs/DSH-0.1.7-UPGRADE-PLAN.md",
+      "scope": "升级核心兼容及 UI-017-01 修复完成；按用户授权直接升级并启动 18989 开发环境。追加 DEV-017-02：统一 Profile 内官方 CLI 与设置插件依赖实例，修复声明确认保存；原生保存、页面刷新、进程冷重启加全新浏览器均通过。追加 UI-017-03：技能、专家页面与共享 Modal 使用原生主题语义变量，构建和类型检查通过，实际安装后的明暗往返浏览器复验通过。追加 UI-017-04：补齐连接器、项目和资料库主页面主题，移除项目强制深色；构建与类型检查通过，安装后五页面及配置弹窗明暗往返复验通过。真实模型质量、历史数据全量迁移和发布仍未验收。",
+      "evidence": [
+        "docs/DSH-0.1.7-UPGRADE-PLAN.md",
+        "docs/evidence/dsh-0.1.7-acceptance.md"
+      ]
+    },
+    {
+      "id": "shared-form-controls",
+      "task": "P1-09",
+      "status": "completed",
+      "decision": "docs/UI-DESIGN.md",
+      "scope": "用户批准统一按钮、Input、Select、Textarea。优先原生 Button/Input，公共 UI 补齐原生没有的选择框及文本域，迁移五个管理模块并验证明暗主题。 构建/类型/规划通过；五模块实际浏览器几何、明暗、聚焦、选择、搜索提交及宽/窄屏项目弹窗复验通过；开发环境已更新，未发布。",
+      "evidence": [
+        "docs/evidence/shared-form-controls.md"
+      ]
+    },
+    {
+      "id": "project-detail-ux",
+      "task": "P1-11",
+      "status": "completed",
+      "decision": "docs/UI-DESIGN.md",
+      "scope": "用户授权项目详情体验修复：任务优先、计划按需编辑、紧凑配置、活动记录与输入区层级；不更换原生执行。 构建/typecheck、10项测试和真实项目浏览器验收通过；18989已更新，未发布。",
+      "evidence": [
+        "docs/evidence/project-detail-ux.md"
+      ]
+    }
+  ],
+  "deferredSlices": [
+    {
+      "id": "office-ai-editing",
+      "task": "P1-01",
+      "status": "paused",
+      "decision": "docs/adr/0024-ai-visible-browser-editing.md",
+      "scope": "Office-AI专项暂停保留，已实现Word、当前React PPT viewer、实验性Excel、HTML及PDF首版，不把实现或发行当整体验收。Word新增开发、Excel格式/合并/图表扩展暂停；画布与多维表格移出本专项，Markdown本轮不扩展。任意PDF导入/OCR/图片编辑及全部适配器文件保真、真实模型、多平台验收未完成。Office alpha.4完整包已发行并通过精确组合Profile生命周期验证，不代表U3—U5或D15完成。",
+      "evidence": [
+        "docs/evidence/office-live-u1.md",
+        "docs/design/office/PDF-LIVE.md"
+      ],
+      "reason": "2026-09-13 当前优先验证专家团 TM-01；保留 Office 未完成范围与证据，不标完成。",
+      "scopeHistory": [
+        {
+          "recordedThrough": "2026-09-14",
+          "scope": "用户批准的OFFICE-AI-01 / Office 0.1专项。通过官方Harness插件实现Word、PPT、Excel、PDF、画布、多维表格、HTML、Markdown及统一AI实时编辑。按U1—U5与OP-T01—07推进，U1最小新建document插件/五工具/原生Tiptap/独立打包已验证，U2确定性工具/UI链路通过；接续真实模型/PTC及恢复验收，八类与U3-U5未完成。独立Office包、Host服务/工具/Connection与Client官方组合；不改变主线D04/D15状态，不包含tables业务数据库或pages发布。 2026-09-13 用户最新决定：画布与多维表格不再列入本专项开发，停止这两项占位入口；下一个适配器仅推进 PDF，现有 Word/PPT/Excel/HTML 保持，Markdown 本轮不扩展。PDF 完成须真实文件预览、AI 更新、保存重开与最终 PDF 交付验证，不能将技能指导或静态预览称为已完成。 PDF 首版已实现新建页对象及文本/矩形、真实 PDF.js 预览、按页修订、人工文字保存和 PDF 派生下载；字体完整静态嵌入，既有任意 PDF 导入/OCR/图片编辑未接入。独立安装交付签收以 PDF-LIVE 证据为准，Office 专项仍为 in_progress。"
+        }
+      ]
+    },
+    {
+      "id": "expert-team-tm01",
+      "task": "P1-02",
+      "status": "paused",
+      "decision": "docs/adr/0020-expert-team-sop-on-native-workflow.md",
+      "scope": "用户 2026-09-15 明确要求自建专家团执行器退役，改用官方 Agent Teams。旧 TeamRuns/SOP 运行表、委派 provider 与工具已删除，资产管理/固定修订/授权保留。官方真实运行9项和七包独立Web7项检查通过，专业成果/官方fork查询问题/其余0.1.6新能力继续验收，不签收D04或D11全部范围，不推进后续业务模块。",
+      "evidence": [
+        "docs/evidence/expert-team-tm01.md",
+        "docs/releases/2026-09-14-development-candidate.md"
+      ],
+      "workItem": "TM-01",
+      "relatedTasks": [
+        "P2-01"
+      ],
+      "scopeHistory": [
+        {
+          "recordedThrough": "2026-09-14",
+          "scope": "用户要求由当前设计者先验证SOP。只做TM-01：隔离核对同版本官方运行接点，不实施团队UI、不修改上游、不操作用户preview。专家插件P1-02/0.1拥有业务策略，关联P2-01，主线D04及D11前置保留。第二批one-shot指定专家/冻结Skill与绑定、取消和冷读通过；第三批有限SOP正文版本/指定评审/依赖/预算/取消撤销/并发/受测工具绕行及冷读预算通过；第四批实际Profile工具/权限组合、真实文件版本回执（生成→评审→交接→交付同字节）与取消/不确定派发对账通过（integrationReady=true，10项检查9通过、1项受控委派工具设计缺口）。第五批运行接入完成：one-shot适配迁入专家插件正式生命周期（ctx.effect托管注册/撤销/清理）、六项AI可调用受控委派工具（复用同一TeamRunsManager业务服务，按SOP选择成员/前置验收/尝试限额）、签收/交接/交付三闸门文件版本校验；生产路径--team退出0，7项检查全部通过（teamReady=true、teamNativeChildren=13；正例两位已有专家协作生成/审核/交付同一sha256，反例跳步/文件漂移/取消/重复调用均在预留或签收前被拒，独立进程冷读deliveryArtifactMatch=true、executionResumed=false）。团队创建页面本批明确不做，运行只经AI工具。TM-01仍in_progress：整体退出与TM-02～04准入等待用户验收；团队页面、完整生产Profile安装、付费模型与AT-T01～07未执行。 用户后续授权修正完整专家/专家团制作交付体系：自由Agent Markdown与原包文本为创作源，复用现有Host保存、确认发布、固定成员修订、官方Skill挂载、导入导出；修正制作文件编辑入口。单成员直接委派及二进制资源安装保留未完成边界，不修改上游、不安装preview。 用户要求完整覆盖WorkBuddy专家制作交付体系：继续补齐单成员真实调用、可选评审及串并行完整回传、二进制资源与CLI安装、真实整包交付；保持官方运行/沙箱及统一Host权限，不缩减为文本包范围。 用户截图授权专家中心/我的作品独立分工、专家与专家团类型分类及自然语言创建分流；复用官方原生新任务，不复制编辑器。 用户授权修复实际团队委派悬空：原生等待/启动超时、执行和评审异常结算、官方子会话显式恢复核对已实现；33项管理/故障测试和隔离--team回归通过，保留前置成果和尝试次数。已完成未结算或未知终态不自动重派；实际旧任务续作及真实模型端到端验收仍待执行。 用户授权独立活动展示插件：以官方Session事实覆盖问答/Skill/专家/团队，顶部一行、动画可关闭；不改变原SOP规则。；活动与协作独立插件0.1完成隔离官方Profile/浏览器及停用验证，18989正式preview已更新重启并验证协作栏，不推进TM-01验收。 外观进一步按用户效果图调整为头像与成员状态分段，保持40px；历史固定修订无图片则不读取未发布草稿。 用户授权修复普通对话异常：全局默认误选wd-exp-*内部preset，原生选择与设置菜单统一过滤并拒绝内部操作，恢复preview默认standard；保留专家绑定guard及旧任务历史。 用户要求活动栏对齐认可图并增加Siri式沿边框滚动色条：46px/宽屏1120px/留白、工作时彩边与眨眼三点动画、开关及减少动态效果；不追加模型请求。 用户最新要求活动栏缩减一半并居中：最大560px/可用区域50%，46px及彩边动画保留；隔离浏览器几何和动效验证通过，授权中断后更新preview。 召唤后的hero专家名称从官方已有preset name只读展示，修复过滤后退回内部ID；普通菜单过滤及绑定guard保留。 用户授权保存三张截图、更新README及准备本地发布候选：8包与SHA256清单、发布限制说明完成；未对外发布，不推进TM-01验收。 用户收敛仅改顶部参考图场景栏：团队56px双层/固定修订三成员头像/真实运行高亮，半宽居中和彩边开关保留；没有已验证交接事件不制造动效，原生正文和文件卡不改。 活动栏每3秒刷新官方子任务目录（运行期间），委派/读取失败不兜底为主理人；真实任务已结束，长任务运行切换未付费重验。 用户授权提交发布准备：新模块候选版本、8包重打、真实截图及Twitter草稿；按明确指示Office文本收集缺项用README引用记录，不作为本次阻塞；不代替TM-01验收，不对外发Twitter。"
+        }
+      ],
+      "verified": [
+        "生产路径--team确定性探针7项通过，原生子会话与同sha256交付",
+        "委派故障/管理33项回归通过",
+        "发行8个精确tgz官方Web Profile安装、两次冷启动、鉴权及移除冷启动通过"
+      ],
+      "pendingAcceptance": [
+        "真实模型执行/评审/交接/交付完整流程",
+        "实际旧任务中断恢复及结果核对",
+        "最新子任务刷新修复后的真实长任务成员切换",
+        "AT-T01～T07整体验收"
+      ],
+      "reason": "用户授权优先完成 0.1.7-alpha.1 原生优先升级，历史验收范围保留。"
+    }
+  ],
+  "lastReconciled": "2026-09-14",
+  "statusGuide": "主线/切片完成、模块实现、公开发行与产品验收分别登记；STATUS顶部是当前摘要，scopeHistory只供历史追溯。"
+}

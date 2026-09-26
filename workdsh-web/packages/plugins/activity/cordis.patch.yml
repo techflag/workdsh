@@ -1,0 +1,5 @@
+# Native Conversation owns work-process presentation in DSH 0.1.7.
+- insert:
+    - id: workdsh-activity
+      name: workdsh-plugin-activity
+      disabled: true

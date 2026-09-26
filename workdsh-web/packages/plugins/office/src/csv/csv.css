@@ -1,0 +1,21 @@
+.wd-csv{display:flex;flex-direction:column;height:100%;min-height:0;min-width:0;overflow:hidden;font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;line-height:1.5;color:var(--dsw-alias-label-primary,#e7e7e7)}
+.wd-csv-note{flex-shrink:0;padding:6px 12px;font-size:12px;line-height:1.6;color:var(--dsw-alias-label-secondary,#a5a5a5);background:var(--dsw-alias-bg-layer-2,#2c2c2e);border-bottom:1px solid var(--dsw-alias-border-l2,#ffffff1f)}
+.wd-csv-scroll{flex:1;min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain;outline:none}
+.wd-csv-scroll:focus-visible{outline:1px solid var(--dsw-alias-border-l4,#ffffff33);outline-offset:-1px}
+.wd-csv-table{border-collapse:separate;border-spacing:0;min-width:100%;color:inherit;font-variant-numeric:tabular-nums}
+.wd-csv-table th,.wd-csv-table td{padding:3px 10px;text-align:left;vertical-align:top;box-sizing:border-box;border-right:1px solid var(--dsw-alias-border-l2,#ffffff1f);border-bottom:1px solid var(--dsw-alias-border-l2,#ffffff1f)}
+.wd-csv-table thead th{position:sticky;top:0;z-index:2;font-weight:600;white-space:nowrap;background:var(--dsw-alias-bg-layer-2,#2c2c2e);border-top:1px solid var(--dsw-alias-border-l2,#ffffff1f);border-bottom:1px solid var(--dsw-alias-border-l3,#ffffff29)}
+.wd-csv-table .wd-csv-rownum{position:sticky;left:0;z-index:1;width:1%;min-width:40px;text-align:right;font-weight:400;color:var(--dsw-alias-label-tertiary,#adb2b8);background:var(--dsw-alias-bg-layer-1,#232324);border-left:1px solid var(--dsw-alias-border-l2,#ffffff1f);border-right:1px solid var(--dsw-alias-border-l2,#ffffff1f);user-select:none}
+.wd-csv-table thead .wd-csv-rownum{z-index:3;border-bottom:1px solid var(--dsw-alias-border-l3,#ffffff29)}
+.wd-csv-table tbody tr:nth-child(even) td{background:var(--dsw-alias-bg-skeleton,#ffffff14)}
+.wd-csv-table tbody tr:nth-child(even) .wd-csv-rownum{background:linear-gradient(var(--dsw-alias-bg-skeleton,#ffffff14),var(--dsw-alias-bg-skeleton,#ffffff14)),var(--dsw-alias-bg-layer-1,#232324)}
+.wd-csv-table tbody tr:hover td{background:var(--dsw-alias-interactive-bg-hover,#ffffff14)}
+.wd-csv-table tbody tr:hover .wd-csv-rownum{background:linear-gradient(var(--dsw-alias-interactive-bg-hover,#ffffff14),var(--dsw-alias-interactive-bg-hover,#ffffff14)),var(--dsw-alias-bg-layer-1,#232324)}
+.wd-csv.nowrap .wd-csv-table td{white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis}
+.wd-csv.wrap .wd-csv-table td{white-space:pre-wrap;overflow-wrap:anywhere;max-width:380px}
+.wd-csv.wrap .wd-csv-table td,.wd-csv.wrap .wd-csv-table thead th:not(.wd-csv-rownum){min-width:96px}
+.wd-csv-table td.wd-csv-num{text-align:right}
+.wd-csv-status{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:4px 12px;font-size:12px;color:var(--dsw-alias-label-tertiary,#adb2b8);border-top:1px solid var(--dsw-alias-border-l2,#ffffff1f);white-space:nowrap;overflow:hidden}
+.wd-csv-status>span{flex-shrink:0}
+.wd-csv-status .wd-csv-clip{color:var(--dsw-alias-label-secondary,#cfd3d6);overflow:hidden;text-overflow:ellipsis;flex-shrink:1}
+.wd-csv-empty{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 16px;text-align:center;color:var(--dsw-alias-label-secondary,#a5a5a5)}

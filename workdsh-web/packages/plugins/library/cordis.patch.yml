@@ -1,0 +1,4 @@
+- insert:
+    - id: workdsh-library
+      name: workdsh-plugin-library
+

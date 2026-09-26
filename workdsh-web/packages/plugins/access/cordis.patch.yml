@@ -1,0 +1,9 @@
+- insert:
+    - id: workdsh-access
+      name: workdsh-plugin-access
+    - id: workdsh-session-access
+      name: workdsh-plugin-access/session
+    - id: workdsh-tool-access
+      name: workdsh-plugin-access/tool
+      config:
+        autoBindPersonalSessions: true

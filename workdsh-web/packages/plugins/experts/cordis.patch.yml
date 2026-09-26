@@ -1,0 +1,20 @@
+# Official Team composition (DSH 0.1.6). The official service owns execution.
+- id: tool-subagent-control
+  disabled: true
+- id: tool-subagent-list-agents
+  disabled: true
+- id: tool-subagent
+  disabled: true
+- id: tool-subagent-fork
+  disabled: true
+- insert:
+    - id: agent-team
+      name: '@deepseek-ai/dsh-experimental-agent-team'
+      config:
+        maxMembers: 16
+    - id: tool-agent-team
+      name: '@deepseek-ai/dsh-experimental-tool-agent-team'
+    - id: client-ui-agent-team
+      name: '@deepseek-ai/dsh-experimental-client-ui-agent-team'
+    - id: workdsh-experts
+      name: workdsh-plugin-experts

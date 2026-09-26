@@ -1,0 +1,54 @@
+.work-ribbon{background:#191a1d;color:#ddd;font:13px 'PingFang SC','Microsoft YaHei',sans-serif;flex-shrink:0;border-bottom:1px solid #333}
+.ribbon-tabs{display:flex;gap:22px;padding:0 14px;background:#111214;align-items:center;height:42px}.ribbon-tabs button{border:0;background:none;color:#c6c8cf;padding:10px 0;cursor:pointer}.ribbon-tabs button[aria-selected=true]{color:#fff;font-weight:600;border-bottom:3px solid #287cff}.ribbon-tabs .ribbon-more{margin-left:auto;font-size:12px;color:#a0a5af}
+.ribbon-body{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:7px 9px;min-height:82px}.ribbon-group{display:flex;border-right:1px solid #404148;padding-right:9px;margin-right:5px;gap:4px}.ribbon-action,.ribbon-menu summary,.ribbon-check{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-width:62px;height:65px;border:0;border-radius:5px;background:transparent;color:inherit;cursor:pointer;padding:6px}.ribbon-action:hover,.ribbon-menu summary:hover{background:#303239}.ribbon-action:disabled{opacity:.35;cursor:default}.ribbon-menu{position:relative}.ribbon-menu summary{list-style:none}.ribbon-menu summary::-webkit-details-marker{display:none}.ribbon-menu[open]>div{position:absolute;top:68px;left:0;min-width:150px;z-index:50;padding:5px;background:#23262c;border:1px solid #50545e;border-radius:6px;box-shadow:0 8px 25px #0007}.ribbon-menu button{display:block;text-align:left;width:100%;border:0;color:#eee;background:none;padding:8px;border-radius:3px}.ribbon-menu button:hover{background:#35455e}.ribbon-menu button:disabled{opacity:.35}.ribbon-menu label{display:flex;gap:5px;padding:8px}.ribbon-menu input{background:#111;color:white;width:70px}.ribbon-check span{display:flex;gap:5px;align-items:center}
+
+.workdsh-ppt-editor .chart-config-entry{margin-left:12px;padding:6px 12px;border:1px solid #475569;border-radius:5px;background:#2563eb;color:white;font-size:13px;cursor:pointer}.workdsh-ppt-editor .chart-config-entry:disabled{background:#252a33;color:#94a3b8;cursor:default}
+
+/* The full native Inspector remains a flow child at narrow desktop widths. */
+.workdsh-ppt-editor div[class*="max-md:translate-y-0"][class*="md:h-full"]{position:relative!important;inset:auto!important;transform:none!important;height:100%!important;max-height:100%!important;width:260px!important;min-width:260px;max-width:260px!important;flex-shrink:0;border-radius:0!important;padding-bottom:0!important;border-left:1px solid #374151;z-index:auto!important}
+.workdsh-ppt-editor div[class*="max-md:translate-y-full"][class*="md:h-full"]{display:none!important}
+.workdsh-ppt-editor:has(div[class*="max-md:translate-y-0"][class*="md:h-full"]) button[class*="backdrop-blur-"][class*="fixed inset-0"]{display:none!important}
+.workdsh-ppt-editor div[class*="md:h-full"]>div[class*="cursor-grab"]{display:none!important}
+.workdsh-ppt-editor [data-pptx-inspector]{position:relative!important;inset:auto!important;width:260px!important;min-width:260px;flex:0 0 260px!important;z-index:auto!important;min-height:0}
+
+.workdsh-ppt-editor aside[role="navigation"]{width:120px!important;min-width:120px;flex:0 0 120px!important}
+.workdsh-ppt-editor [data-pptx-inspector]{width:240px!important;min-width:240px;flex-basis:240px!important}
+.workdsh-ppt-editor div[class*="max-md:translate-y-0"][class*="md:h-full"]{width:240px!important;min-width:240px;max-width:240px!important}
+
+.workdsh-ppt-editor .trial-inspector-section{border:1px solid #374151;border-radius:6px;background:#191e28;margin-block:8px;min-width:0}
+.workdsh-ppt-editor .trial-inspector-section>summary{padding:10px 8px;cursor:pointer;color:#e5e7eb;font-size:12px;list-style-position:inside}
+.workdsh-ppt-editor .trial-inspector-section>div{border:0!important;margin:0!important}
+.workdsh-ppt-editor [data-pptx-inspector] input,.workdsh-ppt-editor [data-pptx-inspector] select{min-height:28px!important;font-size:12px!important;min-width:0!important}
+.workdsh-ppt-editor [data-pptx-inspector] button{min-width:26px!important;min-height:28px!important;font-size:11px!important}
+.workdsh-ppt-editor [data-pptx-inspector]>div>div:first-child{padding:8px!important;gap:4px!important}
+.workdsh-ppt-editor [data-pptx-inspector]>div>div:first-child span{display:inline!important}
+.workdsh-ppt-editor [data-pptx-inspector] div[class*="space-y-3"]:has(>.trial-inspector-section){display:flex;flex-direction:column;gap:8px}
+.workdsh-ppt-editor [data-pptx-inspector] div[class*="space-y-3"]>div:has(input[aria-label*=" value "]){order:-1;margin-top:0!important}
+
+.workdsh-ppt-editor [data-pptx-inspector] button[title="元素"] span,.workdsh-ppt-editor [data-pptx-inspector] button[title="属性"] span,.workdsh-ppt-editor [data-pptx-inspector] button[title="批注"] span{display:inline!important}
+.workdsh-ppt-editor .trial-animation-section{padding:4px 8px!important}
+.workdsh-ppt-editor .trial-animation-section .trial-inspector-section{margin-block:0}
+
+/* Neutral desktop chrome, using the native theme prop for all editor controls. */
+.workdsh-ppt-editor{font-family:'PingFang SC','Microsoft YaHei',sans-serif;color-scheme:dark}
+.workdsh-ppt-editor .work-ribbon{background:#202124;color:#dddde0;border-color:#34363a}
+.workdsh-ppt-editor .ribbon-document{padding:12px 16px;background:#202124;border-bottom:1px solid #303236;font-size:14px;font-weight:500;letter-spacing:.1px;line-height:20px;color:#f3f3f4}
+.workdsh-ppt-editor .ribbon-tabs{background:#131415;gap:24px;height:40px}
+.workdsh-ppt-editor .ribbon-tabs button{font-size:13px;font-weight:400;color:#bfc0c5}
+.workdsh-ppt-editor .ribbon-tabs button[aria-selected=true]{border-color:#1677ff;color:#fff;font-weight:500}
+.workdsh-ppt-editor .ribbon-body{padding:6px 10px;min-height:76px}
+.workdsh-ppt-editor .ribbon-action,.workdsh-ppt-editor .ribbon-menu summary,.workdsh-ppt-editor .ribbon-check{height:62px;gap:7px;border-radius:4px}
+.workdsh-ppt-editor .ribbon-group{border-color:#3a3c40}
+.workdsh-ppt-editor aside[role="navigation"]{background:#151617!important;border-color:#35373b!important;padding-top:8px}
+.workdsh-ppt-editor aside[role="navigation"] button[aria-current=true]{background:#25282d!important}
+.workdsh-ppt-editor aside[role="navigation"] button[aria-current=true] div[class*="overflow-hidden"]{outline:2px solid #1677ff;outline-offset:0;border-radius:3px}
+.workdsh-ppt-editor [data-pptx-inspector]{background:#232427!important;border-left:1px solid #3b3d42}
+.workdsh-ppt-editor [data-pptx-inspector]>div{background:#232427!important;box-shadow:none!important;border-color:#3b3d42!important}
+.workdsh-ppt-editor [data-pptx-inspector] div[class*="bg-card"]{background:transparent!important;box-shadow:none!important}
+.workdsh-ppt-editor .trial-inspector-section{border:0;border-top:1px solid #3b3d42;border-radius:0;background:transparent;margin-block:2px}
+.workdsh-ppt-editor .trial-inspector-section>summary{padding:11px 4px;font-size:12px;font-weight:500;color:#d9dadf}
+.workdsh-ppt-editor [data-pptx-inspector] input,.workdsh-ppt-editor [data-pptx-inspector] select{background:#2b2d31!important;color:#ededee!important;border:1px solid #484b50!important;border-radius:4px!important;padding:4px 6px!important}
+.workdsh-ppt-editor [data-pptx-inspector] input:focus-visible,.workdsh-ppt-editor [data-pptx-inspector] select:focus-visible{outline:1px solid #1677ff!important;border-color:#1677ff!important}
+.workdsh-ppt-editor [data-pptx-inspector] table input{background:#202124!important}
+.workdsh-ppt-editor [data-pptx-inspector] button[class*="bg-primary"]{background:#303c50!important;color:#b7d6ff!important}
+.workdsh-ppt-editor [data-pptx-inspector] button:hover{background:#34373c}

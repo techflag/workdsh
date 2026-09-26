@@ -1,0 +1,195 @@
+{
+  "date": "2026-09-13",
+  "root": "docs/workbuddyskills",
+  "fileCount": 286,
+  "topLevelSkills": 26,
+  "nestedSkills": [
+    "docs/workbuddyskills/ardot-design-core/func-rule/component-instance/SKILL.md",
+    "docs/workbuddyskills/ardot-design-core/func-rule/design-variables/SKILL.md",
+    "docs/workbuddyskills/ardot-design-core/func-rule/shared-styles/SKILL.md"
+  ],
+  "skills": [
+    {
+      "skill": "ardot-design-core",
+      "entry": "docs/workbuddyskills/ardot-design-core/SKILL.md",
+      "files": 14,
+      "bytes": 187958,
+      "sha256": "d187ea0adf9fabad54d364a310708a40e8c9e76346b6296116bc0d184128ea5a"
+    },
+    {
+      "skill": "ardot-design-to-code",
+      "entry": "docs/workbuddyskills/ardot-design-to-code/SKILL.md",
+      "files": 6,
+      "bytes": 63568,
+      "sha256": "81b7319431597d85ca87c40395275ebfbb51f0a34fee0650579cd9e33457d96b"
+    },
+    {
+      "skill": "ardot-poster",
+      "entry": "docs/workbuddyskills/ardot-poster/SKILL.md",
+      "files": 3,
+      "bytes": 24320,
+      "sha256": "81ef159846b31ad6ef0ac9890139a044d2ae337026c4958021a9dfb664702c84"
+    },
+    {
+      "skill": "ardot-slides",
+      "entry": "docs/workbuddyskills/ardot-slides/SKILL.md",
+      "files": 4,
+      "bytes": 23665,
+      "sha256": "4bca59555064667837fb415199b36b835578b515258f32e701616a1d45b8e3fa"
+    },
+    {
+      "skill": "ardot-ui-design",
+      "entry": "docs/workbuddyskills/ardot-ui-design/SKILL.md",
+      "files": 6,
+      "bytes": 38252,
+      "sha256": "2367fa50ae6c9c292d1f960906d275c7b724656414bd964baa9b82fbf1985cdb"
+    },
+    {
+      "skill": "buddy-image-processing",
+      "entry": "docs/workbuddyskills/buddy-image-processing/SKILL.md",
+      "files": 3,
+      "bytes": 26646,
+      "sha256": "6a0dfb05b5eac3317b5185fbbfac72e89e05052d7f2c47db4d54892896eea52b"
+    },
+    {
+      "skill": "buddy-multimodal-generation",
+      "entry": "docs/workbuddyskills/buddy-multimodal-generation/SKILL.md",
+      "files": 3,
+      "bytes": 50590,
+      "sha256": "9657e9527c48970f9fd05182f720b389f69e74966f411b018fa8a9c08ea6c90c"
+    },
+    {
+      "skill": "cloud-service",
+      "entry": "docs/workbuddyskills/cloud-service/SKILL.md",
+      "files": 10,
+      "bytes": 112561,
+      "sha256": "0e450b7475aabe0f789ae3f7b5b9b4916d149afb590d412be56e34360e6f74df"
+    },
+    {
+      "skill": "design-router",
+      "entry": "docs/workbuddyskills/design-router/SKILL.md",
+      "files": 2,
+      "bytes": 7267,
+      "sha256": "a07aab3867d53440b0175d08fed753bdf84dec2587cf6908829d8eecd6868197"
+    },
+    {
+      "skill": "expert-manager",
+      "entry": "docs/workbuddyskills/expert-manager/SKILL.md",
+      "files": 14,
+      "bytes": 100117,
+      "sha256": "18b0655c3e7573fe9402fd00a605d2dc94918c9eecd028f9f3923e74da17bc45"
+    },
+    {
+      "skill": "geo-map-compliance-guard",
+      "entry": "docs/workbuddyskills/geo-map-compliance-guard/SKILL.md",
+      "files": 2,
+      "bytes": 9358,
+      "sha256": "234c0f985d9d83d80d7efb5dbf48644df64eb49445f46767afba226304ece5fe"
+    },
+    {
+      "skill": "library",
+      "entry": "docs/workbuddyskills/library/SKILL.md",
+      "files": 97,
+      "bytes": 963468,
+      "sha256": "0f97850100ea489265f309e0404e721733b34508d86ac4067f98e9903e0ba491"
+    },
+    {
+      "skill": "livestream-poster",
+      "entry": "docs/workbuddyskills/livestream-poster/SKILL.md",
+      "files": 14,
+      "bytes": 52552,
+      "sha256": "726fc63bd0caa7be3ca5b41d93d2d110d9f6096bef1f8b237045386767f7c1bf"
+    },
+    {
+      "skill": "marketplace-skill-installer",
+      "entry": "docs/workbuddyskills/marketplace-skill-installer/SKILL.md",
+      "files": 2,
+      "bytes": 5660,
+      "sha256": "68d28333efb2c9e19b92cba25c50ad3efbf30982579e46b4beb3402fd2d8b49d"
+    },
+    {
+      "skill": "miora-brand-design",
+      "entry": "docs/workbuddyskills/miora-brand-design/SKILL.md",
+      "files": 6,
+      "bytes": 46834,
+      "sha256": "0a7e5bae9d0b0acf7a748457c2ff84a26f71fe9e53752662c9a8ce1ccced8620"
+    },
+    {
+      "skill": "miora-creative-core",
+      "entry": "docs/workbuddyskills/miora-creative-core/SKILL.md",
+      "files": 6,
+      "bytes": 21390,
+      "sha256": "b4387d70ec3cfae2288d0f6562972698074b079084dbf38256aba24dd9aa9e1b"
+    },
+    {
+      "skill": "miora-image-generation",
+      "entry": "docs/workbuddyskills/miora-image-generation/SKILL.md",
+      "files": 4,
+      "bytes": 35051,
+      "sha256": "bfbf27ebd1e3ddc9b0bd0d6e3f4d025bba0394b29104e491598efd339636c108"
+    },
+    {
+      "skill": "miora-video-generation",
+      "entry": "docs/workbuddyskills/miora-video-generation/SKILL.md",
+      "files": 3,
+      "bytes": 12584,
+      "sha256": "1f69439783eed24c5ee0ba12e54bd3d1dd4313581575bd0415ee230b7aa41d88"
+    },
+    {
+      "skill": "recommend-connectors",
+      "entry": "docs/workbuddyskills/recommend-connectors/SKILL.md",
+      "files": 2,
+      "bytes": 2614,
+      "sha256": "a7491a7e3d6c7eb974ad3fe48728331f2ea29672426b53e78b3501dec401a8db"
+    },
+    {
+      "skill": "recommend-experts",
+      "entry": "docs/workbuddyskills/recommend-experts/SKILL.md",
+      "files": 2,
+      "bytes": 3387,
+      "sha256": "daf1943b6ecc9b636e3f3c9d0545569090f32e7c63abb62d5333fe73282d3524"
+    },
+    {
+      "skill": "sites",
+      "entry": "docs/workbuddyskills/sites/SKILL.md",
+      "files": 2,
+      "bytes": 21699,
+      "sha256": "b11d5f609fcd593263a29f21a576229d275b4fc4ef3b340e9197355ca1802cb3"
+    },
+    {
+      "skill": "skill-creator",
+      "entry": "docs/workbuddyskills/skill-creator/SKILL.md",
+      "files": 6,
+      "bytes": 43193,
+      "sha256": "8aa6ad52cbfca1b8700eeafb1617ae8c0a86ed8e02dc80e841021f489c2adc19"
+    },
+    {
+      "skill": "tencent-docs-routing",
+      "entry": "docs/workbuddyskills/tencent-docs-routing/SKILL.md",
+      "files": 2,
+      "bytes": 19875,
+      "sha256": "16dbf56ce6a8fbf38b81cdf7168ac54a16e2bc0dae2451cf0d82ef40df85b281"
+    },
+    {
+      "skill": "tencent-local-office-edit",
+      "entry": "docs/workbuddyskills/tencent-local-office-edit/SKILL.md",
+      "files": 7,
+      "bytes": 56444,
+      "sha256": "ee54ceebd6ea91711faff11ec87f6d105092b3edd15d0e1b52ced5be007a3f86"
+    },
+    {
+      "skill": "wb-finance-skill",
+      "entry": "docs/workbuddyskills/wb-finance-skill/SKILL.md",
+      "files": 64,
+      "bytes": 332207,
+      "sha256": "50d26b3bd1cecedb3b7e77b838f190425162240442f6fa0cded2a276d06d71aa"
+    },
+    {
+      "skill": "wecom-forwarded-chat-resources",
+      "entry": "docs/workbuddyskills/wecom-forwarded-chat-resources/SKILL.md",
+      "files": 2,
+      "bytes": 6023,
+      "sha256": "8f5e2c1fa21928070169ac37cb05b6c9aac1b5c6dac5b2458cb5806626f67020"
+    }
+  ]
+}

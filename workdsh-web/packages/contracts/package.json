@@ -1,0 +1,51 @@
+{
+  "name": "workdsh-contracts",
+  "version": "0.1.0-alpha.9",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./skills": {
+      "types": "./dist/skills.d.ts",
+      "default": "./dist/skills.js"
+    },
+    "./experts": {
+      "types": "./dist/experts.d.ts",
+      "default": "./dist/experts.js"
+    },
+    "./skill-revisions": {
+      "types": "./dist/skill-revisions.d.ts",
+      "default": "./dist/skill-revisions.js"
+    },
+    "./office": {
+      "types": "./dist/office.d.ts"
+    },
+    "./activity": {
+      "types": "./dist/activity.d.ts",
+      "default": "./dist/activity.js"
+    },
+    "./library": {
+      "types": "./dist/library.d.ts",
+      "default": "./dist/library.js"
+    },
+    "./projects": {
+      "types": "./dist/projects.d.ts",
+      "default": "./dist/projects.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.0"
+  }
+}

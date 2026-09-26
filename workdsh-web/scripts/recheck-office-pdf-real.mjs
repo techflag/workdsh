@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {readFile,writeFile,mkdtemp,rm} from 'node:fs/promises';
+import {join,resolve} from 'node:path';
+import {tmpdir} from 'node:os';
+import {build} from 'esbuild';
+import {chromium} from '@playwright/test';
+const artifacts=resolve(process.argv[2]??'.artifacts/office-pdf-live-real');
+const report=JSON.parse(await readFile(join(artifacts,'real-result.json'),'utf8'));
+assert.equal(report.status,'idle');assert.equal(report.document.kind,'pdf');assert.equal(report.document.state.pages.length,2);assert.ok(report.document.revision>=2);
+const calls=report.trace.filter(e=>e.type==='tool/call');assert.equal(calls[0].name,'content_open');assert.ok(calls.filter(e=>e.name==='content_edit').length>=2);assert.ok(calls.some(e=>e.name==='content_export'));
+const bytes=await readFile(join(artifacts,'real-budget-report.pdf'));assert.equal(bytes.subarray(0,5).toString(),'%PDF-');assert.ok(report.deliveries.some(e=>e.data.files.some(f=>f.path.endsWith('.pdf'))));
+const runtime=JSON.parse(await readFile(join(artifacts,'recheck-source.json'),'utf8'));const final=report.deliveries.at(-1).data.files.find(f=>f.path.endsWith('.pdf'));assert.ok(bytes.equals(await readFile(join(runtime.workspace,final.path))));
+const temp=await mkdtemp(join(tmpdir(),'workdsh-pdf-recheck-'));
+const bundle=await build({stdin:{resolveDir:resolve('.'),contents:"import {createPdfTask} from './packages/plugins/office/src/pdf/viewer.ts';window.renderReport=async(bytes)=>{const job=createPdfTask(Uint8Array.from(atob(bytes),c=>c.charCodeAt(0)));try{const doc=await job.task.promise,pages=[];for(let i=1;i<=doc.numPages;i++){const p=await doc.getPage(i),text=await p.getTextContent();pages.push(text.items.map(x=>x.str).join(''));const c=document.createElement('canvas');c.id='page-'+i;document.body.append(c);const viewport=p.getViewport({scale:1.2});c.width=viewport.width;c.height=viewport.height;await p.render({canvas:c,viewport}).promise;}return pages;}finally{await job.destroy();}};"},bundle:true,format:'iife',write:false,plugins:[{name:'worker-source',setup(b){b.onLoad({filter:/pdf\.worker\.min\.mjs$/},async args=>({contents:await readFile(args.path,'utf8'),loader:'text'}));}}]});
+const browser=await chromium.launch({headless:true});let pages;
+try{const page=await browser.newPage({viewport:{width:900,height:1200}});await page.route('http://127.0.0.1:19100/',r=>r.fulfill({contentType:'text/html',body:'<!doctype html><style>body{margin:0;padding:24px;background:#e5e7eb}canvas{display:block;background:white;margin:0 auto 24px}</style>'}));await page.goto('http://127.0.0.1:19100/');await page.addScriptTag({content:bundle.outputFiles[0].text});pages=await page.evaluate(b=>window.renderReport(b),bytes.toString('base64'));assert.equal(pages.length,2);
+const normalized=pages[0].replace(/(?<=\d),(?=\d{3})/g,'');for(const value of ['1000','800','200'])assert.ok(normalized.includes(value));assert.match(pages[0],/20\s*[%％]/);assert.match(pages[1],/凭证/);assert.match(pages[1],/待确认/);
+for(let i=1;i<=2;i++)await page.locator('#page-'+i).screenshot({path:join(artifacts,`real-page-${i}.png`)});
+await writeFile(join(artifacts,'real-pdf-text.json'),JSON.stringify(pages,null,2));
+await writeFile(join(artifacts,'real-recheck.json'),JSON.stringify({modelExecution:'executed previously; not repeated',result:'passed',correction:'Accept numeric thousands separators',checks:['Official model loop first opens content','Two content edit batches','Two-page actual delivered PDF','Delivered bytes unchanged','PDF.js decodes business values and unknowns','Both pages rendered for visual review'],professionalVisualReview:'pending'},null,2));console.log('Existing real model PDF: content, file bytes and two-page rendering passed; no model call repeated');
+}finally{await browser.close();await rm(temp,{recursive:true,force:true});}

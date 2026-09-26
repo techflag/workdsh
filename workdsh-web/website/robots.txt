@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://techflag.github.io/workdsh/sitemap.xml

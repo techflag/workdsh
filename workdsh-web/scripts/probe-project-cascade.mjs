@@ -1,0 +1,22 @@
+import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {chromium} from '@playwright/test';
+import assert from 'node:assert/strict';
+let login;for(let i=0;i<150;i++){login=(await readFile('.test-runtime/upgrade-017/preview-server.log','utf8')).match(/http:\/\/127\.0\.0\.1:18989\/\?token=[\w-]+/)?.[0];if(login)break;await new Promise(r=>setTimeout(r,1000))}assert.ok(login);
+const browser=await chromium.launch();const page=await browser.newPage({viewport:{width:1440,height:1000},colorScheme:'light'});let fixture;
+const call=(endpoint,payload={})=>page.evaluate(async({endpoint,payload})=>{const j=await(await fetch('/api/workdsh-projects',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint,payload})})).json();if(!j.ok)throw Error(j.error?.message);return j.value},{endpoint,payload});
+try{
+ await page.goto(login);await page.getByText('Settings',{exact:true}).click();await page.getByRole('button',{name:'System',exact:true}).click();await page.getByRole('button',{name:'Close',exact:true}).click();
+ fixture=await call('create',{name:'级联菜单验收'});await page.goto('http://127.0.0.1:18989/?workdsh-view=projects&project='+fixture.project.id);await mkdir('.artifacts/project-cascade',{recursive:true});
+ await page.getByRole('button',{name:'添加文件或能力',exact:true}).click();
+ for(const [kind,label] of [['expert','专家'],['skill','技能'],['connector','连接器']]){
+  await page.getByRole('menuitem',{name:label,exact:true}).hover();const panel=page.getByRole('region',{name:label+'选择'});await panel.getByText('暂无可用'+label,{exact:true}).waitFor({timeout:60000});assert.equal(await page.locator('.wd-p-modal').count(),0);await page.screenshot({path:'.artifacts/project-cascade/'+kind+'-empty.png'});
+  await panel.getByRole('button',{name:'＋ 添加'+label,exact:true}).click();await panel.getByRole('menuitemcheckbox').first().waitFor();await panel.getByRole('textbox').fill('不存在的搜索结果xyz');await panel.getByText('没有匹配结果',{exact:true}).waitFor();await panel.getByRole('textbox').fill('');
+  if(kind==='connector') {const fail=async route=>{if(route.request().postDataJSON()?.endpoint==='update-config')await route.fulfill({status:409,contentType:'application/json',body:JSON.stringify({ok:false,error:{message:'验收模拟保存失败'}})});else await route.continue()};await page.route('**/api/workdsh-projects',fail);await panel.getByRole('menuitemcheckbox').first().click();await panel.getByRole('alert').waitFor();assert.equal((await call('get',{projectId:fixture.project.id})).config.capabilities.filter(x=>x.kind===kind).length,0);await page.unroute('**/api/workdsh-projects',fail);}
+  await panel.getByRole('menuitemcheckbox').first().click();await page.waitForFunction(()=>document.querySelector('.wd-p-capability-options [aria-checked="true"]'));assert.equal((await call('get',{projectId:fixture.project.id})).config.capabilities.filter(x=>x.kind===kind).length,1);
+  for(const theme of ['light','dark']){await page.emulateMedia({colorScheme:theme});await page.waitForTimeout(200);await page.screenshot({path:'.artifacts/project-cascade/'+kind+'-'+theme+'.png'});const box=await panel.boundingBox();assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=1440);}
+ }
+ await page.keyboard.press('Escape');assert.equal(await page.locator('.wd-p-capability-menu').count(),0);await page.keyboard.press('Escape');assert.equal(await page.locator('.wd-p-cascade').count(),0);
+ await page.setViewportSize({width:390,height:844});await page.reload();await page.getByRole('button',{name:'添加文件或能力',exact:true}).click();await page.getByRole('menuitem',{name:'专家',exact:true}).click();const panel=page.getByRole('region',{name:'专家选择'});await panel.getByRole('button',{name:'‹ 返回',exact:true}).waitFor();const box=await panel.boundingBox();assert.ok(box.x>=0&&box.x+box.width<=390);await page.screenshot({path:'.artifacts/project-cascade/mobile.png'});await panel.getByRole('button',{name:'‹ 返回',exact:true}).click();await page.getByRole('menuitem',{name:'专家',exact:true}).waitFor();
+ await page.locator('.wd-p-tabs button').first().click();assert.equal(await page.locator('.wd-p-cascade').count(),0);
+ await writeFile('.artifacts/project-cascade/result.json',JSON.stringify({passed:true,checks:['three-empty-states','no-modal','hover-and-click','search','real-config-save','failed-save-and-retry','light-dark','escape','390px-back-navigation','outside-focus-close']},null,2));console.log('PASS project cascade checks');
+}finally{if(fixture)await call('archive',{projectId:fixture.project.id});await browser.close()}
