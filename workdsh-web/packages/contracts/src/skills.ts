@@ -161,7 +161,7 @@ export interface StagedSkillImport {
   readonly expiresAt: string;
 }
 
-export type SkillManagementEndpoint = 'list' | 'detail' | 'update' | 'resource' | 'write-resource' | 'set-enabled' | 'dependency-impact' | 'uninstall' | 'batch' | 'trash-list' | 'restore' | 'commit-import' | 'discard-import' | 'catalog' | 'install-catalog' | 'normalize-skillhub';
+export type SkillManagementEndpoint = 'list' | 'detail' | 'update' | 'resource' | 'write-resource' | 'set-enabled' | 'dependency-impact' | 'uninstall' | 'batch' | 'trash-list' | 'restore' | 'commit-import' | 'discard-import' | 'catalog' | 'install-catalog';
 export interface SkillManagementFailure { readonly code: string; readonly message: string; }
 export type SkillManagementResult<T> = { readonly ok: true; readonly value: T } | { readonly ok: false; readonly error: SkillManagementFailure };
 
@@ -179,7 +179,6 @@ export interface SkillManagementService extends SkillRevisionProvider {
   detail(name: string, signal?: AbortSignal): Promise<ManagedSkillDetail | undefined>;
   readResource(name: string, path: string): Promise<ManagedSkillResource>;
   update(request: SkillWriteRequest): Promise<ManagedSkillDetail>;
-  normalizeSkillHub(name: string): Promise<ManagedSkillDetail>;
   writeResource(request: SkillResourceWriteRequest): Promise<ManagedSkillResource>;
   validateDocument(document: string, expectedName?: string): SkillValidationResult;
   saveDraft(request: SkillDraftWriteRequest): Promise<SkillDraft>;

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Button } from 'workdsh-ui';
-import type { SkillManagementClient } from './management.js';
 
 type SkillHubCard = {
   slug: string;
@@ -35,7 +34,7 @@ async function skillHub<T extends { ok: boolean; error?: string }>(method: strin
 }
 
 /** Reuse the installed DSH plugin's search and verified installation path. */
-export function SkillHubPanel({ query, management, onInstalled, onOpenInstalled }: { query: string; management: SkillManagementClient; onInstalled: () => Promise<void>; onOpenInstalled: () => void }) {
+export function SkillHubPanel({ query, onInstalled, onOpenInstalled }: { query: string; onInstalled: () => Promise<void>; onOpenInstalled: () => void }) {
   const [cards, setCards] = useState<SkillHubCard[]>([]);
   const [total, setTotal] = useState(0);
   const [busy, setBusy] = useState(true);
@@ -62,7 +61,6 @@ export function SkillHubPanel({ query, management, onInstalled, onOpenInstalled 
     setInstalling(card.slug); setError('');
     try {
       await skillHub('install', { slug: card.slug });
-      await management.normalizeSkillHub(card.slug);
       setCards(current => current.map(item => item.slug === card.slug ? { ...item, installed: true } : item));
       setInstalledName(card.name);
       void onInstalled();
