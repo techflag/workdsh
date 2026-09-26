@@ -1,7 +1,9 @@
 import { ShellAppearance } from '../components/ShellAppearance.js';
+import { communityMarketView, type MarketHost } from '../components/CommunityMarket.js';
 import type { Context } from '@deepseek-ai/cordis';
 import type {} from '@deepseek-ai/dsh-api-remotes/client';
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client';
+import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client';
 import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client';
 import type {} from '@deepseek-ai/dsh-client-ui-sidebar-right/client';
 import type {} from '@deepseek-ai/dsh-client-ui-session/client';
@@ -12,6 +14,10 @@ import { BrandMark, BrandName, DiagnosticsMark } from '../components/Brand.js';
 import { DiagnosticsPanel, type Inventory } from '../components/DiagnosticsPanel.js';
 import { NavigationLocation } from '../components/NavigationLocation.js';
 import { AgentBrowserPage, agentBrowserKind, readAgentBrowserFrame } from '../components/AgentBrowserPage.js';
+
+declare module '@deepseek-ai/cordis' {
+  interface Context { market: MarketHost; }
+}
 
 declare module '@deepseek-ai/dsh-client-ui-sidebar-right/client' {
   interface SidebarRightTabParamsMap { 'workdsh-agent-browser': Record<string, never>; }
@@ -26,6 +32,15 @@ const productViews: Readonly<Record<string, string>> = {
 };
 
 export function apply(ctx: Context): void {
+  ctx.inject(['market'], scope => {
+    if (scope.market.version !== 1) return;
+    scope.market.setSettingsVisible(false);
+    scope.effect(() => () => scope.market.setSettingsVisible(true), 'workdsh.community-market.settings-visibility');
+    scope.slots.inject('plugins.item', () => scope.slots.register({
+      name: 'plugins.item', id: 'workdsh-community-market', order: 100,
+      label: '插件市场 · dsh-market',
+    }, communityMarketView(scope.market)));
+  });
   let legacyBrowserEnabled = false;
   ctx.effect(() => {
     const controller = new AbortController();
