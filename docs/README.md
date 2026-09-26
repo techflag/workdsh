@@ -8,4 +8,4 @@
 
 [社区 Fabric 草案](../dsh-community-fabric/README.zh.md)与[社区 Market 草案](../dsh-community-market/README.zh.md)目前只包含设计文档，不代表安装包已提供这些运行时入口。[插件生态倡议书](plugin-ecosystem.md)描述长期方向。
 
-根目录的 [`README.md`](../README.md) 是中文产品入口，[`README.en.md`](../README.en.md) 是英文入口。各 `.i18n.yaml` 记录相应双语文件的 Git blob hash，修改文档时应同步更新两种语言和记录。
+根目录的 [`README.md`](../README.md) 是默认英文产品入口，[`README.zh-CN.md`](../README.zh-CN.md) 是中文入口。各 `.i18n.yaml` 记录相应双语文件的 Git blob hash，修改文档时应同步更新两种语言和记录。

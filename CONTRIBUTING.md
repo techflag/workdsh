@@ -1,14 +1,14 @@
 # 参与贡献
 
-感谢你愿意参与 DSH Desktop。这是一个社区项目，无论你是普通用户、插件作者还是开发者，都有适合你的贡献方式。
+感谢你愿意参与 WorkDSH。这是一个社区项目，无论你是普通用户、插件作者还是开发者，都有适合你的贡献方式。
 
 ## 普通用户：使用、反馈与传播
 
 - 遇到问题或异常，[提 issue](https://github.com/techflag/workdsh/issues)：说明操作系统（macOS / Windows）、应用版本和复现步骤。
 - 有功能想法或改进建议，也欢迎提 issue 讨论。
-- 参与[社区交流](README.md#社区交流)（微信群、QQ 群、Discord），帮助其他用户解决问题。
+- 参与[社区交流](README.zh-CN.md#社区与致谢)（微信群、QQ 群、Discord），帮助其他用户解决问题。
 - 写使用教程、体验文章，或帮助完善和翻译文档。
-- 在[友情链接](README.md#友情链接)中收录生态项目。
+- 通过 [issue](https://github.com/techflag/workdsh/issues) 推荐生态项目。
 
 ## 插件作者：扩展生态
 

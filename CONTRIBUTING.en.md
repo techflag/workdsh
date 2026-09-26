@@ -1,14 +1,14 @@
 # Contributing
 
-Thank you for wanting to contribute to DSH Desktop. This is a community project — whether you are a regular user, a plugin author, or a developer, there is a way to contribute that fits you.
+Thank you for wanting to contribute to WorkDSH. This is a community project — whether you are a regular user, a plugin author, or a developer, there is a way to contribute that fits you.
 
 ## Regular users: use, report, and spread the word
 
 - Report problems or odd behavior in an [issue](https://github.com/techflag/workdsh/issues): include your operating system (macOS / Windows), application version, and reproduction steps.
 - Feature ideas and improvement suggestions are welcome as issues too.
-- Join the [community channels](README.en.md#community) (WeChat group, QQ group, Discord) and help other users.
+- Join the [community channels](README.md#community-and-acknowledgements) (WeChat group, QQ group, Discord) and help other users.
 - Write tutorials or experience posts, or help improve and translate the documentation.
-- Suggest ecosystem projects for the [related links](README.en.md#friendly-links) section.
+- Suggest ecosystem projects for an [issue](https://github.com/techflag/workdsh/issues).
 
 ## Plugin authors: extend the ecosystem
 

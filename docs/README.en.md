@@ -8,4 +8,4 @@ Developers can read the [architecture](architecture.en.md), [Desktop ownership b
 
 The [Community Fabric draft](../dsh-community-fabric/README.md) and [Community Market draft](../dsh-community-market/README.md) currently contain design documents only; they do not imply runtime entry points in installers. The [plugin ecosystem manifesto](plugin-ecosystem.en.md) describes the longer-term direction.
 
-The root [`README.md`](../README.md) is the Chinese product entry point, with [`README.en.md`](../README.en.md) as its English counterpart. Each `.i18n.yaml` records the Git blob hashes of its bilingual documents; update both languages and the record together.
+The root [`README.md`](../README.md) is the default English product entry point, with [`README.zh-CN.md`](../README.zh-CN.md) as its Chinese counterpart. Each `.i18n.yaml` records the Git blob hashes of its bilingual documents; update both languages and the record together.
