@@ -38,6 +38,38 @@ test('default managed skills stay inside the WorkDSH home', async () => {
   }
 });
 
+test('SkillHub directory slug may differ from the official DSH skill name', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'workdsh-skillhub-name-'));
+  const dshHome = join(root, 'dsh'); const agentsHome = join(dshHome, 'agents');
+  const originalDshHome = process.env.DSH_HOME; const originalAgentsHome = process.env.DSH_AGENTS_HOME;
+  const file = join(dshHome, 'skills', 'marketplace-slug', 'SKILL.md');
+  const document = '---\nname: original-name\ndescription: Marketplace skill\n---\nInstructions\n';
+  const ctx = new Context();
+  try {
+    process.env.DSH_HOME = dshHome; delete process.env.DSH_AGENTS_HOME;
+    await mkdir(join(dshHome, 'skills', 'marketplace-slug'), { recursive: true });
+    await writeFile(file, document);
+    await ctx.plugin(SkillRegistry);
+    await ctx.plugin(filesystem, { dshHome, agentsHome, watch: false });
+    new SkillManager(ctx);
+    const rows = await ctx.workdshSkills.list();
+    assert.equal(rows.some(row => row.name === 'marketplace-slug'), false);
+    assert.equal(rows.find(row => row.name === 'original-name')?.state, 'enabled');
+    assert.equal((await ctx.workdshSkills.detail('original-name'))?.manageable, true);
+    assert.equal(await readFile(file, 'utf8'), document);
+    await ctx.workdshSkills.setEnabled('original-name', false);
+    assert.equal((await ctx.workdshSkills.list()).find(row => row.name === 'original-name')?.state, 'disabled');
+    await ctx.workdshSkills.setEnabled('original-name', true);
+    assert.equal((await ctx.workdshSkills.list()).find(row => row.name === 'original-name')?.state, 'enabled');
+    assert.equal(await readFile(file, 'utf8'), document);
+  } finally {
+    await ctx.fiber.dispose();
+    if (originalDshHome === undefined) delete process.env.DSH_HOME; else process.env.DSH_HOME = originalDshHome;
+    if (originalAgentsHome === undefined) delete process.env.DSH_AGENTS_HOME; else process.env.DSH_AGENTS_HOME = originalAgentsHome;
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test('canonical skill paths remain manageable through a home alias without selecting a shadowed local copy', async () => {
   const root = await mkdtemp(join(tmpdir(), 'workdsh-skill-canonical-'));
   const physicalHome = join(root, 'physical-agents');
@@ -154,10 +186,10 @@ test('skill manager surfaces invalid local skills with actionable diagnostics', 
     const summary = (await ctx.workdshSkills.list()).find(row => row.name === 'broken-skill');
     assert.equal(summary.state, 'invalid');
     assert.equal(summary.modelInvocable, false);
-    assert.deepEqual(summary.diagnostics.map(item => item.code), ['name-mismatch', 'description-required', 'instructions-required']);
+    assert.deepEqual(summary.diagnostics.map(item => item.code), ['description-required', 'instructions-required']);
     const detail = await ctx.workdshSkills.detail('broken-skill');
     assert.equal(detail.state, 'invalid');
-    assert.match(detail.diagnostics[0].message, /技能目录/);
+    assert.match(detail.diagnostics[0].message, /description/);
     const fixed = '---\nname: broken-skill\ndescription: Repaired skill\n---\nUse these repaired instructions.\n';
     const repaired = await ctx.workdshSkills.update({ name: 'broken-skill', document: fixed, expectedRevision: detail.revision });
     assert.equal(repaired.state, 'enabled');

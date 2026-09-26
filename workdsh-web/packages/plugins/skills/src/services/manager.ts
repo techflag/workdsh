@@ -183,13 +183,14 @@ export class SkillManager extends Service implements SkillManagementService {
     signal?.throwIfAborted();
     const skills = await this.ctx.skills.list({ signal });
     const rows: ManagedSkillSummary[] = [];
+    const registeredFiles = new Set<string>();
     for (const skill of skills) {
       const manageable = this.isManagedSummary(skill);
       if (manageable) {
         const definition = await this.ctx.skills.get(skill.name, { signal });
         const path = definition?.path;
         if (!path) continue;
-        try { if (!await this.isSafeManagedFile(path)) continue; }
+        try { if (!await this.isSafeManagedFile(path)) continue; registeredFiles.add(await realpath(path)); }
         catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOENT' || (error as Error).message === 'skill/path-symlink') continue; throw error; }
       }
       rows.push({ name: skill.name, description: skill.description, whenToUse: skill.whenToUse,
@@ -204,8 +205,9 @@ export class SkillManager extends Service implements SkillManagementService {
         try { active = await this.activeEntry(name); }
         catch (error) { if ((error as Error).message === 'skill/path-symlink') continue; throw error; }
         if (!active) continue;
+        if (registeredFiles.has(await realpath(active.file))) continue;
         const document = await readFile(active.file, 'utf8');
-        const validation = this.validateDocument(document, name);
+        const validation = this.validateDocument(document);
         rows.push({
           name,
           description: validation.description ?? '技能文件需要修复',
@@ -246,7 +248,7 @@ export class SkillManager extends Service implements SkillManagementService {
     const active = await this.activeEntry(name);
     if (active) {
       const document = await readFile(active.file, 'utf8');
-      const validation = this.validateDocument(document, name);
+      const validation = this.validateDocument(document);
       return {
         name,
         description: validation.description ?? '技能文件需要修复',
@@ -298,7 +300,9 @@ export class SkillManager extends Service implements SkillManagementService {
     const name = typeof metadata?.name === 'string' ? metadata.name.trim() : undefined;
     const description = typeof metadata?.description === 'string' ? metadata.description.trim() : undefined;
     if (!name || !skillNamePattern.test(name) || !isSkillName(name)) diagnostics.push({ code: 'invalid-name', message: 'name 必须是合法的 kebab-case 技能名称。', path: 'SKILL.md' });
-    if (expectedName && name && name !== expectedName) diagnostics.push({ code: 'name-mismatch', message: `frontmatter name 必须与技能目录 ${expectedName} 一致。`, path: 'SKILL.md' });
+    // The official DSH loader identifies a skill by frontmatter name, not its directory.
+    // A marketplace slug may differ; only authoring flows enforce an expected name.
+    if (expectedName && name && name !== expectedName) diagnostics.push({ code: 'name-mismatch', message: `frontmatter name 必须是 ${expectedName}。`, path: 'SKILL.md' });
     if (!description) diagnostics.push({ code: 'description-required', message: 'description 不能为空。', path: 'SKILL.md' });
     const body = metadata ? document.replace(/^---\s*\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/, '').trim() : '';
     if (metadata && !body) diagnostics.push({ code: 'instructions-required', message: 'frontmatter 后必须包含可执行的技能说明。', path: 'SKILL.md' });
@@ -451,7 +455,7 @@ export class SkillManager extends Service implements SkillManagementService {
       if (!current?.directoryPath || (current.state !== 'enabled' && current.state !== 'invalid')) throw new Error('skill/not-manageable');
       const active = await this.activeEntry(name);
       if (!active) throw new Error('skill/not-manageable');
-      const target = join(this.disabledRoot, basename(active.entry));
+      const target = join(this.disabledRoot, active.directoryBundle ? name : `${name}.md`);
       await this.assertAbsent(target); await mkdir(this.disabledRoot, { recursive: true });
       await this.writeJson(this.originPath(name), { name, originalEntry: active.entry, directoryBundle: active.directoryBundle } satisfies DisabledOrigin);
       try { await rename(active.entry, target); }
@@ -591,7 +595,7 @@ export class SkillManager extends Service implements SkillManagementService {
       modelInvocable: definition.invocation.modelInvocable, state: 'readonly', manageable: false, resources: [],
     };
     if (!definition.path) return readonlyDetail;
-    const active = await this.activeEntry(definition.name);
+    const active = await this.managedEntryForPath(definition.path);
     if (!active) return readonlyDetail;
     // Harness exposes a canonical instruction path; configured roots may use
     // an OS alias (e.g. /var -> /private/var). Compare actual files only after
@@ -648,6 +652,28 @@ export class SkillManager extends Service implements SkillManagementService {
           if (info.isFile() && await this.isSafeManagedFile(entry)) return { entry, file: entry, directoryBundle: false };
         } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
       }
+    }
+    const definition = await this.ctx.skills.get(name);
+    if (definition?.path) return this.managedEntryForPath(definition.path);
+    return undefined;
+  }
+
+  private async managedEntryForPath(path: string): Promise<{ entry: string; file: string; directoryBundle: boolean } | undefined> {
+    if (!await this.isSafeManagedFile(path)) return undefined;
+    const canonical = await realpath(path);
+    for (const root of this.activeRoots) {
+      let canonicalRoot: string;
+      try { canonicalRoot = await realpath(root); }
+      catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOENT') continue; throw error; }
+      const part = relative(canonicalRoot, canonical);
+      const segments = part.split(sep);
+      const directoryBundle = segments.length === 2 && segments[1] === 'SKILL.md' && skillNamePattern.test(segments[0]);
+      const standalone = segments.length === 1 && segments[0].endsWith('.md') && skillNamePattern.test(segments[0].slice(0, -3));
+      if (!directoryBundle && !standalone) continue;
+      const entry = join(root, segments[0]);
+      const file = directoryBundle ? join(entry, 'SKILL.md') : entry;
+      if ((await lstat(entry)).isSymbolicLink() || (await lstat(file)).isSymbolicLink()) throw new Error('skill/path-symlink');
+      if (await realpath(file) === canonical) return { entry, file, directoryBundle };
     }
     return undefined;
   }
