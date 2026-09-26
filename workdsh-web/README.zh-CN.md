@@ -7,7 +7,7 @@ WorkDSH 是基于官方 DeepSeek Harness 的开源 AI 工作台。把对话、�
 
 **桌面版 v2.0.5-alpha.21 · Web/插件 v0.1.0-alpha.13 · Alpha 预览版**
 
-[桌面版下载](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21) · [Web/插件下载](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.13) · [更新说明](docs/releases/v0.1.0-alpha.13.md) · [快速开始](#快速开始) · [官网](https://techflag.github.io/workdsh/) · [Gitee 镜像](https://gitee.com/techflag/workdsh)
+[桌面版下载](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21) · [Web/插件下载](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.13) · [更新说明](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.13) · [快速开始](#快速开始) · [官网](https://techflag.github.io/workdsh/) · [Gitee 镜像](https://gitee.com/techflag/workdsh)
 
 ## 下载 WorkDSH 桌面版
 
@@ -19,7 +19,7 @@ WorkDSH 是基于官方 DeepSeek Harness 的开源 AI 工作台。把对话、�
 
 这批 Alpha 安装包内置 WorkDSH v0.1.0-alpha.13 和官方 Harness 0.1.7-rc.2 Profile，包含 Node 与 Python。任务浏览器复用 Electron，不额外打包浏览器。macOS DMG 是未签名预览包；校验文件见[桌面版 Release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21)。
 
-![WorkDSH 深色项目主页，包含完整侧栏](docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
+![WorkDSH 深色项目主页，包含完整侧栏](assets/screenshots/workdsh-projects-alpha8-dark.png)
 
 ## 可以做什么
 
@@ -41,21 +41,21 @@ alpha.13 整包包含 **12 个可安装模块**，包括项目、资料库和受
 <details>
 <summary>浅色主题：项目主页</summary>
 
-![WorkDSH 浅色项目主页，包含完整侧栏](docs/assets/screenshots/workdsh-projects-alpha8-light.png)
+![WorkDSH 浅色项目主页，包含完整侧栏](assets/screenshots/workdsh-projects-alpha8-light.png)
 
 </details>
 
 <details>
 <summary>技能：本地已安装目录</summary>
 
-![WorkDSH 技能页面，包含完整侧栏](docs/assets/screenshots/workdsh-skills-alpha8-dark.png)
+![WorkDSH 技能页面，包含完整侧栏](assets/screenshots/workdsh-skills-alpha8-dark.png)
 
 </details>
 
 <details>
 <summary>Office 示例：对话与 HTML 成果</summary>
 
-![对话与 HTML 分析看板](docs/assets/screenshots/workdsh-html-dashboard-preview.png)
+![对话与 HTML 分析看板](assets/screenshots/workdsh-html-dashboard-preview.png)
 
 此前的本地预览截图，用于展示成果工作流，不代表 alpha.8 所有文档格式均已验收。
 
@@ -113,7 +113,7 @@ corepack pnpm test:library
 corepack pnpm check:versions
 ```
 
-[架构](docs/ARCHITECTURE.md) · [模块版本](docs/MODULE-VERSIONS.md) · [发行记录](docs/RELEASES.md) · [当前状态](docs/STATUS.md) · [路线图](docs/ROADMAP.md)
+[发行记录](https://github.com/techflag/workdsh/releases) · [项目规划](https://github.com/techflag/workdsh/issues)
 
 当前为 Alpha 预览版。跨平台安装、长时间真实模型专家团、任意 Office 文件保真和多人治理尚未完整验收。Harness 升级后需复验原生 UI 适配。具体测试范围以本次更新说明为准。
 

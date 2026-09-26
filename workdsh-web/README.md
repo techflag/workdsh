@@ -7,7 +7,7 @@ WorkDSH is an open-source AI workspace built on the official DeepSeek Harness. O
 
 **Desktop v2.0.5-alpha.21 · Web/plugins v0.1.0-alpha.13 · Alpha preview**
 
-[Desktop downloads](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21) · [Web/plugin download](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.13) · [Release notes](docs/releases/v0.1.0-alpha.13.md) · [Quick start](#quick-start) · [Website](https://techflag.github.io/workdsh/) · [Gitee mirror](https://gitee.com/techflag/workdsh)
+[Desktop downloads](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21) · [Web/plugin download](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.13) · [Release notes](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.13) · [Quick start](#quick-start) · [Website](https://techflag.github.io/workdsh/) · [Gitee mirror](https://gitee.com/techflag/workdsh)
 
 ## Download WorkDSH Desktop
 
@@ -19,7 +19,7 @@ WorkDSH is an open-source AI workspace built on the official DeepSeek Harness. O
 
 These Alpha installers bundle WorkDSH v0.1.0-alpha.13 and the official Harness 0.1.7-rc.2 Profile, including Node and Python. The task browser reuses Electron; no second browser binary is bundled. macOS DMGs are unsigned previews; checksums are in the [Desktop release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21).
 
-![WorkDSH project home — full application in dark mode](docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
+![WorkDSH project home — full application in dark mode](assets/screenshots/workdsh-projects-alpha8-dark.png)
 
 ## What you can do
 
@@ -41,21 +41,21 @@ Full application captures from a local workspace; example projects, installed sk
 <details>
 <summary>Light theme — project home</summary>
 
-![WorkDSH project home — full application in light mode](docs/assets/screenshots/workdsh-projects-alpha8-light.png)
+![WorkDSH project home — full application in light mode](assets/screenshots/workdsh-projects-alpha8-light.png)
 
 </details>
 
 <details>
 <summary>Skills — local installed catalog</summary>
 
-![WorkDSH skills — full application](docs/assets/screenshots/workdsh-skills-alpha8-dark.png)
+![WorkDSH skills — full application](assets/screenshots/workdsh-skills-alpha8-dark.png)
 
 </details>
 
 <details>
 <summary>Office example — conversation and HTML deliverable</summary>
 
-![Conversation with an HTML analysis dashboard](docs/assets/screenshots/workdsh-html-dashboard-preview.png)
+![Conversation with an HTML analysis dashboard](assets/screenshots/workdsh-html-dashboard-preview.png)
 
 Earlier local preview showing the artifact workflow; it is not an alpha.8 acceptance result for every document format.
 
@@ -113,7 +113,7 @@ corepack pnpm test:library
 corepack pnpm check:versions
 ```
 
-[Architecture](docs/ARCHITECTURE.md) · [Module versions](docs/MODULE-VERSIONS.md) · [Release history](docs/RELEASES.md) · [Status](docs/STATUS.md) · [Roadmap](docs/ROADMAP.md)
+[Release history](https://github.com/techflag/workdsh/releases) · [Project roadmap](https://github.com/techflag/workdsh/issues)
 
 This is an alpha preview. Cross-platform installation, long-running real-model teams, arbitrary Office fidelity and multi-user governance are not fully accepted. Harness upgrades require compatibility checks for the native UI adapters. See the release notes for the exact validation scope.
 
@@ -145,7 +145,7 @@ Third-party skills and materials retain their providers' terms. Generated archiv
 
 The current build inventory additionally includes the following package versions. Licenses below are the declarations in the installed package metadata. Existing bundled notices are retained.
 
-当前构建另包含下列依赖版本；许可证栏记录安装包元数据的声明，来源链接指向对应项目。完整199项打包依赖见[Office依赖清单](docs/evidence/office-bundled-dependencies-2026-09-14.md)。
+当前构建另包含下列依赖版本；许可证栏记录安装包元数据的声明，来源链接指向对应项目。完整199项打包依赖见Office 构建依赖清单（内部记录）。
 
 下表 10 项是“已声明许可证、但构建未收集到随包文本”的精确报告。此外，`@univerjs/telemetry@0.25.1` 的安装包元数据没有许可证字段，发布清单单独记录为 `dependenciesWithoutDeclaredLicense`。两类缺项均未伪装为许可证收集完成。
 

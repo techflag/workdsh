@@ -1,9 +1,0 @@
-{
-  "modelExecution": "executed",
-  "selection": "library-sample.docx",
-  "expectedToken": "LibraryWordVisualToken",
-  "searchTool": true,
-  "readTool": true,
-  "answerToken": true,
-  "browserErrors": []
-}

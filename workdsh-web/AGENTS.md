@@ -1,5 +1,7 @@
 # WorkDSH 开发规则
 
+`docs/` 是本地设计与验收工作区，已由 `.gitignore` 排除，不提交或推送。新检出仓库可能没有该目录；开发时可使用本机留存的文档，但不能把它作为公开构建的必需输入。公开且必须随源码保留的产品说明应写在 README 或对应包目录。文档清理只在本地进行，除非用户明确要求发布具体文档。
+
 ## 项目目标与用户已确认决策
 
 WorkDSH Web 是基于 DeepSeek Harness 公开插件接口的工作平台，参考 WorkBuddy 的应用能力。它位于同一仓库的 `workdsh-web/` 独立 workspace；Desktop 工程位于仓库根目录的 `dsh-plugin-desktop/`。两者保留独立运行与包管理边界，并统一使用根目录 `upstream.json` 指定的 DSH 版本。

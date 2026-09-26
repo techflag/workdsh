@@ -13,6 +13,7 @@ tmp/
 .env
 .env.*
 !.env.example
+# Internal design, plans, acceptance records and evidence stay local.
 /docs/
 /.qoder/
 **/__pycache__/
