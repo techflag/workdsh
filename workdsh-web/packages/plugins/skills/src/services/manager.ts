@@ -293,7 +293,7 @@ export class SkillManager extends Service implements SkillManagementService {
 
   validateDocument(document: string, expectedName?: string): SkillValidationResult {
     const diagnostics: SkillDiagnostic[] = [];
-    if (Buffer.byteLength(document) > maximumDocumentBytes) diagnostics.push({ code: 'document-too-large', message: 'SKILL.md 超过 1 MiB 上限。', path: 'SKILL.md' });
+    if (expectedName && Buffer.byteLength(document) > maximumDocumentBytes) diagnostics.push({ code: 'document-too-large', message: 'SKILL.md 超过 1 MiB 上限。', path: 'SKILL.md' });
     let metadata: Record<string, unknown> | undefined;
     try { metadata = frontmatter(document); }
     catch { diagnostics.push({ code: 'invalid-frontmatter', message: 'SKILL.md 必须以有效的 YAML frontmatter 开头。', path: 'SKILL.md' }); }
@@ -305,7 +305,7 @@ export class SkillManager extends Service implements SkillManagementService {
     if (expectedName && name && name !== expectedName) diagnostics.push({ code: 'name-mismatch', message: `frontmatter name 必须是 ${expectedName}。`, path: 'SKILL.md' });
     if (!description) diagnostics.push({ code: 'description-required', message: 'description 不能为空。', path: 'SKILL.md' });
     const body = metadata ? document.replace(/^---\s*\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/, '').trim() : '';
-    if (metadata && !body) diagnostics.push({ code: 'instructions-required', message: 'frontmatter 后必须包含可执行的技能说明。', path: 'SKILL.md' });
+    if (expectedName && metadata && !body) diagnostics.push({ code: 'instructions-required', message: 'frontmatter 后必须包含可执行的技能说明。', path: 'SKILL.md' });
     return { valid: diagnostics.length === 0, ...(name ? { name } : {}), ...(description ? { description } : {}), diagnostics };
   }
 

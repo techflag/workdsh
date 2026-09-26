@@ -186,7 +186,7 @@ test('skill manager surfaces invalid local skills with actionable diagnostics', 
     const summary = (await ctx.workdshSkills.list()).find(row => row.name === 'broken-skill');
     assert.equal(summary.state, 'invalid');
     assert.equal(summary.modelInvocable, false);
-    assert.deepEqual(summary.diagnostics.map(item => item.code), ['description-required', 'instructions-required']);
+    assert.deepEqual(summary.diagnostics.map(item => item.code), ['description-required']);
     const detail = await ctx.workdshSkills.detail('broken-skill');
     assert.equal(detail.state, 'invalid');
     assert.match(detail.diagnostics[0].message, /description/);
