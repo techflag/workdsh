@@ -58,8 +58,9 @@ jobs:
           else
             git diff --check "$BASE_SHA" "$HEAD_SHA"
             product="$(git diff --name-only -z "$BASE_SHA" "$HEAD_SHA" | node scripts/classify-ci-changes.mjs)"
-            if git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -q '^workdsh-web/'; then web=true; else web=false; fi
-            if git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -qv '^workdsh-web/'; then desktop=true; else desktop=false; fi
+            changed_paths="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+            if [[ -n "$changed_paths" ]] && grep -q '^workdsh-web/' <<< "$changed_paths"; then web=true; else web=false; fi
+            if [[ -n "$changed_paths" ]] && grep -qv '^workdsh-web/' <<< "$changed_paths"; then desktop=true; else desktop=false; fi
           fi
           echo "product=$product" >> "$GITHUB_OUTPUT"
           echo "desktop=$desktop" >> "$GITHUB_OUTPUT"
