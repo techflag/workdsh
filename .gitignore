@@ -1,24 +1,18 @@
-node_modules/
-.pnpm-store/
-.idea/
 .DS_Store
-coverage/
-**/dist/
-**/lib/
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+node_modules/
 *.tsbuildinfo
-.test-runtime/
-.artifacts/
-**/.playwright-mcp/
-tmp/
-.env
-.env.*
-!.env.example
-/docs/
-/.qoder/
-**/__pycache__/
-*.py[cod]
+.build/
 
-packages/plugins/office/src/presentation/native-react/native.css
+dsh-plugin-desktop/dist/
+dsh-plugin-desktop/lib/
+dsh-community-market/lib/
 
-# Locally generated task deliverables
-/output/
+.env.yarn
+/dist/
+/.test-harness/

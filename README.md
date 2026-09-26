@@ -1,163 +1,99 @@
-<p align="center"><img src="assets/brand/workdsh-logo.svg" width="104" alt="WorkDSH"></p>
+<p align="center"><img src="workdsh-web/assets/brand/workdsh-logo.svg" width="88" alt="WorkDSH 标志"></p>
 <h1 align="center">WorkDSH</h1>
-<p align="center"><strong>Give AI a job. Watch it work. Open the result.</strong></p>
-<p align="center">English · <a href="README.zh-CN.md">简体中文</a></p>
+<p align="center"><strong>把工作交给 AI，看清过程，拿到成果。</strong></p>
+<p align="center">基于 DeepSeek Harness 的开源桌面工作台：让项目、资料、专家、技能、连接器与任务在同一个地方协作。</p>
+<p align="center"><a href="#下载桌面版">下载桌面版</a> · <a href="#从资料到成果">了解工作流</a> · <a href="docs/user-guide.md">使用指南</a> · <a href="README.en.md">English</a></p>
 
-WorkDSH is an open-source AI workspace built on the official DeepSeek Harness. Organize conversations, material and capabilities in projects, reuse your local Library, and review editable deliverables alongside the task.
+[![Desktop release](https://img.shields.io/badge/Desktop-2.0.5--alpha.20-176BFF)](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.20) [![GitHub stars](https://img.shields.io/github/stars/techflag/workdsh?label=stars)](https://github.com/techflag/workdsh) [![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-**Desktop v2.0.5-alpha.20 · Web/plugins v0.1.0-alpha.13 · Alpha preview**
+![WorkDSH 项目主页：项目、模板与完整桌面侧栏](workdsh-web/docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
 
-[Desktop downloads](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.20) · [Web/plugin download](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.13) · [Release notes](docs/releases/v0.1.0-alpha.13.md) · [Quick start](#quick-start) · [Website](https://techflag.github.io/workdsh/) · [Gitee mirror](https://gitee.com/techflag/workdsh)
+<sub>WorkDSH 本地运行截图。项目名称和账户数值为演示环境数据，不随安装包提供。</sub>
 
-## Download WorkDSH Desktop
+## 为什么是 WorkDSH
 
-| System | Installer |
+一个 AI 任务往往不止一句提问：它需要资料、工作规则、合适的能力，以及可以检查和继续修改的成果。WorkDSH 把这些对象组织进桌面工作台，同时保留 DeepSeek Harness 原生的模型、工具、会话、`/` 命令、`@` 引用和附件。
+
+| 工作中遇到的问题 | WorkDSH 的做法 |
 | --- | --- |
-| Windows x64 | [Download Setup.exe](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-windows-x64--WorkDSH-2.0.5-x64-Setup.exe) |
-| macOS Apple Silicon | [Download arm64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-macos-arm64--WorkDSH-2.0.5-arm64.dmg) |
-| macOS Intel | [Download x64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-macos-x64--WorkDSH-2.0.5-x64.dmg) |
+| 每次对话都要重新解释背景 | **项目**集中管理指令、计划、任务、资料和能力配置，让后续工作有明确入口。 |
+| 文件在聊天记录和目录间散落 | **资料库**管理本地文件、搜索和预览；任务引用资料及其修订。 |
+| 好用的工作方法难以复用 | **技能**保存可调用的说明与资源；**专家**把角色与能力配置发布为固定修订。 |
+| 回答结束后还要另找工具交付 | **成果工作区**在支持的格式内预览或编辑文档、表格、演示文稿、HTML 与 PDF 工作副本。 |
 
-These Alpha installers bundle WorkDSH v0.1.0-alpha.13 and the official Harness 0.1.7-rc.2 Profile, including Node and Python. The task browser reuses Electron; no second browser binary is bundled. macOS DMGs are unsigned previews; checksums are in the [Desktop release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.20).
+### 从资料到成果
 
-![WorkDSH project home — full application in dark mode](docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
+```text
+资料库中的文件 ──引用──> 项目任务 ──选择──> 专家 / Skill / 连接器
+                                      │
+                                      └──> 查看过程与成果，在支持的编辑器中继续修改
+```
 
-## What you can do
+这条路径是 WorkDSH 的产品方向。项目内资料引用、专家执行与不同 Office 格式的完整端到端体验仍在 Alpha 验收中；各格式的预览、编辑和导出范围不同，[当前能力与限制](workdsh-web/README.zh-CN.md)有更具体的说明。
 
-| Area | Capabilities |
+<details>
+<summary>查看实际会话中的 HTML 成果示例</summary>
+
+![WorkDSH 会话、成果卡片和右侧 HTML 预览](workdsh-web/docs/assets/screenshots/workdsh-html-dashboard-preview.png)
+
+<sub>本地任务示例；展示成果卡片和右侧预览，不代表任意文件都能无损编辑。</sub>
+
+</details>
+
+## 海量 Skill 的接入路径，开放的 DSH 插件生态
+
+WorkDSH 的能力分为两层，避免把“技能”和“插件”混为一谈：
+
+| | Skill：复用工作方法 | DSH 插件：扩展系统能力 |
+| --- | --- | --- |
+| 做什么 | 为智能体提供说明、脚本、参考资料和资源 | 扩展 Harness Host、客户端、工具或服务 |
+| 如何接入 | 导入包含 `SKILL.md` 的文件或 ZIP 包，经过预检与确认后安装 | 使用当前固定 DSH 版本的官方插件加载与组合机制 |
+| 在 WorkDSH 中 | 技能市场展示本地目录，支持搜索、启停和管理；可尝试迁入 WorkBuddy 风格及社区 Skill | 项目、资料库、专家、技能、连接器本身由 WorkDSH 功能包组成，也可按版本适配第三方 DSH 插件 |
+
+**海量兼容的含义是开放导入格式，不是预装海量技能。** 许多 WorkBuddy 风格的技能以 `SKILL.md` 为入口；WorkDSH 支持这种结构，并内置参考 WorkBuddy 完整制作流程的技能创建指南。脚本运行环境、外部服务、权限和专有格式仍需逐个验证。DSH 第三方插件同样要以当前上游版本验证，不能把社区目录中的条目视为已通过兼容测试。[技能管理](workdsh-web/packages/plugins/skills/README.md) · [插件开发](docs/plugin-development.md) · [生态倡议](docs/plugin-ecosystem.md)
+
+![WorkDSH 技能市场：本地目录、分类和可安装技能](workdsh-web/docs/assets/screenshots/workdsh-skills-alpha8-dark.png)
+
+<sub>截图中的可安装条目来自演示机的本地技能目录，不代表安装包自带或官方托管的在线市场。</sub>
+
+## 下载桌面版
+
+当前公开桌面安装包为 **2.0.5-alpha.20**。以下链接直接指向 [GitHub Release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.20) 中的文件：
+
+| 平台 | 下载 |
 | --- | --- |
-| Projects | Keep tasks, plans, assets and activity together; select project capabilities from the conversation. |
-| Local Library | Import material, browse folders, search and preview files, and reference selected revisions in tasks. |
-| Skills and experts | Install reusable skills and publish expert configurations with pinned revisions. |
-| Connectors | Configure MCP services and explicitly select the capabilities used by a task. |
-| Office deliverables | Preview and edit supported document, presentation, spreadsheet, HTML and PDF working copies. Format fidelity varies. |
-| Activity | Inspect native task and child-agent activity; an expert-team label alone does not mean multiple agents are executing. |
+| Windows x64 | [WorkDSH Setup.exe](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-windows-x64--WorkDSH-2.0.5-x64-Setup.exe) |
+| macOS Apple Silicon | [WorkDSH arm64.dmg](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-macos-arm64--WorkDSH-2.0.5-arm64.dmg) |
+| macOS Intel | [WorkDSH x64.dmg](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-macos-x64--WorkDSH-2.0.5-x64.dmg) |
 
-The alpha.13 bundle includes **12 installable modules**, including Projects, Library and the managed browser session provider, built against the published Harness 0.1.7-rc.2 APIs. Native attachment, input and send behavior remain owned by Harness. In Desktop, Agent browser work appears in the right sidebar on the same Electron page used by its tools.
+普通用户无需分别安装 DSH、Node.js 或 Python；桌面包内置固定版本的运行时。macOS DMG 当前未签名，更新需从 [Releases](https://github.com/techflag/workdsh/releases) 手动下载。开始使用前请阅读[用户指南](docs/user-guide.md)和[常见问题](docs/faq.md)。
 
-## Screenshots
+## 技术来源与当前边界
 
-Full application captures from a local workspace; example projects, installed skills and account figures are not bundled sample data.
+WorkDSH 使用固定版本、未修改的[官方 DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 子模块。Electron 只负责窗口、启动和打包；WorkDSH 功能由同一 Profile 的插件组合提供，Desktop 不另装第二套 DSH。固定版本见 [`upstream.json`](upstream.json)。模型或第三方服务是否联网，取决于用户配置。
 
-<details>
-<summary>Light theme — project home</summary>
+这是 **Alpha 预览版**。跨平台真实任务、长时间专家团队执行、任意 Office 文件保真，以及社区插件市场仍需继续验收或实现。已发布的桌面包与开发分支可能不同；请以对应 [Release](https://github.com/techflag/workdsh/releases) 的说明和附件为准。反馈请提交到 [Issues](https://github.com/techflag/workdsh/issues)。
 
-![WorkDSH project home — full application in light mode](docs/assets/screenshots/workdsh-projects-alpha8-light.png)
+## 开发与文档
 
-</details>
-
-<details>
-<summary>Skills — local installed catalog</summary>
-
-![WorkDSH skills — full application](docs/assets/screenshots/workdsh-skills-alpha8-dark.png)
-
-</details>
-
-<details>
-<summary>Office example — conversation and HTML deliverable</summary>
-
-![Conversation with an HTML analysis dashboard](docs/assets/screenshots/workdsh-html-dashboard-preview.png)
-
-Earlier local preview showing the artifact workflow; it is not an alpha.8 acceptance result for every document format.
-
-</details>
-
-## Star history
-
-<a href="https://www.star-history.com/?repos=techflag%2Fworkdsh&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=techflag/workdsh&type=date&theme=dark&legend=top-left&sealed_token=BRTkOyC4czCEkIyFb5-QxrsC-kaDotBJ8tsjxrWs-UGfmBqfRCXSwieZPlVTCYOjJVEZ29uLvmBjAPREB524J5dPN1jk-UA7ajFdLdrbjumJqoOBeGWmig" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=techflag/workdsh&type=date&legend=top-left&sealed_token=BRTkOyC4czCEkIyFb5-QxrsC-kaDotBJ8tsjxrWs-UGfmBqfRCXSwieZPlVTCYOjJVEZ29uLvmBjAPREB524J5dPN1jk-UA7ajFdLdrbjumJqoOBeGWmig" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=techflag/workdsh&type=date&legend=top-left&sealed_token=BRTkOyC4czCEkIyFb5-QxrsC-kaDotBJ8tsjxrWs-UGfmBqfRCXSwieZPlVTCYOjJVEZ29uLvmBjAPREB524J5dPN1jk-UA7ajFdLdrbjumJqoOBeGWmig" />
- </picture>
-</a>
-
-## Quick start
-
-Requirements: Node.js `^22.19.0 || >=24.0.0`, Corepack/pnpm and the official `dsh` CLI **0.1.7-rc.2**.
-
-1. Download all 12 `.tgz` packages, `release-manifest.json`, `SHA256SUMS` and `install-workdsh.mjs` from the [alpha.13 release](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.13) into one directory.
-2. For an upgrade, stop the target Profile and keep a recoverable backup of its configuration and data.
-3. Run from the download directory:
+源码分工：[WorkDSH 功能包与 Web](workdsh-web/README.zh-CN.md) · [Desktop 外壳](dsh-plugin-desktop/README.zh.md) · [架构](docs/architecture.md) · [全部文档](docs/README.md)。从源码运行需要 Node.js 22.19+ 或 24+、Corepack 和 Yarn 4.18.0：
 
 ```sh
-node install-workdsh.mjs --profile workdsh --dry-run
-node install-workdsh.mjs --profile workdsh
+git submodule update --init --recursive
+corepack yarn install --immutable
+corepack yarn dev
 ```
 
-The installer verifies package checksums, pins the tested package manager and transitive Harness versions, and installs the matching official base, Web app and CLI into the Profile. **Start with the Profile-local CLI command printed by the installer.** This avoids mixing a global CLI with a different runtime installation. Use `--dsh /absolute/path/to/dsh` if the matching CLI is not on your PATH.
+运行检查：`corepack yarn check`。[参与贡献](CONTRIBUTING.md)
 
-Modules remain independently versioned and installable through the official `dsh plugin` lifecycle. The release manifest is the authoritative package/version list; GitHub release assets are not an npm publication.
+## 社区与致谢
 
-### Upgrading experts
+感谢 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)、[Cordis](https://github.com/cordiverse/cordis) 和开源社区。感谢阿里云无影云电脑、[UCloud 星图 AstraFlow](https://www.ucloud.cn/site/active/astraflow?ytag=geo_waituo_dsh) 与 [88API](https://88api.ai/sign-up?aff=VnEb) 支持本项目。
 
-Old directory-style expert presets must be explicitly republished through **Edit authoring files → Publish**, then used in a new task. For a read-only built-in expert, first copy it to your own experts. Historical tasks and project bindings retain their pinned revisions and do not silently switch to the new configuration. Review and update those bindings explicitly where needed.
+[GitHub Issues](https://github.com/techflag/workdsh/issues) · [Discord](https://discord.gg/TJeGqKRNM) · [联系维护者](mailto:t4wefan@qq.com)
 
-### Run from source
+WorkDSH 采用 [MIT License](LICENSE)，是独立社区项目，与 DeepSeek 或 WorkBuddy 不存在隶属、合作、授权或背书关系。相关名称仅用于说明技术来源、兼容性与设计参考。GitHub Contributors 中的上游贡献者来自继承和同步的提交历史，不表示其参与本仓库维护。
 
-```sh
-corepack pnpm install --frozen-lockfile
-corepack pnpm build
-corepack pnpm preview:install
-corepack pnpm preview
-```
+## Star 趋势
 
-## Architecture and development
-
-WorkDSH extends the published Harness packages through plugins, services and UI slots. It does not maintain a modified upstream runtime. Business modules own their data; the bundle composes navigation and presentation.
-
-```sh
-corepack pnpm typecheck
-corepack pnpm test:integration
-corepack pnpm test:projects
-corepack pnpm test:library
-corepack pnpm check:versions
-```
-
-[Architecture](docs/ARCHITECTURE.md) · [Module versions](docs/MODULE-VERSIONS.md) · [Release history](docs/RELEASES.md) · [Status](docs/STATUS.md) · [Roadmap](docs/ROADMAP.md)
-
-This is an alpha preview. Cross-platform installation, long-running real-model teams, arbitrary Office fidelity and multi-user governance are not fully accepted. Harness upgrades require compatibility checks for the native UI adapters. See the release notes for the exact validation scope.
-
-## Open-source components and acknowledgements
-
-Thank you to these projects and their maintainers. This list covers major direct dependencies; package manifests, the lockfile and generated license inventories describe the full dependency set.
-
-| Project | Use in WorkDSH | License |
-| --- | --- | --- |
-| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) / Cordis | Native tasks, model execution, skills, Loader, Profile, services and UI extension APIs | MIT |
-| [React](https://github.com/facebook/react) | Feature pages and editor UI | MIT |
-| [Tiptap](https://github.com/ueberdosis/tiptap) / [ProseMirror](https://github.com/ProseMirror) | Word working-copy editing, tables and images; adapted open-source Tiptap UI components | MIT |
-| [pptx-viewer](https://github.com/ChristopherVR/pptx-viewer) | `pptx-react-viewer` 3.16.5 and `pptx-viewer-core` 3.14.3: the sole current PPT editing, parsing and export implementation | Apache-2.0 |
-| [docx](https://github.com/dolanmiu/docx) | DOCX generation within the supported scope | MIT |
-| [docx-preview](https://github.com/VolodymyrBaydalka/docxjs) | Original-layout DOCX preview | Apache-2.0 |
-| [Univer OSS](https://github.com/dream-num/univer) / [ExcelJS](https://github.com/exceljs/exceljs) | Existing experimental spreadsheet adapters in development builds; full online spreadsheets remain planned | Apache-2.0 / MIT |
-| [PDF.js](https://github.com/mozilla/pdf.js) | Decode and display generated PDF files with a bundled worker | Apache-2.0 |
-| [pdf-lib](https://github.com/Hopding/pdf-lib) / [fontkit](https://github.com/Hopding/fontkit) | Encode PDF working copies and embed Chinese glyphs | MIT |
-| [Noto Sans SC](https://github.com/google/fonts/tree/main/ofl/notosanssc) | Bundled static Chinese font; license and derivation metadata retained | SIL Open Font License 1.1 |
-| [i18next](https://github.com/i18next/i18next) / [react-i18next](https://github.com/i18next/react-i18next) | Chinese localization for the PPT editor | MIT |
-| [Lucide](https://github.com/lucide-icons/lucide) | PPT toolbar icons | ISC |
-| [dsh-cost-meter](https://github.com/Han-1413141/dsh-cost-meter) | Separately installed spending plugin in the local preview Profile; not bundled in WorkDSH releases | See the independent project's license |
-
-WorkDSH explicitly takes **WorkBuddy / CodeBuddy** as a product-experience reference: a real task should expose its process and end in an editable artifact. Skill-market organization, grouped toolbars, and PPT design guidance also draw on those experiences. WorkDSH is an independent open-source implementation for DeepSeek Harness; it does not reuse WorkBuddy branding or claim an official partnership, endorsement, or Tencent PPT engine integration.
-
-Third-party skills and materials retain their providers' terms. Generated archives retain copyright and license texts for dependencies actually bundled; see [Office third-party notices](packages/plugins/office/THIRD-PARTY-NOTICES.md).
-
-### Additional bundled Office dependencies / Office 其他打包依赖
-
-The current build inventory additionally includes the following package versions. Licenses below are the declarations in the installed package metadata. Existing bundled notices are retained.
-
-当前构建另包含下列依赖版本；许可证栏记录安装包元数据的声明，来源链接指向对应项目。完整199项打包依赖见[Office依赖清单](docs/evidence/office-bundled-dependencies-2026-09-14.md)。
-
-下表 10 项是“已声明许可证、但构建未收集到随包文本”的精确报告。此外，`@univerjs/telemetry@0.25.1` 的安装包元数据没有许可证字段，发布清单单独记录为 `dependenciesWithoutDeclaredLicense`。两类缺项均未伪装为许可证收集完成。
-
-| Dependency / 依赖 | Version / 版本 | Declared license / 声明许可证 |
-| --- | --- | --- |
-| [@ai-sdk/provider-utils](https://github.com/vercel/ai) | 5.0.0 | Apache-2.0 |
-| [@ai-sdk/provider-utils](https://github.com/vercel/ai) | 5.0.28 | Apache-2.0 |
-| [@nodable/entities](https://github.com/nodable/val-parsers) | 3.0.0 | MIT |
-| [@pdf-lib/fontkit](https://github.com/Hopding/fontkit) | 1.1.1 | MIT |
-| [franc-min](https://github.com/wooorm/franc/tree/main/packages/franc-min) | 6.2.0 | MIT |
-| [ot-json1](https://github.com/josephg/json1) | 1.0.2 | ISC |
-| [ot-text-unicode](https://github.com/ottypes/text) | 4.0.0 | ISC |
-| [pptx-viewer-mcp](https://github.com/ChristopherVR/pptx-viewer) | 2.5.1 | Apache-2.0 |
-| [react-remove-scroll-bar](https://github.com/theKashey/react-remove-scroll-bar) | 2.3.8 | MIT |
-| [unicount](https://github.com/josephg/unicount) | 1.1.0 | ISC |
+[![WorkDSH Star 趋势](https://api.star-history.com/chart?repos=techflag/workdsh&type=date)](https://www.star-history.com/?repos=techflag%2Fworkdsh&type=date)

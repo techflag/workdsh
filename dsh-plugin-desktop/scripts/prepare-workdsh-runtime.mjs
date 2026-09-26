@@ -1,0 +1,307 @@
+#!/usr/bin/env node
+
+import { spawnSync } from 'node:child_process'
+import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
+import { delimiter, dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { DSH_VERSION } from './runtime-version.mjs'
+import { PRODUCT_PACKAGES, RELEASE_PACKAGES } from './workdsh-package-boundary.mjs'
+import { verifyPackageDshReferences, verifyProfileRelease } from './verify-profile-release.mjs'
+
+const WORKDSH_VERSION = '0.1.0-alpha.13'
+const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const output = join(desktopRoot, 'build', 'workdsh-runtime')
+const destination = join(output, 'profiles', 'workdsh')
+const packageCache = join(output, 'package-cache')
+const cli = join(destination, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
+const releaseMarker = '.workdsh-desktop-release.json'
+const profileLayout = 'five-product-plugins-v1'
+const productPackages = new Set(PRODUCT_PACKAGES)
+
+function run(command, args, options = {}) {
+  const result = spawnSync(command, args, { stdio: 'inherit', ...options })
+  if (result.error) throw result.error
+  if (result.status !== 0) throw new Error(`${command} exited with ${result.status}`)
+}
+
+function replaceRequired(input, expected, replacement, description) {
+  if (!input.includes(expected)) throw new Error(`WorkDSH release installer changed: ${description}`)
+  return input.replace(expected, replacement)
+}
+
+async function download(url, path) {
+  if (existsSync(path)) return
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      const response = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(60_000) })
+      if (response.ok) {
+        writeFileSync(path, Buffer.from(await response.arrayBuffer()))
+        return
+      }
+      if (response.status !== 429 && response.status < 500) {
+        throw new Error(`Failed to download ${url}: ${response.status}`)
+      }
+      if (attempt === 4) throw new Error(`Failed to download ${url}: ${response.status} after 5 attempts`)
+      console.warn(`Download returned ${response.status}; retrying ${url} (${attempt + 1}/4)`)
+    } catch (error) {
+      if (attempt === 4 || (error instanceof Error && /^Failed to download .*: 4\d\d$/.test(error.message))) throw error
+      console.warn(`Download interrupted; retrying ${url} (${attempt + 1}/4): ${error}`)
+    }
+    await new Promise(resolve => setTimeout(resolve, 1_000 * 2 ** attempt))
+  }
+}
+
+async function installReleasedProfile(output) {
+  const releaseDir = join(desktopRoot, 'build', `.workdsh-release-${WORKDSH_VERSION}`)
+  mkdirSync(releaseDir, { recursive: true })
+  const base = `https://github.com/techflag/workdsh/releases/download/v${WORKDSH_VERSION}`
+  const manifestPath = join(releaseDir, 'release-manifest.json')
+  await download(`${base}/release-manifest.json`, manifestPath)
+  const rawInstallerPath = join(releaseDir, 'install-workdsh.original.mjs')
+  const installerPath = join(releaseDir, 'install-workdsh.mjs')
+  await download(`${base}/install-workdsh.mjs`, rawInstallerPath)
+  let installer = readFileSync(rawInstallerPath, 'utf8')
+  installer = replaceRequired(installer,
+    'profilePackage.packageManager = manifest.packageManager;',
+    "profilePackage.packageManager = manifest.packageManager;\n  profilePackage.devEngines = { ...profilePackage.devEngines, packageManager: { name: 'pnpm', version: manifest.packageManager.slice('pnpm@'.length), onFail: 'ignore' } };",
+    'package-manager declaration',
+  )
+  installer = replaceRequired(installer, "const runtimeArgs = ['pnpm', '--dir',", "const runtimeArgs = ['--dir',", 'runtime pnpm invocation')
+  installer = replaceRequired(installer, "spawnSync(corepack, ['pnpm', '--dir',", "spawnSync(corepack, ['--dir',", 'profile pnpm invocation')
+  if (process.platform === 'win32') {
+    installer = replaceRequired(installer, "import { spawnSync } from 'node:child_process';", "import { spawnSync as nativeSpawnSync } from 'node:child_process';", 'Windows spawn import')
+    installer = replaceRequired(installer, 'const argv = process.argv.slice(2);', "const portableSpawn = (command, args, options = {}) => nativeSpawnSync(command, args, { ...options, shell: true, timeout: 5 * 60_000 });\nconst argv = process.argv.slice(2);", 'Windows argument handling')
+    if (!installer.includes('spawnSync(')) throw new Error('WorkDSH release installer changed: Windows spawn calls')
+    installer = installer.replaceAll('spawnSync(', 'portableSpawn(')
+  }
+  writeFileSync(installerPath, installer)
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+  verifyProfileRelease(manifest, DSH_VERSION, releasePackages)
+  const installSpawn = process.platform === 'win32' ? 'portableSpawn' : 'spawnSync'
+  installer = replaceRequired(readFileSync(installerPath, 'utf8'),
+    "  execute(['plugin', '--profile', profile, 'add', join(directory, item.filename)]);",
+    `  execute(['plugin', '--profile', profile, 'allow-version', \`\${name}@\${item.version}\`, '--dsh-version', expectedHarness, '--accept-risk']);
+  // The DSH plugin-manager wrapper can retain an idle pnpm process after a
+  // completed local tarball add. Use the same pinned pnpm directly; the
+  // release tarball hash and exact compatibility approval were checked above.
+  const profileDir = join(dshHome, 'profiles', profile);
+  const added = ${installSpawn}(corepack, ['--dir', profileDir, 'add', '--save-exact', 'file:../../package-cache/' + item.filename], { stdio: 'inherit', timeout: 90_000, killSignal: 'SIGKILL' });
+  if (added.error?.code === 'ETIMEDOUT') {
+    const installed = join(profileDir, 'node_modules', name, 'package.json');
+    const dependency = JSON.parse(readFileSync(join(profileDir, 'package.json'), 'utf8')).dependencies?.[name];
+    if (!existsSync(installed) || JSON.parse(readFileSync(installed, 'utf8')).version !== item.version || dependency?.replaceAll('\\\\', '/') !== 'file:../../package-cache/' + item.filename) throw added.error;
+    console.warn('Pinned pnpm installed ' + name + ' but did not exit; verified the exact package and continuing.');
+  } else if (added.error) throw added.error;
+  if (added.error?.code !== 'ETIMEDOUT' && added.status !== 0) process.exit(added.status ?? 1);`,
+    'plugin installation step',
+  )
+  // On some macOS runners pnpm prints "Done" but retains an idle Node handle.
+  // Bound the remaining peer-closure installs too. Timeouts are accepted only
+  // when expected package manifests are present; Profile validation follows.
+  installer = replaceRequired(installer,
+    `const result = ${installSpawn}(corepack, runtimeArgs, { stdio: 'inherit' });\n  if (result.error) throw result.error;\n  if (result.status !== 0) process.exit(result.status ?? 1);`,
+    `const result = ${installSpawn}(corepack, runtimeArgs, { stdio: 'inherit', timeout: 90_000, killSignal: 'SIGKILL' });\n  if (result.error?.code === 'ETIMEDOUT') {\n    const scope = join(dshHome, 'profiles', profile, 'node_modules', '@deepseek-ai');\n    if (!['dsh', 'dsh-deepseek-account', 'cordis-plugin-group'].every(name => existsSync(join(scope, name, 'package.json')))) throw result.error;\n    console.warn('Pinned pnpm finished the runtime install but did not exit; verified package manifests and continuing.');\n  } else if (result.error) throw result.error;\n  if (result.error?.code !== 'ETIMEDOUT' && result.status !== 0) process.exit(result.status ?? 1);`,
+    'bounded runtime peer installation',
+  )
+  installer = replaceRequired(installer,
+    `const result = ${installSpawn}(corepack, ['--dir', join(dshHome, 'profiles', profile), 'add', '--save-exact', ...missing.values()], { stdio: 'inherit' });\n    if (result.error) throw result.error;\n    if (result.status !== 0) process.exit(result.status ?? 1);`,
+    `const result = ${installSpawn}(corepack, ['--dir', join(dshHome, 'profiles', profile), 'add', '--save-exact', ...missing.values()], { stdio: 'inherit', timeout: 90_000, killSignal: 'SIGKILL' });\n    if (result.error?.code === 'ETIMEDOUT') {\n      if (![...missing.keys()].every(name => existsSync(join(scope, name.slice('@deepseek-ai/'.length), 'package.json')))) throw result.error;\n      console.warn('Pinned pnpm finished the peer install but did not exit; verified package manifests and continuing.');\n    } else if (result.error) throw result.error;\n    if (result.error?.code !== 'ETIMEDOUT' && result.status !== 0) process.exit(result.status ?? 1);`,
+    'bounded official peer closure',
+  )
+  if (process.platform === 'win32') {
+    // pnpm.cmd can leave cmd.exe waiting after pnpm has finished. Execute the
+    // pinned JavaScript CLI with the bundled Node process directly instead.
+    installer = replaceRequired(installer,
+        "const corepack = value('--corepack', 'corepack');",
+        "const corepack = value('--corepack', 'corepack');\nconst bundledPnpmCli = join(dirname(corepack), '.dsh-cli', 'node_modules', 'pnpm', 'bin', 'pnpm.mjs');",
+        'Windows bundled pnpm path',
+      )
+    if (!installer.includes('portableSpawn(corepack, [')) throw new Error('WorkDSH release installer changed: Windows pnpm invocation')
+    installer = installer.replaceAll('portableSpawn(corepack, [', 'nativeSpawnSync(process.execPath, [bundledPnpmCli, ')
+    installer = replaceRequired(installer, 'portableSpawn(corepack, runtimeArgs,', 'nativeSpawnSync(process.execPath, [bundledPnpmCli, ...runtimeArgs],', 'Windows runtime pnpm invocation')
+    if (installer.includes('portableSpawn(corepack,') || !installer.includes('bundledPnpmCli')) {
+      throw new Error('Windows release installer still invokes pnpm through cmd.exe')
+    }
+  }
+  writeFileSync(installerPath, installer)
+  for (const item of manifest.packages) {
+    await download(`${base}/${item.filename}`, join(releaseDir, item.filename))
+  }
+
+  mkdirSync(output, { recursive: true })
+  mkdirSync(packageCache, { recursive: true })
+  cpSync(manifestPath, join(packageCache, 'release-manifest.json'))
+  for (const item of manifest.packages) {
+    cpSync(join(releaseDir, item.filename), join(packageCache, item.filename))
+  }
+  const bootstrap = join(output, '.dsh-cli')
+  rmSync(bootstrap, { recursive: true, force: true })
+  mkdirSync(bootstrap, { recursive: true })
+  writeFileSync(join(bootstrap, 'package.json'), JSON.stringify({ private: true, dependencies: { '@deepseek-ai/dsh': DSH_VERSION, pnpm: '11.8.0' } }, null, 2) + '\n')
+  const overrides = Object.entries(manifest.runtimeOverrides ?? {}).map(([name, version]) => `  ${JSON.stringify(name)}: ${JSON.stringify(version)}`).join('\n')
+  writeFileSync(join(bootstrap, 'pnpm-workspace.yaml'), `overrides:\n${overrides}\n`)
+  const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx'
+  run(npx, ['--yes', 'pnpm@11.8.0', '--dir', bootstrap, 'install', '--prod', '--ignore-scripts'], { shell: process.platform === 'win32' })
+  const bootstrapCli = join(bootstrap, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
+  const pnpmCli = join(bootstrap, 'node_modules', 'pnpm', 'bin', 'pnpm.mjs')
+  if (!existsSync(pnpmCli)) throw new Error(`Pinned pnpm CLI is missing: ${pnpmCli}`)
+  const shim = join(output, process.platform === 'win32' ? 'dsh-runtime.cmd' : 'dsh-runtime')
+  const pnpmShim = join(output, process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm')
+  if (process.platform === 'win32') {
+    writeFileSync(shim, `@echo off\r\n"${process.execPath}" "${bootstrapCli}" %*\r\n`)
+    writeFileSync(pnpmShim, `@echo off\r\n\"${process.execPath}\" \"${pnpmCli}\" %*\r\n`)
+  } else {
+    writeFileSync(shim, `#!/bin/sh\nexec "${process.execPath}" "${bootstrapCli}" \"$@\"\n`)
+    writeFileSync(pnpmShim, `#!/bin/sh\nexec \"${process.execPath}\" \"${pnpmCli}\" \"$@\"\n`)
+    chmodSync(shim, 0o755)
+    chmodSync(pnpmShim, 0o755)
+  }
+  run(process.execPath, [installerPath, '--directory', packageCache, '--dsh', shim, '--corepack', pnpmShim], {
+    env: { ...process.env, DSH_HOME: output, PATH: `${output}${delimiter}${process.env.PATH ?? ''}` },
+  })
+  rmSync(shim, { force: true })
+  rmSync(pnpmShim, { force: true })
+  for (const item of manifest.packages) {
+    const pkg = JSON.parse(readFileSync(join(destination, 'node_modules', item.name, 'package.json'), 'utf8'))
+    if (pkg.version !== item.version) {
+      throw new Error(`Installed ${item.name} is ${pkg.version ?? 'unknown'}, expected ${item.version}`)
+    }
+    verifyPackageDshReferences(pkg, DSH_VERSION)
+  }
+  const profilePath = join(destination, 'package.json')
+  const profile = JSON.parse(readFileSync(profilePath, 'utf8'))
+  profile.optionalDependencies = { ...profile.optionalDependencies }
+  for (const item of manifest.packages) {
+    if (productPackages.has(item.name)) continue
+    profile.optionalDependencies[item.name] = profile.dependencies[item.name]
+    delete profile.dependencies[item.name]
+  }
+  profile.dsh.profile.bundles = profile.dsh.profile.bundles.filter(name => !releasePackages.includes(name) || productPackages.has(name))
+  writeFileSync(profilePath, JSON.stringify(profile, null, 2) + '\n')
+  writeFileSync(join(destination, 'cordis.patch.yml'), internalPatch(destination))
+  // The published archives remain installed and active through the profile
+  // layer, while only the five product bundles are directly manageable.
+  run(process.execPath, [pnpmCli, '--dir', destination, 'install', '--lockfile-only', '--offline'])
+  run(process.execPath, [pnpmCli, '--dir', destination, 'install', '--frozen-lockfile', '--offline'])
+  const config = spawnSync(process.execPath, [cli, '--profile', 'workdsh', '--dump-config'], {
+    encoding: 'utf8', maxBuffer: 8 * 1024 * 1024, env: { ...process.env, DSH_HOME: output },
+  })
+  if (config.error) throw config.error
+  if (config.status !== 0) throw new Error(`Five-plugin Profile failed to compose: ${config.stderr}`)
+  for (const id of ['workdsh-installation-probe', 'workdsh-identity-local', 'workdsh-access', 'workdsh-audit', 'workdsh-office']) {
+    if (!config.stdout.includes(`id: ${id}`)) throw new Error(`Internal WorkDSH service is missing: ${id}`)
+  }
+  run(process.execPath, [join(desktopRoot, 'scripts', 'verify-product-plugin-inventory.mjs'), output], {
+    env: { ...process.env, DSH_HOME: output },
+  })
+  writeFileSync(join(destination, releaseMarker), JSON.stringify({ release: WORKDSH_VERSION, harness: DSH_VERSION, layout: profileLayout }) + '\n')
+  rmSync(bootstrap, { recursive: true, force: true })
+}
+
+const candidates = [
+  process.env.WORKDSH_BUNDLED_PROFILE,
+  process.env.WORKDSH_DSH_HOME && join(process.env.WORKDSH_DSH_HOME, 'profiles', 'workdsh'),
+].filter(Boolean)
+const installedDshVersion = candidate => {
+  try {
+    return JSON.parse(readFileSync(join(candidate, 'node_modules', '@deepseek-ai', 'dsh', 'package.json'), 'utf8')).version
+  } catch {
+    return undefined
+  }
+}
+const releasePackages = RELEASE_PACKAGES
+const supportPackages = releasePackages.filter(name => !productPackages.has(name))
+const internalPatch = profile => {
+  const patches = supportPackages.map(name => join(profile, 'node_modules', name, 'cordis.patch.yml'))
+    .filter(existsSync).map(path => readFileSync(path, 'utf8').trim())
+  return patches.join('\n') + '\n'
+}
+const isPreparedProfile = candidate => {
+  if (installedDshVersion(candidate) !== DSH_VERSION) return false
+  if (!releasePackages.every(name => existsSync(join(candidate, 'node_modules', name, 'package.json')))) return false
+  try {
+    const marker = JSON.parse(readFileSync(join(candidate, releaseMarker), 'utf8'))
+    if (marker.release !== WORKDSH_VERSION || marker.harness !== DSH_VERSION || marker.layout !== profileLayout) return false
+    const cache = resolve(candidate, '..', '..', 'package-cache')
+    const manifest = JSON.parse(readFileSync(join(cache, 'release-manifest.json'), 'utf8'))
+    verifyProfileRelease(manifest, DSH_VERSION, releasePackages)
+    if (!manifest.packages.every(item => existsSync(join(cache, item.filename)))) return false
+    const lockfile = readFileSync(join(candidate, 'pnpm-lock.yaml'), 'utf8')
+    if (lockfile.includes('file:/') || lockfile.includes('file:C:') || lockfile.includes('file:c:')) return false
+    for (const name of releasePackages) {
+      const pkg = JSON.parse(readFileSync(join(candidate, 'node_modules', name, 'package.json'), 'utf8'))
+      verifyPackageDshReferences(pkg, DSH_VERSION)
+    }
+  } catch {
+    return false
+  }
+  try {
+    const profile = JSON.parse(readFileSync(join(candidate, 'package.json'), 'utf8'))
+    const manifest = JSON.parse(readFileSync(resolve(candidate, '..', '..', 'package-cache', 'release-manifest.json'), 'utf8'))
+    const selected = profile.dsh?.profile?.bundles ?? []
+    return [...productPackages].every(name => selected.includes(name)) &&
+      supportPackages.every(name => !selected.includes(name)) &&
+      supportPackages.every(name => !Object.hasOwn(profile.dependencies ?? {}, name)) &&
+      readFileSync(join(candidate, 'cordis.patch.yml'), 'utf8').startsWith(internalPatch(candidate)) &&
+      manifest.packages.every(item => {
+        const dependencies = productPackages.has(item.name) ? profile.dependencies : profile.optionalDependencies
+        return dependencies?.[item.name]?.replaceAll('\\', '/') === `file:../../package-cache/${item.filename}`
+      })
+  } catch {
+    return false
+  }
+}
+const source = candidates.find(isPreparedProfile)
+
+if (source || !isPreparedProfile(destination) || !existsSync(cli)) {
+  const backup = mkdtempSync(join(desktopRoot, 'build', '.workdsh-profile-backup-'))
+  rmSync(backup, { recursive: true })
+  if (existsSync(output)) renameSync(output, backup)
+  try {
+    if (source) {
+      mkdirSync(dirname(destination), { recursive: true })
+      // electron-builder does not follow extra-resource directory links.
+      if (process.platform === 'darwin') run('/bin/cp', ['-cR', resolve(source), destination])
+      else cpSync(resolve(source), destination, { recursive: true, dereference: true })
+      cpSync(resolve(source, '..', '..', 'package-cache'), packageCache, { recursive: true, dereference: true })
+    } else {
+      // pnpm records the absolute virtual-store location. Installing under a
+      // temporary path and renaming it breaks the Profile on Windows.
+      await installReleasedProfile(output)
+    }
+    if (!isPreparedProfile(destination)) throw new Error(`Prepared WorkDSH Profile is incomplete: ${destination}`)
+    rmSync(backup, { recursive: true, force: true })
+  } catch (error) {
+    rmSync(output, { recursive: true, force: true })
+    if (existsSync(backup)) renameSync(backup, output)
+    throw error
+  }
+}
+
+if (!existsSync(cli)) throw new Error(`Failed to prepare WorkDSH runtime at ${destination}`)
+if (!isPreparedProfile(destination)) {
+  throw new Error(`Prepared WorkDSH profile is missing required active bundles: ${destination}`)
+}
+// Electron already contains Chromium. Fail before packaging if a dependency
+// starts shipping a second browser executable inside the profile.
+const browserExecutables = new Set([
+  'chrome', 'chrome.exe', 'chromium', 'chromium.exe', 'chrome-headless-shell',
+  'headless_shell', 'firefox', 'firefox.exe', 'msedge.exe',
+])
+const scanForBundledBrowser = directory => {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name)
+    if (entry.isDirectory()) scanForBundledBrowser(path)
+    else if (entry.isFile() && browserExecutables.has(entry.name.toLowerCase())) {
+      throw new Error(`Standalone browser executable is forbidden in WorkDSH Desktop: ${path}`)
+    }
+  }
+}
+scanForBundledBrowser(output)
+cpSync(join(destination, 'package.json'), join(output, 'profile-package.json'))
+// The official primary runtime supplies Node 24 for both the DSH Host and
+// Office skills. Remove a stale standalone Node left by earlier builds.
+rmSync(join(output, 'node'), { recursive: true, force: true })
+rmSync(join(output, process.platform === 'win32' ? 'dsh-runtime.cmd' : 'dsh-runtime'), { force: true })
+rmSync(join(output, process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'), { force: true })
+console.log(`Prepared WorkDSH ${WORKDSH_VERSION} runtime at ${output}`)

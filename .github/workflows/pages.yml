@@ -2,7 +2,7 @@ name: Deploy product website
 on:
   push:
     branches: [main]
-    paths: ['website/**', '.github/workflows/pages.yml']
+    paths: ['workdsh-web/website/**', '.github/workflows/pages.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,7 +22,7 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: website
+          path: workdsh-web/website
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

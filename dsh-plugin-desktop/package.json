@@ -1,0 +1,193 @@
+{
+  "name": "dsh-plugin-desktop",
+  "version": "2.0.5",
+  "description": "WorkDSH Electron carrier for a pinned DeepSeek Harness runtime Profile",
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/techflag/workdsh.git",
+    "directory": "dsh-plugin-desktop"
+  },
+  "type": "module",
+  "main": "lib/workdsh-main.js",
+  "files": [
+    "build/app-icon.ico",
+    "build/app-icon.png",
+    "build/app-icon-mac.png",
+    "build/tray-icon.svg",
+    "build/tray-icon*.png",
+    "lib/workdsh-main.js",
+    "README.md",
+    "README.zh.md",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "scripts": {
+    "build": "node scripts/generate-windows-app-icon.mjs && node scripts/generate-mac-app-icon.mjs && node scripts/generate-tray-icons.mjs && node scripts/clean.mjs && tsdown && tsc -p tsconfig.json --emitDeclarationOnly",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.tests.json --noEmit",
+    "test": "vitest run && node --test scripts/verify-profile-release.test.mjs",
+    "check": "yarn run build && yarn run typecheck && yarn run test",
+    "check:win-package": "yarn run check",
+    "check:mac-package": "yarn run check",
+    "start": "node scripts/start-workdsh.mjs",
+    "dev": "yarn run build && yarn run prepare:workdsh-runtime && yarn run prepare:workdsh-primary-runtime && yarn run start",
+    "package:dir": "yarn run build && yarn run prepare:workdsh-runtime && yarn run prepare:workdsh-primary-runtime && node scripts/package-dir.mjs",
+    "dist:mac": "yarn run prepare:workdsh-runtime && yarn run prepare:workdsh-primary-runtime && node scripts/release-mac.ts",
+    "dist:mac-smoke": "yarn run prepare:workdsh-runtime && yarn run prepare:workdsh-primary-runtime && node scripts/package-mac.ts",
+    "dist:win": "yarn run prepare:workdsh-runtime && yarn run prepare:workdsh-primary-runtime && node scripts/package-win.ts",
+    "dist:win-portable": "yarn run prepare:workdsh-runtime && yarn run prepare:workdsh-primary-runtime && node scripts/package-win-portable.ts",
+    "prepare:workdsh-runtime": "node scripts/prepare-workdsh-runtime.mjs",
+    "prepare:workdsh-primary-runtime": "node scripts/prepare-workdsh-primary-runtime.mjs"
+  },
+  "peerDependencies": {
+    "electron": "43.3.0"
+  },
+  "devDependencies": {
+    "@electron/asar": "3.4.1",
+    "@electron/fuses": "1.8.0",
+    "@types/node": "^22.20.0",
+    "adm-zip": "^0.6.0",
+    "builder-util": "26.15.3",
+    "electron": "43.3.0",
+    "electron-builder": "26.15.7",
+    "sharp": "0.35.3",
+    "tsdown": "0.22.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  },
+  "build": {
+    "appId": "io.techflag.dsh.ssh",
+    "productName": "WorkDSH",
+    "asar": {
+      "smartUnpack": true
+    },
+    "npmRebuild": false,
+    "afterPack": "./scripts/verify-workdsh-carrier.ts",
+    "extraMetadata": {
+      "dependencies": null
+    },
+    "afterAllArtifactBuild": "./scripts/verify-electron-fuses.ts",
+    "electronFuses": {
+      "enableEmbeddedAsarIntegrityValidation": true,
+      "onlyLoadAppFromAsar": true,
+      "resetAdHocDarwinSignature": true,
+      "runAsNode": true
+    },
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "toolsets": {
+      "nsis": "1.2.1"
+    },
+    "files": [
+      "build/app-icon.ico",
+      "build/app-icon.png",
+      "build/app-icon-mac.png",
+      "build/tray-icon.svg",
+      "build/tray-icon*.png",
+      "lib/workdsh-main.js",
+      "package.json",
+      "!node_modules/**"
+    ],
+    "mac": {
+      "artifactName": "WorkDSH-${version}-${arch}.${ext}",
+      "asarUnpack": [
+        "build/app-icon-mac.png",
+        "build/tray-iconTemplate.png",
+        "build/tray-iconTemplate@2x.png"
+      ],
+      "target": [
+        "dir"
+      ],
+      "category": "public.app-category.developer-tools",
+      "extendInfo": {
+        "CFBundleAllowMixedLocalizations": true,
+        "CFBundleDevelopmentRegion": "en",
+        "CFBundleLocalizations": [
+          "en",
+          "zh_CN"
+        ]
+      },
+      "hardenedRuntime": true,
+      "icon": "build/app-icon-mac.png",
+      "notarize": true,
+      "signIgnore": [
+        "\\.(?:pak|dat|wasm)$"
+      ]
+    },
+    "dmg": {
+      "format": "UDBZ"
+    },
+    "win": {
+      "asarUnpack": [
+        "build/app-icon.png",
+        "build/tray-icon-blue.png",
+        "build/tray-icon-blue@1.25x.png",
+        "build/tray-icon-blue@1.5x.png",
+        "build/tray-icon-blue@2x.png"
+      ],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "WorkDSH-${version}-${arch}-Portable.${ext}",
+      "icon": "build/app-icon.ico"
+    },
+    "nsis": {
+      "include": "installer.nsh",
+      "installerIcon": "build/app-icon.ico",
+      "license": "THIRD_PARTY_NOTICES.md",
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "differentialPackage": false,
+      "shortcutName": "WorkDSH",
+      "uninstallerIcon": "build/app-icon.ico",
+      "useZip": false,
+      "artifactName": "WorkDSH-${version}-${arch}-Setup.${ext}"
+    },
+    "linux": {
+      "asarUnpack": [
+        "build/app-icon.png",
+        "build/tray-icon-blue.png",
+        "build/tray-icon-blue@1.25x.png",
+        "build/tray-icon-blue@1.5x.png",
+        "build/tray-icon-blue@2x.png"
+      ],
+      "target": [
+        "dir"
+      ],
+      "icon": "build/app-icon.png"
+    },
+    "extraResources": [
+      {
+        "from": "build/workdsh-runtime",
+        "to": "workdsh-runtime",
+        "filter": [
+          "profiles/workdsh/**",
+          "package-cache/**",
+          "node/**",
+          "primary-runtime/**",
+          "office-skills/**",
+          "!profiles/workdsh/node_modules/**/*.d.ts",
+          "!profiles/workdsh/node_modules/**/*.d.mts",
+          "!profiles/workdsh/node_modules/**/*.d.cts",
+          "!profiles/workdsh/node_modules/**/*.pdb"
+        ]
+      }
+    ]
+  }
+}
