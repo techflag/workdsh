@@ -1,9 +1,9 @@
 {
   "name": "workdsh-bundle",
-  "version": "0.1.0-alpha.52",
+  "version": "0.1.0-alpha.53",
   "private": true,
   "type": "module",
-  "description": "WorkDSH default Harness bundle and client composition",
+  "description": "Composes the WorkDSH workspace, capabilities and default DSH plugins.",
   "exports": {
     "./probe": {
       "types": "./dist/probe.d.ts",
@@ -16,13 +16,16 @@
     ".": {
       "types": "./dist/probe.d.ts",
       "default": "./dist/probe.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "dist",
     "cordis.patch.yml",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "locale/*.json"
   ],
   "dsh": {
     "bundle": {
@@ -58,6 +61,7 @@
     "@deepseek-ai/dsh-client-connection": "0.1.7-rc.2",
     "@deepseek-ai/dsh-client-ui-conversation": "0.1.7-rc.2",
     "@deepseek-ai/dsh-client-ui-layout": "0.1.7-rc.2",
+    "@deepseek-ai/dsh-client-ui-plugin-manager": "0.1.7-rc.2",
     "@deepseek-ai/dsh-client-ui-renderer": "0.1.7-rc.2",
     "@deepseek-ai/dsh-client-ui-sidebar": "0.1.7-rc.2",
     "@deepseek-ai/dsh-client-ui-sidebar-right": "0.1.7-rc.2",

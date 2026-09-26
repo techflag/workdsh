@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-desktop",
-  "version": "2.0.5",
+  "version": "2.0.6-alpha.1",
   "description": "WorkDSH Electron carrier for a pinned DeepSeek Harness runtime Profile",
   "license": "MIT",
   "publishConfig": {

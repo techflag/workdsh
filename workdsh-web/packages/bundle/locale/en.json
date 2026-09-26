@@ -1,0 +1,5 @@
+{
+  "meta": {
+    "description": "Composes the WorkDSH workspace, capabilities and default DSH plugins."
+  }
+}

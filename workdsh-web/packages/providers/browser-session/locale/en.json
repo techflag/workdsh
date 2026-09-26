@@ -1,0 +1,5 @@
+{
+  "meta": {
+    "description": "Connects the current agent session to a managed browser."
+  }
+}

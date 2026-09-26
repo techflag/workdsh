@@ -7,13 +7,16 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "cordis.patch.yml",
     "dist",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "locale/*.json"
   ],
   "dsh": {
     "bundle": {
@@ -36,5 +39,6 @@
     "@deepseek-ai/dsh-storage-domain": "0.1.7-rc.2",
     "@types/node": "22.19.0",
     "workdsh-contracts": "workspace:*"
-  }
+  },
+  "description": "Records local management and execution events for audit."
 }

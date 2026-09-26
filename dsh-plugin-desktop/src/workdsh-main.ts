@@ -169,6 +169,7 @@ function startRuntime(home: string, profileDir: string): void {
     env: {
       ...process.env,
       DSH_HOME: home,
+      DSH_AGENTS_HOME: join(home, 'agents'),
       DSH_BUNDLED_PRIMARY_RUNTIME: bundledPrimaryRuntime(),
       DSH_ELECTRON_EXECUTABLE: process.execPath,
       ELECTRON_RUN_AS_NODE: undefined,

@@ -7,6 +7,7 @@ import type { ManagedSkillDetail, ManagedSkillResource, ManagedSkillSummary, Ski
 import type { SkillTaskKind } from './drafts.js';
 import type { SkillManagementClient } from './management.js';
 import { ImportSkillModal } from './ImportSkillModal.js';
+import { SkillHubPanel } from './SkillHubPanel.js';
 import { skillsActionsCss, skillsCss, skillsMarketCss } from './styles.js';
 
 type SkillsPanelInjected = {
@@ -65,6 +66,7 @@ export function SkillsPanel({ toggleNavigation, management, startSkillTask, star
   const [selectedNames, setSelectedNames] = useState<readonly string[]>([]);
   const [confirmBatchUninstall, setConfirmBatchUninstall] = useState(false);
   const [view, setView] = useState<'market' | 'installed'>('market');
+  const [marketSource, setMarketSource] = useState<'local' | 'skillhub'>('local');
   const [installedQuery, setInstalledQuery] = useState('');
   const search = useRef<HTMLInputElement>(null);
   const addMenu = useRef<HTMLDivElement>(null);
@@ -205,12 +207,15 @@ export function SkillsPanel({ toggleNavigation, management, startSkillTask, star
   };
 
   const entries = catalog?.entries ?? [];
-  const categories = catalog?.categories ?? [];
   const normalized = query.trim().toLowerCase();
   const matches = (text: string) => text.toLowerCase().includes(normalized);
-  const inCategory = (values?: readonly string[]) => category === ALL || Boolean(values?.includes(category));
-  const available = entries.filter(entry => !entry.installed && inCategory(entry.categories) && (matches(entry.name) || matches(entry.title) || matches(entry.description)));
-  const filtered = skills.filter(skill => inCategory(skill.categories) && matches(`${skill.name} ${skill.title ?? ''} ${skill.localizedDescription ?? skill.description} ${skill.whenToUse ?? ''}`));
+  const matchingEntries = entries.filter(entry => !entry.installed && (matches(entry.name) || matches(entry.title) || matches(entry.description)));
+  const matchingSkills = skills.filter(skill => matches(`${skill.name} ${skill.title ?? ''} ${skill.localizedDescription ?? skill.description} ${skill.whenToUse ?? ''}`));
+  const categories = [...new Set([...matchingEntries, ...matchingSkills].flatMap(item => item.categories ?? []))].sort((a, b) => a.localeCompare(b, 'zh-CN'));
+  const selectedCategory = categories.includes(category) ? category : ALL;
+  const inCategory = (values?: readonly string[]) => selectedCategory === ALL || Boolean(values?.includes(selectedCategory));
+  const available = matchingEntries.filter(entry => inCategory(entry.categories));
+  const filtered = matchingSkills.filter(skill => inCategory(skill.categories));
   const installedFiltered = skills.filter(skill => `${skill.name} ${skill.title ?? ''} ${skill.localizedDescription ?? skill.description} ${skill.whenToUse ?? ''}`.toLowerCase().includes(installedQuery.trim().toLowerCase()));
   const capabilityTabs = [['experts', '专家'], ['skills', '技能'], ['connectors', '连接器']] as const;
   const capabilityKey: Record<string, string> = { experts: 'workdsh-experts', skills: 'workdsh-skills', connectors: 'workdsh-connectors' };
@@ -258,7 +263,9 @@ export function SkillsPanel({ toggleNavigation, management, startSkillTask, star
       <div className="add-menu-wrap" ref={addMenu}><Button variant="primary" className="add-skill" disabled={creating} aria-haspopup="menu" aria-expanded={addMenuOpen} onClick={() => setAddMenuOpen(open => !open)}>＋ 添加技能</Button>{addMenuOpen && <div className="add-menu" role="menu"><button role="menuitem" onClick={() => { setAddMenuOpen(false); search.current?.focus(); }}>查找技能</button><button role="menuitem" onClick={() => { setAddMenuOpen(false); setImportOpen(true); }}>上传技能</button><button role="menuitem" onClick={() => void beginSkillTask('create')}>创建技能</button></div>}</div>
     </header>
     <div className="section-head"><h1>技能市场</h1><Button className="refresh" onClick={() => void refresh()} disabled={busy}>刷新</Button></div>
-    <nav className="category-tabs" aria-label="技能分类"><button className={category === ALL ? 'active' : ''} aria-current={category === ALL ? 'page' : undefined} onClick={() => setCategory(ALL)}>全部</button>{categories.map(label => <button key={label} className={category === label ? 'active' : ''} aria-current={category === label ? 'page' : undefined} onClick={() => setCategory(current => current === label ? ALL : label)}>{label}</button>)}</nav>
+    <nav className="skill-source-tabs" aria-label="技能来源"><button className={marketSource === 'local' ? 'active' : ''} aria-current={marketSource === 'local' ? 'page' : undefined} onClick={() => setMarketSource('local')}>本地技能</button><button className={marketSource === 'skillhub' ? 'active' : ''} aria-current={marketSource === 'skillhub' ? 'page' : undefined} onClick={() => setMarketSource('skillhub')}>SkillHub</button></nav>
+    {marketSource === 'skillhub' ? <SkillHubPanel query={query} onInstalled={refresh} onOpenInstalled={openInstalled} /> : <>
+    <nav className="category-tabs" aria-label="技能分类"><button className={selectedCategory === ALL ? 'active' : ''} aria-current={selectedCategory === ALL ? 'page' : undefined} onClick={() => setCategory(ALL)}>全部</button>{categories.map(label => <button key={label} className={selectedCategory === label ? 'active' : ''} aria-current={selectedCategory === label ? 'page' : undefined} onClick={() => setCategory(current => current === label ? ALL : label)}>{label}</button>)}</nav>
     {catalog?.status === 'invalid' && <p className="catalog-note" role="note">技能目录暂时不可用，已安装的技能仍可使用。</p>}
     {batchMode && batchBar}
     {countsLine}
@@ -273,6 +280,7 @@ export function SkillsPanel({ toggleNavigation, management, startSkillTask, star
     {filtered.length ? <section className="market-section" aria-label="已安装技能">{available.length ? <div className="market-head"><h2>已安装 <span className="market-count">{filtered.length}</span></h2></div> : null}
       <div className="grid">{filtered.map(renderSkillCard)}</div>
     </section> : null}
+    </>}
     </>}
 
     <Modal open={Boolean(preview)} label={preview ? `${preview.title} 技能预览` : '技能预览'} className="skill-detail-dialog catalog-dialog" onClose={() => setPreview(undefined)}>

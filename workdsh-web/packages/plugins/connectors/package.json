@@ -3,7 +3,7 @@
   "version": "0.1.0-alpha.4",
   "private": false,
   "type": "module",
-  "description": "MCP connector management and a verified local example for WorkDSH",
+  "description": "Manages MCP connectors and per-conversation tool selection.",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -12,13 +12,16 @@
     "./client": {
       "types": "./dist/client.d.ts",
       "default": "./dist/client.browser.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "dist",
     "README.md",
     "CHANGELOG.md",
-    "cordis.patch.yml"
+    "cordis.patch.yml",
+    "locale/*.json"
   ],
   "scripts": {
     "build": "corepack pnpm --filter workdsh-ui build && node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.json && node ../../../scripts/build-connectors.mjs",

@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const project = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
 const tag = `v${project.version}`;
-const releaseNotes = join(root, 'docs', 'releases', `${tag}.md`);
+const releaseNotes = join(root, 'RELEASE-NOTES.md');
 const destination = join(root, '.artifacts', `project-${tag}`);
 const packageDirectories = [
   'packages/providers/identity-local',
@@ -28,13 +28,23 @@ await rm(destination, { recursive: true, force: true });
 await mkdir(destination, { recursive: true });
 
 for (const directory of packageDirectories) {
-  execFileSync('corepack', ['pnpm', 'pack', '--pack-destination', destination], {
+  execFileSync(process.platform === 'win32' ? 'corepack.cmd' : 'corepack', ['pnpm', 'pack', '--pack-destination', destination], {
     cwd: join(root, directory),
+    shell: process.platform === 'win32',
     stdio: 'inherit',
   });
 }
 
 const sourceCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+let sourceDirty = false;
+try {
+  // Desktop package checks regenerate a tracked Windows icon. Web release
+  // cleanliness covers the Web source and the DSH version inputs it consumes.
+  execFileSync('git', ['diff', '--quiet', '--ignore-submodules=dirty', 'HEAD', '--', 'workdsh-web', 'upstream.json', 'deepseek-harness'], { cwd: root, stdio: 'ignore' });
+} catch (error) {
+  if (error.status !== 1) throw error;
+  sourceDirty = true;
+}
 const packages = [];
 for (const directory of packageDirectories) {
   const manifest = JSON.parse(await readFile(join(root, directory, 'package.json'), 'utf8'));
@@ -57,18 +67,18 @@ await writeFile(join(destination, 'release-manifest.json'), JSON.stringify({
   tag,
   channel: 'github-release',
   sourceCommit,
-  sourceDirty: execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim().length > 0,
+  sourceDirty,
   harness: '0.1.7-rc.2',
   node: process.version,
   packageManager: project.packageManager,
   runtimeOverrides: Object.fromEntries(Object.entries(project.pnpm.overrides).filter(([name]) => name.startsWith('@deepseek-ai/'))),
   packages,
-  verified: ['Package checksums generated; see docs/DSH-0.1.7-UPGRADE-PLAN.md for runtime validation evidence'],
+  verified: ['Package checksums generated; CI validates build, types, DSH version alignment and integration tests'],
   limitations: [
     'alpha preview; package APIs and stored data may change',
     'interactive OAuth, connector multi-account switching and public authorization are not complete',
     'hour-scale expert-team soak, official fork-member browser history, arbitrary Office fidelity and cross-platform acceptance remain incomplete',
-    'relative to alpha.6, the packaged expert-team long task, real-model two-stage handoff, connector isolation probe and Tencent Docs connection were not re-run on this batch artifacts',
+    'real-model end-to-end workflows and every third-party Skill or plugin remain outside automated release checks',
     'packages are GitHub assets and are not published to the npm registry',
   ],
 }, null, 2) + '\n');

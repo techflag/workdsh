@@ -38,6 +38,14 @@ try {
       throw new Error(`WorkDSH product bundle is inactive or invalid: ${bundle.name}: ${JSON.stringify(bundle)}`)
     }
   }
+  const skillHub = (await ctx.pluginManager.listBundles()).find(row => row.name === '@cocofhu/skillhub')
+  if (!skillHub?.enabled || !skillHub.installed || skillHub.error) {
+    throw new Error(`SkillHub DSH plugin is inactive or invalid: ${JSON.stringify(skillHub)}`)
+  }
+  const market = (await ctx.pluginManager.listBundles()).find(row => row.name === 'dshmarket')
+  if (!market?.enabled || !market.installed || market.error) {
+    throw new Error(`dshmarket DSH plugin is inactive or invalid: ${JSON.stringify(market)}`)
+  }
   console.log(`Verified plugin manager exposes exactly five WorkDSH product bundles: ${names.join(', ')}`)
 } finally {
   try {

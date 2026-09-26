@@ -7,13 +7,16 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "dist",
     "README.md",
     "CHANGELOG.md",
-    "cordis.patch.yml"
+    "cordis.patch.yml",
+    "locale/*.json"
   ],
   "dsh": {
     "bundle": {
@@ -37,5 +40,6 @@
     "@deepseek-ai/dsh-storage-domain": "0.1.7-rc.2",
     "@types/node": "22.19.0",
     "workdsh-contracts": "workspace:*"
-  }
+  },
+  "description": "Provides trusted local identity and personal workspace ownership."
 }

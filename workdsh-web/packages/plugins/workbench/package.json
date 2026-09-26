@@ -7,12 +7,15 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "dist",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "locale/*.json"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -38,5 +41,6 @@
     "@deepseek-ai/dsh-client-ui-session": "0.1.7-rc.2",
     "@deepseek-ai/dsh-client-ui-chat": "0.1.7-rc.2",
     "@deepseek-ai/dsh-tool-todo": "0.1.7-rc.2"
-  }
+  },
+  "description": "Adds WorkDSH navigation and workspace entry points to the DSH sidebar."
 }

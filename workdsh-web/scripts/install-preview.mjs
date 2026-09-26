@@ -16,6 +16,8 @@ if (typeof baseVersion !== 'string') throw new Error('Missing pinned @deepseek-a
 if (typeof webAppVersion !== 'string') throw new Error('Missing pinned @deepseek-ai/dsh-web-app version in package.json pnpm.overrides.');
 const baseSpec = `@deepseek-ai/dsh-base@${baseVersion}`;
 const webAppSpec = `@deepseek-ai/dsh-web-app@${webAppVersion}`;
+const marketVersion = '1.66.1';
+const marketSpec = `dshmarket@${marketVersion}`;
 const cliVersion = JSON.parse(await readFile(join(root, 'node_modules/@deepseek-ai/dsh/package.json'), 'utf8')).version;
 if (cliVersion !== baseVersion) throw new Error('Preview CLI and Base must use the same pinned version.');
 const home = resolve(process.env.WORKDSH_PREVIEW_HOME ?? join(root, '.test-runtime/preview'));
@@ -23,7 +25,7 @@ const artifacts = join(root, '.artifacts');
 // pnpm includes local archive paths in its store index filename. Keep the
 // immutable archive path short even when this checkout is a nested worktree.
 const previewPacks = resolve(process.env.WORKDSH_PREVIEW_PACKS_HOME ?? join(homedir(), '.cache/workdsh-preview-packs'));
-const env = { ...process.env, DSH_HOME: home, PATH: `${join(root, 'node_modules/.bin')}:${dirname(process.execPath)}:${process.env.PATH}` };
+const env = { ...process.env, DSH_HOME: home, DSH_AGENTS_HOME: process.env.DSH_AGENTS_HOME ?? join(home, 'agents'), PATH: `${join(root, 'node_modules/.bin')}:${dirname(process.execPath)}:${process.env.PATH}` };
 const exec = promisify(execFile);
 const run = async (tool, args) => {
   await exec(process.execPath, [join(root, 'node_modules', tool), ...args], { cwd: root, env, timeout: 600_000, maxBuffer: 8 * 1024 * 1024 });
@@ -68,9 +70,10 @@ if (normalizedManifest) {
 const currentDependencies = JSON.parse(await readFile(previewManifestPath, 'utf8')).dependencies ?? {};
 const layersMatch = currentDependencies['@deepseek-ai/dsh-base'] === baseVersion
   && currentDependencies['@deepseek-ai/dsh-web-app'] === webAppVersion
+  && currentDependencies.dshmarket === marketVersion
   && packages.every(({ manifest }, index) => currentDependencies[manifest.name] === `file:${tarballs[index]}`);
 if (!layersMatch) {
-  await run('@deepseek-ai/dsh/lib/bin.js', ['plugin', '--profile', 'preview', 'add', baseSpec, webAppSpec, ...tarballs]);
+  await run('@deepseek-ai/dsh/lib/bin.js', ['plugin', '--profile', 'preview', 'add', baseSpec, webAppSpec, marketSpec, ...tarballs]);
 }
 // Boot and ConfigEditor share module-local registration in dsh-app-boot.
 // Keep the official CLI in the Profile dependency graph as well: launching the

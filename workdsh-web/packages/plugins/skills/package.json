@@ -1,6 +1,6 @@
 {
   "name": "workdsh-plugin-skills",
-  "version": "0.1.0-alpha.33",
+  "version": "0.1.0-alpha.34",
   "private": false,
   "type": "module",
   "exports": {
@@ -11,14 +11,17 @@
     "./client": {
       "types": "./dist/client.d.ts",
       "default": "./dist/client.browser.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "dist",
     "resources",
     "README.md",
     "CHANGELOG.md",
-    "cordis.patch.yml"
+    "cordis.patch.yml",
+    "locale/*.json"
   ],
   "scripts": {
     "build": "node ../../../scripts/generate-builtin-skills.mjs && corepack pnpm --filter workdsh-contracts build && corepack pnpm --filter workdsh-ui build && tsc -p tsconfig.json && node ../../../scripts/build-skills.mjs",
@@ -57,7 +60,7 @@
     "fflate": "0.8.3",
     "yaml": "2.9.0"
   },
-  "description": "Local skill management plugin for DeepSeek Harness",
+  "description": "Manages installed skills, local skill packages and SkillHub browsing.",
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"

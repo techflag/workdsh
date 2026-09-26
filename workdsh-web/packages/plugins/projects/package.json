@@ -3,7 +3,7 @@
   "version": "0.1.0-alpha.4",
   "private": false,
   "type": "module",
-  "description": "Project workspace, planning, configuration and asset references for WorkDSH",
+  "description": "Organizes tasks, configurations and assets by project.",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -12,13 +12,16 @@
     "./client": {
       "types": "./dist/client.d.ts",
       "default": "./dist/client.browser.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "dist",
     "README.md",
     "CHANGELOG.md",
-    "cordis.patch.yml"
+    "cordis.patch.yml",
+    "locale/*.json"
   ],
   "scripts": {
     "build": "corepack pnpm --filter workdsh-contracts build && corepack pnpm --filter workdsh-ui build && tsc -p tsconfig.json && node ../../../scripts/build-projects.mjs",

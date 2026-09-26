@@ -8,14 +8,18 @@ import { DSH_VERSION } from './runtime-version.mjs'
 import { PRODUCT_PACKAGES, RELEASE_PACKAGES } from './workdsh-package-boundary.mjs'
 import { verifyPackageDshReferences, verifyProfileRelease } from './verify-profile-release.mjs'
 
-const WORKDSH_VERSION = '0.1.0-alpha.13'
+const WORKDSH_VERSION = '0.1.0-alpha.14'
 const desktopRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const output = join(desktopRoot, 'build', 'workdsh-runtime')
 const destination = join(output, 'profiles', 'workdsh')
 const packageCache = join(output, 'package-cache')
 const cli = join(destination, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
 const releaseMarker = '.workdsh-desktop-release.json'
-const profileLayout = 'five-product-plugins-v1'
+const profileLayout = 'five-product-plugins-skillhub-dshmarket-v1'
+const SKILLHUB_PACKAGE = '@cocofhu/skillhub'
+const SKILLHUB_VERSION = '0.2.16'
+const MARKET_PACKAGE = 'dshmarket'
+const MARKET_VERSION = '1.66.1'
 const productPackages = new Set(PRODUCT_PACKAGES)
 
 function run(command, args, options = {}) {
@@ -55,11 +59,19 @@ async function installReleasedProfile(output) {
   const releaseDir = join(desktopRoot, 'build', `.workdsh-release-${WORKDSH_VERSION}`)
   mkdirSync(releaseDir, { recursive: true })
   const base = `https://github.com/techflag/workdsh/releases/download/v${WORKDSH_VERSION}`
+  const localReleaseDir = process.env.WORKDSH_USE_LOCAL_RELEASE === '1'
+    ? resolve(desktopRoot, '..', 'workdsh-web', '.artifacts', `project-v${WORKDSH_VERSION}`)
+    : undefined
+  if (localReleaseDir && !existsSync(join(localReleaseDir, 'release-manifest.json'))) {
+    throw new Error(`Local WorkDSH release candidate is missing: ${localReleaseDir}`)
+  }
   const manifestPath = join(releaseDir, 'release-manifest.json')
-  await download(`${base}/release-manifest.json`, manifestPath)
+  if (localReleaseDir) cpSync(join(localReleaseDir, 'release-manifest.json'), manifestPath)
+  else await download(`${base}/release-manifest.json`, manifestPath)
   const rawInstallerPath = join(releaseDir, 'install-workdsh.original.mjs')
   const installerPath = join(releaseDir, 'install-workdsh.mjs')
-  await download(`${base}/install-workdsh.mjs`, rawInstallerPath)
+  if (localReleaseDir) cpSync(join(localReleaseDir, 'install-workdsh.mjs'), rawInstallerPath)
+  else await download(`${base}/install-workdsh.mjs`, rawInstallerPath)
   let installer = readFileSync(rawInstallerPath, 'utf8')
   installer = replaceRequired(installer,
     'profilePackage.packageManager = manifest.packageManager;',
@@ -125,7 +137,8 @@ async function installReleasedProfile(output) {
   }
   writeFileSync(installerPath, installer)
   for (const item of manifest.packages) {
-    await download(`${base}/${item.filename}`, join(releaseDir, item.filename))
+    if (localReleaseDir) cpSync(join(localReleaseDir, item.filename), join(releaseDir, item.filename))
+    else await download(`${base}/${item.filename}`, join(releaseDir, item.filename))
   }
 
   mkdirSync(output, { recursive: true })
@@ -183,6 +196,16 @@ async function installReleasedProfile(output) {
   // layer, while only the five product bundles are directly manageable.
   run(process.execPath, [pnpmCli, '--dir', destination, 'install', '--lockfile-only', '--offline'])
   run(process.execPath, [pnpmCli, '--dir', destination, 'install', '--frozen-lockfile', '--offline'])
+  // Keep the third-party SkillHub integration in the same DSH Profile. It
+  // supplies SkillHub search and a DSH plugin catalogue without a second host.
+  run(process.execPath, [pnpmCli, '--dir', destination, 'add', '--save-exact', `${SKILLHUB_PACKAGE}@${SKILLHUB_VERSION}`, `${MARKET_PACKAGE}@${MARKET_VERSION}`])
+  const installedSkillHub = JSON.parse(readFileSync(join(destination, 'node_modules', SKILLHUB_PACKAGE, 'package.json'), 'utf8'))
+  if (installedSkillHub.version !== SKILLHUB_VERSION) throw new Error('Pinned SkillHub plugin version is missing')
+  const installedMarket = JSON.parse(readFileSync(join(destination, 'node_modules', MARKET_PACKAGE, 'package.json'), 'utf8'))
+  if (installedMarket.version !== MARKET_VERSION) throw new Error('Pinned dshmarket plugin version is missing')
+  const profileWithSkillHub = JSON.parse(readFileSync(profilePath, 'utf8'))
+  profileWithSkillHub.dsh.profile.bundles = [...new Set([...profileWithSkillHub.dsh.profile.bundles, SKILLHUB_PACKAGE, MARKET_PACKAGE])]
+  writeFileSync(profilePath, JSON.stringify(profileWithSkillHub, null, 2) + '\n')
   const config = spawnSync(process.execPath, [cli, '--profile', 'workdsh', '--dump-config'], {
     encoding: 'utf8', maxBuffer: 8 * 1024 * 1024, env: { ...process.env, DSH_HOME: output },
   })
@@ -191,6 +214,8 @@ async function installReleasedProfile(output) {
   for (const id of ['workdsh-installation-probe', 'workdsh-identity-local', 'workdsh-access', 'workdsh-audit', 'workdsh-office']) {
     if (!config.stdout.includes(`id: ${id}`)) throw new Error(`Internal WorkDSH service is missing: ${id}`)
   }
+  if (!config.stdout.includes('id: skillhub')) throw new Error('SkillHub plugin is missing from the WorkDSH Profile')
+  if (!config.stdout.includes('id: dsh-market')) throw new Error('dshmarket plugin is missing from the WorkDSH Profile')
   run(process.execPath, [join(desktopRoot, 'scripts', 'verify-product-plugin-inventory.mjs'), output], {
     env: { ...process.env, DSH_HOME: output },
   })
@@ -220,6 +245,12 @@ const isPreparedProfile = candidate => {
   if (installedDshVersion(candidate) !== DSH_VERSION) return false
   if (!releasePackages.every(name => existsSync(join(candidate, 'node_modules', name, 'package.json')))) return false
   try {
+    const skillHub = JSON.parse(readFileSync(join(candidate, 'node_modules', SKILLHUB_PACKAGE, 'package.json'), 'utf8'))
+    if (skillHub.version !== SKILLHUB_VERSION) return false
+    const market = JSON.parse(readFileSync(join(candidate, 'node_modules', MARKET_PACKAGE, 'package.json'), 'utf8'))
+    if (market.version !== MARKET_VERSION) return false
+  } catch { return false }
+  try {
     const marker = JSON.parse(readFileSync(join(candidate, releaseMarker), 'utf8'))
     if (marker.release !== WORKDSH_VERSION || marker.harness !== DSH_VERSION || marker.layout !== profileLayout) return false
     const cache = resolve(candidate, '..', '..', 'package-cache')
@@ -240,6 +271,10 @@ const isPreparedProfile = candidate => {
     const manifest = JSON.parse(readFileSync(resolve(candidate, '..', '..', 'package-cache', 'release-manifest.json'), 'utf8'))
     const selected = profile.dsh?.profile?.bundles ?? []
     return [...productPackages].every(name => selected.includes(name)) &&
+      selected.includes(SKILLHUB_PACKAGE) &&
+      selected.includes(MARKET_PACKAGE) &&
+      profile.dependencies?.[SKILLHUB_PACKAGE] === SKILLHUB_VERSION &&
+      profile.dependencies?.[MARKET_PACKAGE] === MARKET_VERSION &&
       supportPackages.every(name => !selected.includes(name)) &&
       supportPackages.every(name => !Object.hasOwn(profile.dependencies ?? {}, name)) &&
       readFileSync(join(candidate, 'cordis.patch.yml'), 'utf8').startsWith(internalPatch(candidate)) &&

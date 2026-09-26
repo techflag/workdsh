@@ -3,7 +3,7 @@
   "version": "0.1.0-alpha.2",
   "private": true,
   "type": "module",
-  "description": "Session-owned Chromium browser bridge for WorkDSH",
+  "description": "Connects the current agent session to a managed browser.",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -12,9 +12,15 @@
     "./client": {
       "types": "./dist/client.d.ts",
       "default": "./dist/client.browser.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "locale/*.json"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json && node ../../../scripts/build-browser-session.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",

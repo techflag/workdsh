@@ -3,7 +3,7 @@
   "version": "0.1.0-alpha.6",
   "type": "module",
   "private": false,
-  "description": "Compact animated activity presentation for standard DSH sessions",
+  "description": "Shows session activity and agent collaboration status.",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -16,14 +16,17 @@
     "./presentation": {
       "types": "./dist/activity.d.ts",
       "default": "./dist/presentation.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "dist",
     "README.md",
     "cordis.patch.yml",
     "DESIGN.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "locale/*.json"
   ],
   "scripts": {
     "build": "corepack pnpm --filter workdsh-contracts build && tsc -p tsconfig.json && node ../../../scripts/build-activity.mjs",
