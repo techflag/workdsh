@@ -6,4 +6,6 @@
 
 在**只调整 Electron Builder 的 `extraResources.filter`** 后，隔离打包的 Profile `node_modules` 为 1029.0 MiB、49,874 个文件；比基线少 107.5 MiB、20,721 个文件。过滤对象仅为 `*.d.ts`、`*.d.mts`、`*.d.cts` 类型声明和 `*.pdb` Windows 调试符号；保留源码映射、Python、Office 和所有可执行及原生库。隔离产物通过了 `@deepseek-ai/dsh --version` 与 `--profile workdsh --dump-config`，配置中仍含 WorkDSH Office、官方 Office 技能和 workspace dependencies。移除 PDB 会减少随包调试符号，若需符号化诊断应从构建产物另行保留符号。
 
-CI 的 Windows 作业现在生成 `desktop-footprint-windows-x64` 报告，记录真正的 Windows `win-unpacked` 文件数、未压缩字节数、最大功能包和仍随包的源码映射。它不会成为 Release 附件。下一步须在 Windows 上比较新旧 Setup 的压缩大小，并按[NSIS 冷快照 A/B 方法](windows-nsis-ab-methodology.md)测量首次安装和升级耗时；没有这些数据前，不宣称安装提速幅度。不要通过删除普通用户所需的官方 Python 或 Office 功能来追求 200 MiB 目标。
+[CI 运行 36214410124](https://github.com/techflag/workdsh/actions/runs/36214410124) 的 Windows 打包通过。生成的 `WorkDSH-2.0.5-x64-Setup.exe` 为 **323.3 MiB**（339,012,164 字节），相比上述已发布 Setup 的 356.1 MiB 少约 **32.8 MiB / 9.2%**。实际 `win-unpacked` 目录为 **1,769,640,839 字节 / 57,817 个文件**；其中 Profile `node_modules` 1,093,634,966 字节 / 49,975 个文件，官方主运行时 283,562,765 字节 / 7,736 个文件。最大项是官方 Windows LibreOffice kit 190,865,379 字节和 WorkDSH Office 包 185,654,796 字节。源码映射仍占 131,317,708 字节，尚未删减。
+
+CI 的 `desktop-footprint-windows-x64` 报告记录这些 Windows 文件指标，但不会成为 Release 附件。压缩安装包缩小已验证，**首次安装与升级所需时间尚未实测**；需按[NSIS 冷快照 A/B 方法](windows-nsis-ab-methodology.md)验证，不能把减少 20,721 个 macOS 文件直接换算成 Windows 安装提速幅度。不要通过删除普通用户所需的官方 Python 或 Office 功能来追求 200 MiB 目标。
