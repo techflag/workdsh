@@ -6,7 +6,7 @@
 
 [![Desktop release](https://img.shields.io/badge/Desktop-2.0.5--alpha.21-176BFF)](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21) [![GitHub stars](https://img.shields.io/github/stars/techflag/workdsh?label=stars)](https://github.com/techflag/workdsh) [![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-![WorkDSH 项目主页：项目、模板与完整桌面侧栏](workdsh-web/docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
+![WorkDSH 项目主页：项目、模板与完整桌面侧栏](workdsh-web/assets/screenshots/workdsh-projects-alpha8-dark.png)
 
 <sub>WorkDSH 本地运行截图。项目名称和账户数值为演示环境数据，不随安装包提供。</sub>
 
@@ -34,7 +34,7 @@ WorkDSH 以 WorkBuddy 的工作方式为蓝本，复刻从项目组织、资料�
 <details>
 <summary>查看实际会话中的 HTML 成果示例</summary>
 
-![WorkDSH 会话、成果卡片和右侧 HTML 预览](workdsh-web/docs/assets/screenshots/workdsh-html-dashboard-preview.png)
+![WorkDSH 会话、成果卡片和右侧 HTML 预览](workdsh-web/assets/screenshots/workdsh-html-dashboard-preview.png)
 
 <sub>本地任务示例；展示成果卡片和右侧预览，不代表任意文件都能无损编辑。</sub>
 
@@ -52,7 +52,7 @@ WorkDSH 以 WorkBuddy 的工作方式为蓝本，复刻从项目组织、资料�
 
 WorkBuddy 风格的 Skill 来源广泛，WorkDSH 提供兼容的导入入口，**不把“可导入”说成“全部已验证或预装”**。含脚本、外部服务或特殊依赖的 Skill 要逐个测试；第三方 DSH 插件也需按当前版本验证。[技能管理](workdsh-web/packages/plugins/skills/README.md) · [插件开发](docs/plugin-development.md) · [生态倡议](docs/plugin-ecosystem.md)
 
-![WorkDSH 技能市场：本地目录、分类和可安装技能](workdsh-web/docs/assets/screenshots/workdsh-skills-alpha8-dark.png)
+![WorkDSH 技能市场：本地目录、分类和可安装技能](workdsh-web/assets/screenshots/workdsh-skills-alpha8-dark.png)
 
 <sub>截图中的可安装条目来自演示机的本地技能目录，不代表安装包自带或官方托管的在线市场。</sub>
 

@@ -6,7 +6,7 @@
 
 [![Desktop release](https://img.shields.io/badge/Desktop-2.0.5--alpha.21-176BFF)](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21) [![GitHub stars](https://img.shields.io/github/stars/techflag/workdsh?label=stars)](https://github.com/techflag/workdsh) [![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-![WorkDSH projects home with project templates and the complete desktop sidebar](workdsh-web/docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
+![WorkDSH projects home with project templates and the complete desktop sidebar](workdsh-web/assets/screenshots/workdsh-projects-alpha8-dark.png)
 
 <sub>Captured from a local WorkDSH session. Project names and account figures are demonstration data, not bundled with the installer.</sub>
 
@@ -34,7 +34,7 @@ This path is WorkDSH's product direction. End-to-end validation of project docum
 <details>
 <summary>See an HTML deliverable from a real local conversation</summary>
 
-![WorkDSH conversation, deliverable cards, and right-side HTML preview](workdsh-web/docs/assets/screenshots/workdsh-html-dashboard-preview.png)
+![WorkDSH conversation, deliverable cards, and right-side HTML preview](workdsh-web/assets/screenshots/workdsh-html-dashboard-preview.png)
 
 <sub>A local task example showing deliverable cards and right-side preview; it does not imply lossless editing for every file.</sub>
 
@@ -52,7 +52,7 @@ This is the other half of WorkDSH: **the workflow draws on WorkBuddy; extensions
 
 WorkBuddy-style Skills come from a broad ecosystem. WorkDSH offers a compatible import path, **not a claim that every Skill is tested or preinstalled**. Skills with scripts, external services, or special dependencies need individual testing; third-party DSH plugins need version-specific validation too. [Skill management](workdsh-web/packages/plugins/skills/README.md) · [Plugin development](docs/plugin-development.en.md) · [Ecosystem manifesto](docs/plugin-ecosystem.en.md)
 
-![WorkDSH skill catalog with local entries, categories, and install actions](workdsh-web/docs/assets/screenshots/workdsh-skills-alpha8-dark.png)
+![WorkDSH skill catalog with local entries, categories, and install actions](workdsh-web/assets/screenshots/workdsh-skills-alpha8-dark.png)
 
 <sub>The installable entries shown here come from the demonstration machine's local skill directory. They are neither bundled with the installer nor an officially hosted online marketplace.</sub>
 
