@@ -4,7 +4,7 @@
 <p align="center">An open-source desktop workspace built on DeepSeek Harness, bringing projects, documents, experts, skills, connectors, and tasks together.</p>
 <p align="center"><a href="#download-desktop">Download Desktop</a> · <a href="#from-material-to-deliverable">Explore the workflow</a> · <a href="docs/user-guide.en.md">User guide</a> · <a href="README.md">简体中文</a></p>
 
-[![Desktop release](https://img.shields.io/badge/Desktop-2.0.5--alpha.20-176BFF)](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.20) [![GitHub stars](https://img.shields.io/github/stars/techflag/workdsh?label=stars)](https://github.com/techflag/workdsh) [![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Desktop release](https://img.shields.io/badge/Desktop-2.0.5--alpha.21-176BFF)](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21) [![GitHub stars](https://img.shields.io/github/stars/techflag/workdsh?label=stars)](https://github.com/techflag/workdsh) [![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ![WorkDSH projects home with project templates and the complete desktop sidebar](workdsh-web/docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
 
@@ -58,13 +58,13 @@ WorkDSH uses two complementary kinds of extension; a skill is different from a p
 
 ## Download Desktop
 
-The current public desktop installer release is **2.0.5-alpha.20**. These links point directly to files in its [GitHub Release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.20):
+The current public desktop installer release is **2.0.5-alpha.21**. These links point directly to files in its [GitHub Release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21):
 
 | Platform | Download |
 | --- | --- |
-| Windows x64 | [WorkDSH Setup.exe](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-windows-x64--WorkDSH-2.0.5-x64-Setup.exe) |
-| macOS Apple Silicon | [WorkDSH arm64.dmg](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-macos-arm64--WorkDSH-2.0.5-arm64.dmg) |
-| macOS Intel | [WorkDSH x64.dmg](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-macos-x64--WorkDSH-2.0.5-x64.dmg) |
+| Windows x64 | [WorkDSH Setup.exe](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.21/dsh-plugin-desktop-windows-x64--WorkDSH-2.0.5-x64-Setup.exe) |
+| macOS Apple Silicon | [WorkDSH arm64.dmg](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.21/dsh-plugin-desktop-macos-arm64--WorkDSH-2.0.5-arm64.dmg) |
+| macOS Intel | [WorkDSH x64.dmg](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.21/dsh-plugin-desktop-macos-x64--WorkDSH-2.0.5-x64.dmg) |
 
 Ordinary users do not need to install DSH, Node.js, or Python separately; the desktop package contains pinned runtimes. The macOS DMGs are currently unsigned, and updates are downloaded manually from [Releases](https://github.com/techflag/workdsh/releases). Start with the [user guide](docs/user-guide.en.md) and [FAQ](docs/faq.en.md).
 

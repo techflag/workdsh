@@ -5,19 +5,19 @@
 
 WorkDSH 是基于官方 DeepSeek Harness 的开源 AI 工作台。把对话、资料与能力组织到项目里，复用本地资料库，在任务旁查看和编辑交付成果。
 
-**桌面版 v2.0.5-alpha.20 · Web/插件 v0.1.0-alpha.13 · Alpha 预览版**
+**桌面版 v2.0.5-alpha.21 · Web/插件 v0.1.0-alpha.13 · Alpha 预览版**
 
-[桌面版下载](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.20) · [Web/插件下载](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.13) · [更新说明](docs/releases/v0.1.0-alpha.13.md) · [快速开始](#快速开始) · [官网](https://techflag.github.io/workdsh/) · [Gitee 镜像](https://gitee.com/techflag/workdsh)
+[桌面版下载](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21) · [Web/插件下载](https://github.com/techflag/workdsh/releases/tag/v0.1.0-alpha.13) · [更新说明](docs/releases/v0.1.0-alpha.13.md) · [快速开始](#快速开始) · [官网](https://techflag.github.io/workdsh/) · [Gitee 镜像](https://gitee.com/techflag/workdsh)
 
 ## 下载 WorkDSH 桌面版
 
 | 系统 | 安装包 |
 | --- | --- |
-| Windows x64 | [下载 Setup.exe](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-windows-x64--WorkDSH-2.0.5-x64-Setup.exe) |
-| macOS Apple 芯片 | [下载 arm64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-macos-arm64--WorkDSH-2.0.5-arm64.dmg) |
-| macOS Intel | [下载 x64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-macos-x64--WorkDSH-2.0.5-x64.dmg) |
+| Windows x64 | [下载 Setup.exe](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.21/dsh-plugin-desktop-windows-x64--WorkDSH-2.0.5-x64-Setup.exe) |
+| macOS Apple 芯片 | [下载 arm64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.21/dsh-plugin-desktop-macos-arm64--WorkDSH-2.0.5-arm64.dmg) |
+| macOS Intel | [下载 x64 DMG](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.21/dsh-plugin-desktop-macos-x64--WorkDSH-2.0.5-x64.dmg) |
 
-这批 Alpha 安装包内置 WorkDSH v0.1.0-alpha.13 和官方 Harness 0.1.7-rc.2 Profile，包含 Node 与 Python。任务浏览器复用 Electron，不额外打包浏览器。macOS DMG 是未签名预览包；校验文件见[桌面版 Release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.20)。
+这批 Alpha 安装包内置 WorkDSH v0.1.0-alpha.13 和官方 Harness 0.1.7-rc.2 Profile，包含 Node 与 Python。任务浏览器复用 Electron，不额外打包浏览器。macOS DMG 是未签名预览包；校验文件见[桌面版 Release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21)。
 
 ![WorkDSH 深色项目主页，包含完整侧栏](docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
 

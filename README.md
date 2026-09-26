@@ -4,7 +4,7 @@
 <p align="center">基于 DeepSeek Harness 的开源桌面工作台：让项目、资料、专家、技能、连接器与任务在同一个地方协作。</p>
 <p align="center"><a href="#下载桌面版">下载桌面版</a> · <a href="#从资料到成果">了解工作流</a> · <a href="docs/user-guide.md">使用指南</a> · <a href="README.en.md">English</a></p>
 
-[![Desktop release](https://img.shields.io/badge/Desktop-2.0.5--alpha.20-176BFF)](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.20) [![GitHub stars](https://img.shields.io/github/stars/techflag/workdsh?label=stars)](https://github.com/techflag/workdsh) [![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Desktop release](https://img.shields.io/badge/Desktop-2.0.5--alpha.21-176BFF)](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21) [![GitHub stars](https://img.shields.io/github/stars/techflag/workdsh?label=stars)](https://github.com/techflag/workdsh) [![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ![WorkDSH 项目主页：项目、模板与完整桌面侧栏](workdsh-web/docs/assets/screenshots/workdsh-projects-alpha8-dark.png)
 
@@ -58,13 +58,13 @@ WorkDSH 的能力分为两层，避免把“技能”和“插件”混为一谈
 
 ## 下载桌面版
 
-当前公开桌面安装包为 **2.0.5-alpha.20**。以下链接直接指向 [GitHub Release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.20) 中的文件：
+当前公开桌面安装包为 **2.0.5-alpha.21**。以下链接直接指向 [GitHub Release](https://github.com/techflag/workdsh/releases/tag/desktop-v2.0.5-alpha.21) 中的文件：
 
 | 平台 | 下载 |
 | --- | --- |
-| Windows x64 | [WorkDSH Setup.exe](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-windows-x64--WorkDSH-2.0.5-x64-Setup.exe) |
-| macOS Apple Silicon | [WorkDSH arm64.dmg](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-macos-arm64--WorkDSH-2.0.5-arm64.dmg) |
-| macOS Intel | [WorkDSH x64.dmg](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.20/dsh-plugin-desktop-macos-x64--WorkDSH-2.0.5-x64.dmg) |
+| Windows x64 | [WorkDSH Setup.exe](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.21/dsh-plugin-desktop-windows-x64--WorkDSH-2.0.5-x64-Setup.exe) |
+| macOS Apple Silicon | [WorkDSH arm64.dmg](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.21/dsh-plugin-desktop-macos-arm64--WorkDSH-2.0.5-arm64.dmg) |
+| macOS Intel | [WorkDSH x64.dmg](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.5-alpha.21/dsh-plugin-desktop-macos-x64--WorkDSH-2.0.5-x64.dmg) |
 
 普通用户无需分别安装 DSH、Node.js 或 Python；桌面包内置固定版本的运行时。macOS DMG 当前未签名，更新需从 [Releases](https://github.com/techflag/workdsh/releases) 手动下载。开始使用前请阅读[用户指南](docs/user-guide.md)和[常见问题](docs/faq.md)。
 
