@@ -19,7 +19,7 @@ if (upstream.commit !== pinnedCommit || pinnedCommit !== checkoutCommit) {
 if (upstream.version !== checkout.version || DSH_VERSION !== checkout.version) {
   problems.push(`upstream.json=${upstream.version}, Desktop=${DSH_VERSION}, checkout=${checkout.version}`)
 }
-for (const workspace of ['dsh-plugin-desktop', 'dsh-community-fabric', 'dsh-community-market']) {
+for (const workspace of ['dsh-plugin-desktop']) {
   const manifest = readJson(`${workspace}/package.json`)
   for (const field of ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']) {
     for (const name of Object.keys(manifest[field] ?? {})) {

@@ -30,17 +30,14 @@ WorkDSH Desktop 使用 Electron 承载固定版本的官方 DSH 运行时。桌�
 
 插件市场上线后，符合本倡议的插件将更容易被发现、安装和信任。我们希望让"按规范开发"成为对每个作者都有利的选择，而不是额外的负担。
 
-## 从倡议走向可测试的 contract
+## 当前边界
 
-[DSH Community Fabric](../dsh-community-fabric/README.zh.md) 正在把这份愿景整理成可公开讨论的 Manifest、Capability、Host Descriptor 与事件 Draft。它目前只有文档，不是已经发布的标准或运行时；当前插件仍使用现有 DSH/Cordis 接口。
+当前插件使用 DSH/Cordis 已发布的公开接口。未来若建立统一的插件声明或目录，应先以真实插件、兼容测试和用户需求验证；能力声明可辅助兼容判断、用户确认与审计，但不能把同进程 JavaScript 描述成安全沙箱。只有具备真实隔离证据的 Host 才能声称权限被技术强制执行。
 
-Fabric 的 capability 首先用于兼容判断、用户确认和审计，不会把同进程 JavaScript 伪装成安全沙箱。只有具备真实隔离证据的 Host 才能声称权限被技术强制执行。
-
-市场目前仍处于[产品与安全设计阶段](../dsh-community-market/README.zh.md)，尚未提供可用页面或安装器。目录收录只代表符合目录规则，不等于安全审核或推荐。
+目前没有在线市场页面或安装器。未来的目录收录只代表满足目录规则，不等于安全审核或推荐。
 
 ## 如何参与
 
 - 在[插件开发](plugin-development.md)中了解插件如何编写。
-- 阅读并评论 [Community Fabric RFC 0001](../dsh-community-fabric/docs/rfcs/0001-plugin-manifest-capabilities-events.zh.md)。
 - 在[用户指南](user-guide.md)中了解如何安装和管理插件。
 - 通过 issue 和讨论区提出你对本倡议的意见。

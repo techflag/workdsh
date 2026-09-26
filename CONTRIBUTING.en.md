@@ -16,8 +16,6 @@ DSH is built around plugins. If you write plugins, start with:
 
 - [Plugin development](docs/plugin-development.en.md): how to write ordinary DSH plugins and Desktop plugins.
 - [DSH plugin ecosystem manifesto](docs/plugin-ecosystem.en.md): our vision of an open, composable, sustainable ecosystem, and the three principles — composition first, declare clearly, compatibility first.
-- [DSH Community Fabric Draft](dsh-community-fabric/README.md): join the public discussion of manifests, capabilities, Host Descriptors, and event contracts.
-- [Community Market design](dsh-community-market/docs/market-shell.md): how the future market will discover plugins and why listing is not a security review.
 
 Plugins that follow the manifesto coexist better with other plugins and will be easier to discover and trust in the marketplace when it ships.
 
@@ -35,7 +33,7 @@ corepack yarn dev     # launch the application when a graphical session is avail
 ### Repository boundaries (please read before starting)
 
 - `deepseek-harness/` is the pinned upstream submodule. **Desktop development never edits files inside it**; upstream updates land through separate pin commits.
-- Desktop code lives in `dsh-plugin-desktop/`; `dsh-community-fabric/` owns the community-standard Draft and `dsh-community-market/` owns the market-shell design. Both community packages are currently documentation-only and not loadable; all three owned packages share the outer Yarn workspace.
+- Desktop code lives in `dsh-plugin-desktop/`, and WorkDSH feature packages live in `workdsh-web/`. The former uses the root Yarn workspace; the latter retains its own pnpm workspace. The pinned upstream `deepseek-harness/` is a Git submodule.
 - Builds, typechecks, unit tests, and smoke checks must stay headless-safe.
 
 ### Commits and pull requests

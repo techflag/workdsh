@@ -14,8 +14,6 @@ const fail = message => { throw new Error(`verify-layout: ${message}`) }
 const workspace = readJson('package.json')
 const upstream = readJson('upstream.json')
 const stablePlugin = readJson('dsh-plugin-desktop/package.json')
-const fabric = readJson('dsh-community-fabric/package.json')
-const market = readJson('dsh-community-market/package.json')
 const upstreamPackage = readJson('deepseek-harness/package.json')
 
 if (stablePlugin.name !== 'dsh-plugin-desktop') fail('the stable Desktop workspace must retain dsh-plugin-desktop')
@@ -26,31 +24,11 @@ if (typeof upstream.commit !== 'string' || typeof upstream.version !== 'string')
 if (workspace.packageManager !== 'yarn@4.18.0') {
   fail('the product workspace must pin yarn@4.18.0')
 }
-if (JSON.stringify(workspace.workspaces) !== JSON.stringify([
-  'dsh-plugin-desktop',
-  'dsh-community-fabric',
-  'dsh-community-market',
-])) {
-  fail('the root Yarn workspace must contain the desktop, community-fabric, and community-market packages')
+if (JSON.stringify(workspace.workspaces) !== JSON.stringify(['dsh-plugin-desktop'])) {
+  fail('the root Yarn workspace must contain only the Desktop carrier')
 }
-for (const [name, manifest] of [
-  ['dsh-plugin-desktop', stablePlugin],
-  ['dsh-community-fabric', fabric],
-  ['dsh-community-market', market],
-]) {
+for (const [name, manifest] of [['dsh-plugin-desktop', stablePlugin]]) {
   if (manifest.packageManager !== undefined) fail(`${name} must inherit the root Yarn release`)
-}
-if (fabric.name !== 'dsh-community-fabric') fail('the Fabric workspace must own dsh-community-fabric')
-if (market.name !== 'dsh-community-market') fail('the market workspace must own dsh-community-market')
-if (!market.private || market.main !== undefined || market.exports !== undefined || market.dsh !== undefined) {
-  fail('the market workspace must remain a private documentation scaffold')
-}
-if (Object.keys(market.dependencies ?? {}).length
-  || Object.keys(market.devDependencies ?? {}).some(name => !['ajv', 'ajv-formats'].includes(name))) {
-  fail('the market documentation scaffold may depend only on its schema validators')
-}
-if (run('git', ['ls-files', '--', 'dsh-community-market/src', 'dsh-community-market/tests'])) {
-  fail('the market documentation scaffold must not contain runtime source or tests')
 }
 const claudePath = resolve(root, 'CLAUDE.md')
 const claudeStat = lstatSync(claudePath)
@@ -67,10 +45,6 @@ for (const legacyFile of [
   'pnpm-workspace.yaml',
   'dsh-plugin-desktop/pnpm-lock.yaml',
   'dsh-plugin-desktop/pnpm-workspace.yaml',
-  'dsh-community-fabric/pnpm-lock.yaml',
-  'dsh-community-fabric/pnpm-workspace.yaml',
-  'dsh-community-market/pnpm-lock.yaml',
-  'dsh-community-market/pnpm-workspace.yaml',
 ]) {
   if (existsSync(resolve(root, legacyFile))) fail(`${legacyFile} must not exist`)
 }
@@ -87,8 +61,6 @@ if (typeof upstreamPackage.packageManager !== 'string' || !upstreamPackage.packa
 for (const [owner, manifest] of [
   ['root', workspace],
   ['stable desktop', stablePlugin],
-  ['fabric', fabric],
-  ['market', market],
 ]) {
   for (const field of ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies', 'resolutions']) {
     for (const [name, range] of Object.entries(manifest[field] ?? {})) {
