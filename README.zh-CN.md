@@ -78,7 +78,7 @@ corepack yarn install --immutable
 corepack yarn dev
 ```
 
-运行检查：`corepack yarn check`。[参与贡献](CONTRIBUTING.md)
+运行检查：`corepack yarn check`。在 macOS 或 Windows 上，从当前提交一键打包 Web Profile 与 Desktop：`corepack yarn release:pack`；Web 包发布后，正式安装包使用 `corepack yarn release:pack:published`。两条命令使用同一个[打包脚本](scripts/package-desktop-release.mjs)。[参与贡献](CONTRIBUTING.md)
 
 ## 社区与致谢
 

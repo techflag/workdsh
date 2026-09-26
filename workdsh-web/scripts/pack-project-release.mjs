@@ -28,8 +28,9 @@ await rm(destination, { recursive: true, force: true });
 await mkdir(destination, { recursive: true });
 
 for (const directory of packageDirectories) {
-  execFileSync('corepack', ['pnpm', 'pack', '--pack-destination', destination], {
+  execFileSync(process.platform === 'win32' ? 'corepack.cmd' : 'corepack', ['pnpm', 'pack', '--pack-destination', destination], {
     cwd: join(root, directory),
+    shell: process.platform === 'win32',
     stdio: 'inherit',
   });
 }

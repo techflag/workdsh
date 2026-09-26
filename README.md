@@ -78,7 +78,7 @@ corepack yarn install --immutable
 corepack yarn dev
 ```
 
-Run checks with `corepack yarn check`. [Contributing](CONTRIBUTING.en.md)
+Run checks with `corepack yarn check`. On macOS or Windows, `corepack yarn release:pack` builds the Web Profile and Desktop package from the current commit. Once the Web package is published, use `corepack yarn release:pack:published` for the final installer. Both commands share the same [packaging script](scripts/package-desktop-release.mjs). [Contributing](CONTRIBUTING.en.md)
 
 ## Community and acknowledgements
 

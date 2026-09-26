@@ -39,6 +39,8 @@
     "dist:mac-smoke": "yarn workspace dsh-plugin-desktop dist:mac-smoke",
     "dist:win": "yarn workspace dsh-plugin-desktop dist:win",
     "dist:win-portable": "yarn workspace dsh-plugin-desktop dist:win-portable",
+    "release:pack": "node scripts/package-desktop-release.mjs --source=local",
+    "release:pack:published": "node scripts/package-desktop-release.mjs --source=published",
     "upstream:version": "cd deepseek-harness && corepack pnpm --version",
     "upstream:install": "cd deepseek-harness && CI=true corepack pnpm install --frozen-lockfile",
     "upstream:build": "cd deepseek-harness && corepack pnpm run build",

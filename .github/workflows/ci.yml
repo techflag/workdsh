@@ -157,29 +157,9 @@ jobs:
         with:
           path: ${{ steps.yarn-cache.outputs.dir }}
           key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock', '.yarnrc.yml') }}
-      - run: yarn install --immutable
-      - run: yarn upstream:install
-      - run: yarn workspace dsh-plugin-desktop check:win-package
-      - name: Pack this commit's Web Profile for package validation
-        if: github.ref_type != 'tag'
-        working-directory: workdsh-web
-        run: |
-          corepack pnpm install --frozen-lockfile
-          corepack pnpm build
-          corepack pnpm release:project:pack
-      - name: Prepare WorkDSH release profile
-        timeout-minutes: 15
-        env:
-          WORKDSH_USE_LOCAL_RELEASE: ${{ github.ref_type != 'tag' && '1' || '0' }}
-        run: yarn workspace dsh-plugin-desktop prepare:workdsh-runtime
-      - name: Prepare official Python and Node runtime
-        timeout-minutes: 15
-        run: yarn workspace dsh-plugin-desktop prepare:workdsh-primary-runtime
-      - name: Build Windows installer
-        timeout-minutes: 30
-        env:
-          DSH_PACKAGE_CHECK_ALREADY_RAN: '1'
-        run: node dsh-plugin-desktop/scripts/package-win.ts
+      - name: Package Windows through the single release script
+        timeout-minutes: 60
+        run: node scripts/package-desktop-release.mjs --source=${{ github.ref_type == 'tag' && 'published' || 'local' }}
       - name: Report unpacked Windows footprint
         run: node dsh-plugin-desktop/scripts/report-package-footprint.mjs dsh-plugin-desktop/dist/win-unpacked dsh-plugin-desktop/dist/windows-footprint.json
       - name: Upload Windows footprint report
@@ -229,33 +209,11 @@ jobs:
         with:
           path: ${{ steps.yarn-cache.outputs.dir }}
           key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock', '.yarnrc.yml') }}
-      - run: yarn install --immutable
-      - run: yarn upstream:install
-      - run: yarn workspace dsh-plugin-desktop check:mac-package
-      - name: Pack this commit's Web Profile for package validation
-        if: github.ref_type != 'tag'
-        working-directory: workdsh-web
-        run: |
-          corepack pnpm install --frozen-lockfile
-          corepack pnpm build
-          corepack pnpm release:project:pack
-      - name: Prepare WorkDSH release profile
-        timeout-minutes: 15
+      - name: Package macOS through the single release script
+        timeout-minutes: 55
         env:
           WORKDSH_MAC_ARCH: ${{ matrix.arch }}
-          WORKDSH_USE_LOCAL_RELEASE: ${{ github.ref_type != 'tag' && '1' || '0' }}
-        run: yarn workspace dsh-plugin-desktop prepare:workdsh-runtime
-      - name: Prepare official Python and Node runtime
-        timeout-minutes: 15
-        env:
-          WORKDSH_MAC_ARCH: ${{ matrix.arch }}
-        run: yarn workspace dsh-plugin-desktop prepare:workdsh-primary-runtime
-      - name: Build macOS smoke artifact
-        timeout-minutes: 25
-        env:
-          DSH_PACKAGE_CHECK_ALREADY_RAN: '1'
-          WORKDSH_MAC_ARCH: ${{ matrix.arch }}
-        run: node dsh-plugin-desktop/scripts/package-mac.ts
+        run: node scripts/package-desktop-release.mjs --source=${{ github.ref_type == 'tag' && 'published' || 'local' }}
       - name: Upload macOS architecture DMG
         uses: actions/upload-artifact@v4
         with:
