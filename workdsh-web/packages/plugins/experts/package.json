@@ -3,7 +3,7 @@
   "version": "0.1.0-alpha.9",
   "private": false,
   "type": "module",
-  "description": "Local expert management plugin for DeepSeek Harness (D04 / P1-02, expert module 0.1)",
+  "description": "Manages reusable experts and expert teams in WorkDSH.",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -12,14 +12,17 @@
     "./client": {
       "types": "./dist/client.d.ts",
       "default": "./dist/client.browser.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "dist",
     "resources",
     "README.md",
     "CHANGELOG.md",
-    "cordis.patch.yml"
+    "cordis.patch.yml",
+    "locale/*.json"
   ],
   "scripts": {
     "build": "corepack pnpm --filter workdsh-contracts build && corepack pnpm --filter workdsh-ui build && node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.json && node ../../../scripts/build-experts.mjs",

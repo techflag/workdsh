@@ -15,13 +15,16 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "cordis.patch.yml",
     "dist",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "locale/*.json"
   ],
   "dsh": {
     "bundle": {
@@ -50,5 +53,6 @@
     "@deepseek-ai/dsh-session": "0.1.7-rc.2",
     "@deepseek-ai/dsh-tools": "0.1.7-rc.2",
     "workdsh-contracts": "workspace:*"
-  }
+  },
+  "description": "Controls access to local resources, sessions and tools."
 }

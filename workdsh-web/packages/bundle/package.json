@@ -3,7 +3,7 @@
   "version": "0.1.0-alpha.53",
   "private": true,
   "type": "module",
-  "description": "WorkDSH default Harness bundle and client composition",
+  "description": "Composes the WorkDSH workspace, capabilities and default DSH plugins.",
   "exports": {
     "./probe": {
       "types": "./dist/probe.d.ts",
@@ -16,13 +16,16 @@
     ".": {
       "types": "./dist/probe.d.ts",
       "default": "./dist/probe.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "dist",
     "cordis.patch.yml",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "locale/*.json"
   ],
   "dsh": {
     "bundle": {

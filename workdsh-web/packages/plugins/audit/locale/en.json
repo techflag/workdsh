@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Audit log",
+    "description": "Records local management and execution events for audit."
+  }
+}

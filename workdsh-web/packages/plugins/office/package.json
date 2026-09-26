@@ -9,14 +9,17 @@
     },
     "./client": {
       "default": "./dist/client.browser.js"
-    }
+    },
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
   },
   "files": [
     "dist",
     "cordis.patch.yml",
     "README.md",
     "THIRD-PARTY-NOTICES.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "locale/*.json"
   ],
   "scripts": {
     "build": "node ../../../scripts/build-office.mjs",
@@ -108,5 +111,6 @@
     "@deepseek-ai/dsh-fs": {
       "optional": true
     }
-  }
+  },
+  "description": "Creates and edits document working copies in WorkDSH."
 }
