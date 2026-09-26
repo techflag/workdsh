@@ -168,6 +168,15 @@ jobs:
         env:
           DSH_PACKAGE_CHECK_ALREADY_RAN: '1'
         run: node dsh-plugin-desktop/scripts/package-win.ts
+      - name: Report unpacked Windows footprint
+        run: node dsh-plugin-desktop/scripts/report-package-footprint.mjs dsh-plugin-desktop/dist/win-unpacked dsh-plugin-desktop/dist/windows-footprint.json
+      - name: Upload Windows footprint report
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-footprint-windows-x64
+          path: dsh-plugin-desktop/dist/windows-footprint.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
         with:
