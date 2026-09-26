@@ -34,13 +34,13 @@ async function skillHub<T extends { ok: boolean; error?: string }>(method: strin
 }
 
 /** Reuse the installed DSH plugin's search and verified installation path. */
-export function SkillHubPanel({ query, onInstalled }: { query: string; onInstalled: () => Promise<void> }) {
+export function SkillHubPanel({ query, onInstalled, onOpenInstalled }: { query: string; onInstalled: () => Promise<void>; onOpenInstalled: () => void }) {
   const [cards, setCards] = useState<SkillHubCard[]>([]);
   const [total, setTotal] = useState(0);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState('');
   const [installing, setInstalling] = useState('');
-  const [revision, setRevision] = useState(0);
+  const [installedName, setInstalledName] = useState('');
   const [page, setPage] = useState(0);
 
   useEffect(() => { setPage(0); }, [query]);
@@ -55,14 +55,15 @@ export function SkillHubPanel({ query, onInstalled }: { query: string; onInstall
         .finally(() => { if (!controller.signal.aborted) setBusy(false); });
     }, 250);
     return () => { window.clearTimeout(timer); controller.abort(); };
-  }, [query, page, revision]);
+  }, [query, page]);
 
   const install = async (card: SkillHubCard) => {
     setInstalling(card.slug); setError('');
     try {
       await skillHub('install', { slug: card.slug });
-      await onInstalled();
-      setRevision(value => value + 1);
+      setCards(current => current.map(item => item.slug === card.slug ? { ...item, installed: true } : item));
+      setInstalledName(card.name);
+      void onInstalled();
     } catch (cause) { setError(cause instanceof Error ? cause.message : '安装失败，请重试。'); }
     finally { setInstalling(''); }
   };
@@ -73,11 +74,12 @@ export function SkillHubPanel({ query, onInstalled }: { query: string; onInstall
 
   return <section className="skillhub-market" aria-label="SkillHub 技能目录">
     <div className="market-head"><h2>SkillHub <span className="market-count">{total}</span></h2><span className="muted">来源：SkillHub · 安装到本机 DSH 技能目录</span></div>
+    {installedName && <div className="skillhub-success" role="status"><span>已安装「{installedName}」。</span><Button onClick={onOpenInstalled}>查看已安装</Button><button className="skillhub-dismiss" aria-label="关闭安装提示" onClick={() => setInstalledName('')}>×</button></div>}
     {error && <p className="catalog-note" role="alert">{error}</p>}
     {busy ? <p className="muted" role="status">正在读取 SkillHub…</p> : cards.length ? <div className="grid">{cards.map(card =>
       <article className="card market-card" key={card.slug}>
         <div className="card-top"><a className="card-open" href={card.pageUrl?.startsWith('https://skillhub.cn/skills/') ? card.pageUrl : `https://skillhub.cn/skills/${encodeURIComponent(card.slug)}`} target="_blank" rel="noopener noreferrer" aria-label={`查看 ${card.name} 的来源页`}><SkillHubIcon card={card} /><span className="card-title"><strong title={card.name}>{card.name}</strong><small>{card.categoryLabel || card.owner || card.slug}</small></span></a>
-          <Button className="install" disabled={card.installed || Boolean(installing)} aria-label={card.installed ? `已安装 ${card.name}` : `安装 ${card.name}`} onClick={() => void install(card)}>{card.installed ? '✓' : installing === card.slug ? '…' : '＋'}</Button></div>
+          <Button className={`install${card.installed || installing === card.slug ? ' is-status' : ''}${card.installed ? ' is-installed' : ''}`} disabled={card.installed || Boolean(installing)} aria-label={card.installed ? `已安装 ${card.name}` : `安装 ${card.name}`} onClick={() => void install(card)}>{card.installed ? '已安装' : installing === card.slug ? '安装中…' : '＋'}</Button></div>
         <p className="muted">{card.description}</p>
         <small className="skillhub-meta">版本 {card.version || '未标注'} · 许可证请查看来源页</small>
       </article>)}</div> : !error && <p className="muted">没有找到匹配的技能。</p>}

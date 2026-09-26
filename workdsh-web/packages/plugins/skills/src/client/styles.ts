@@ -115,6 +115,11 @@ export const skillsMarketCss = `${modalCss}
 .wd-skills .skillhub-icon img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--dsw-alias-bg-layer-2)}
 .wd-skills .skillhub-icon img[hidden]{display:none}
 .wd-skills .skillhub-meta{display:block;margin-top:8px;color:var(--dsw-alias-label-tertiary);font-size:11px}
+.wd-skills .skillhub-market .install.is-status{width:auto;min-width:58px;padding:0 8px;border-radius:8px;font-size:12px}
+.wd-skills .skillhub-market .install.is-installed:disabled{color:var(--dsw-alias-state-success-primary);opacity:1}
+.wd-skills .skillhub-success{display:flex;align-items:center;gap:12px;margin:0 0 18px;padding:10px 14px;border:1px solid var(--dsw-alias-state-success-primary);border-radius:10px;background:var(--dsw-alias-bg-layer-2);font-size:13px}
+.wd-skills .skillhub-success span{flex:1}
+.wd-skills .skillhub-success .skillhub-dismiss{border:0;background:transparent;font-size:18px}
 .wd-skills .skillhub-pagination{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin:28px 0 12px}
 .wd-skills .skillhub-pagination button{min-width:36px;background:transparent}
 .wd-skills .skillhub-pagination button.active{border-color:var(--dsw-alias-brand-primary);color:var(--dsw-alias-brand-text);font-weight:600}
