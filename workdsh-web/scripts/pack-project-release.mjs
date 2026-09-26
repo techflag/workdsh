@@ -38,9 +38,9 @@ for (const directory of packageDirectories) {
 const sourceCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
 let sourceDirty = false;
 try {
-  // Build tools may create untracked platform-specific files. A release is
-  // dirty only when committed source or the pinned submodule gitlink changes.
-  execFileSync('git', ['diff', '--quiet', '--ignore-submodules=dirty', 'HEAD', '--'], { cwd: root, stdio: 'ignore' });
+  // Desktop package checks regenerate a tracked Windows icon. Web release
+  // cleanliness covers the Web source and the DSH version inputs it consumes.
+  execFileSync('git', ['diff', '--quiet', '--ignore-submodules=dirty', 'HEAD', '--', 'workdsh-web', 'upstream.json', 'deepseek-harness'], { cwd: root, stdio: 'ignore' });
 } catch (error) {
   if (error.status !== 1) throw error;
   sourceDirty = true;

@@ -43,7 +43,7 @@ if (source === 'local') {
   const manifest = JSON.parse(readFileSync(join(webRoot, '.artifacts', `project-v${version}`, 'release-manifest.json'), 'utf8'))
   const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim()
   if (manifest.version !== version || manifest.sourceCommit !== commit || manifest.sourceDirty) {
-    const changed = execFileSync('git', ['diff', '--name-only', '--ignore-submodules=dirty', 'HEAD', '--'], { cwd: root, encoding: 'utf8' }).trim()
+    const changed = execFileSync('git', ['diff', '--name-only', '--ignore-submodules=dirty', 'HEAD', '--', 'workdsh-web', 'upstream.json', 'deepseek-harness'], { cwd: root, encoding: 'utf8' }).trim()
     throw new Error(`The local Web release candidate is not a clean package of this commit: version=${manifest.version}/${version}, commit=${manifest.sourceCommit}/${commit}, sourceDirty=${manifest.sourceDirty}, changed=${changed || '(none)'}`)
   }
 }
