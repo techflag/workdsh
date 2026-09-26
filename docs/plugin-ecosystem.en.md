@@ -18,9 +18,9 @@ We want to build an **open, composable, and sustainable** DSH plugin ecosystem:
 2. **Declare clearly**: state the services and slots you depend on; do not rely on runtime coincidences.
 3. **Compatibility first**: keep upgrades backward compatible and never break existing compositions.
 
-## The desktop shell is the first example
+## How Desktop composes plugins
 
-DSH Desktop is the first practitioner of this approach: the desktop shell itself is an ordinary DSH plugin on the same composition path as official and third-party plugins, with no special privileges. We did not fork upstream source into a fixed shell — we made "the desktop" an equal member of the plugin ecosystem.
+WorkDSH Desktop uses Electron to carry a pinned official DSH runtime. The shell owns windows, installation, and packaging; WorkDSH features are composed as DSH plugins and Profile packages through official extension APIs alongside other compatible plugins. The Electron shell itself is not a DSH plugin.
 
 ## A living document, built with the community
 

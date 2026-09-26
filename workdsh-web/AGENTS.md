@@ -38,7 +38,7 @@ WorkDSH Web 是基于 DeepSeek Harness 公开插件接口的工作平台，参�
 
 ## Harness 优先复用硬约束
 
-- 所有 Harness 集成开发必须先查阅官方 rc.2 发布说明及已发布 npm 包的 exports/types，并按 [Harness 官方开发规范](docs/HARNESS-OFFICIAL-DEVELOPMENT.md) 完成扩展面、依赖、生命周期和验收核对。`docs/dsh-v0.1.7-alpha.1/` 仅保留为历史参考；锁定版本的实测决定可用接口。
+- 所有 Harness 集成开发必须先查阅官方 rc.2 发布说明及已发布 npm 包的 exports/types，并按 [Harness 官方开发规范](docs/HARNESS-OFFICIAL-DEVELOPMENT.md) 完成扩展面、依赖、生命周期和验收核对。旧版文档快照不能代替锁定版本的实测接口。
 - 左侧主导航只通过官方 `sidebar.panellist` 等已声明 Slot 增量贡献，并与 `main` 的同 key 页面配对；不得替换或复制官方 Workspace/Session/New Session/Settings owner。`sidebar-right` 只用于当前 Session 的文件、目录、成果或上下文页面，不承担全局主导航和全局管理页面。
 - 普通 Slot 贡献使用 `ctx.slots.inject(key, callback)` 等待 owner 生命周期；独立 registry/service/listener/timer/watcher/subprocess 等注册必须由 `ctx.effect()`、`ctx.on()` 或官方自动托管 API 拥有并可完整撤销。组件 props 从官方 `PropsRuntime<K>`/标准 owner props 推导，不复制框架 props，也不把 `ctx` 传入 React 组件。
 
