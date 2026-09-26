@@ -1,9 +1,27 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 
 const discoverySeenKey = 'workdsh.community-market.discovery-seen';
+const discoveryCardStyle = `
+[data-plugin-item="workdsh-community-market"] {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--dsw-alias-state-business-primary) 17%, transparent),
+    color-mix(in srgb, var(--dsw-alias-state-business-primary) 6%, transparent));
+  box-shadow: inset 3px 0 0 var(--dsw-alias-state-business-primary);
+  outline: 1px solid color-mix(in srgb, var(--dsw-alias-state-business-primary) 28%, transparent);
+}
+[data-plugin-item="workdsh-community-market"]:hover {
+  background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 21%, transparent);
+}
+`;
 
 function DiscoverySummary(): ReactNode {
   const badge = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = discoveryCardStyle;
+    document.head.append(style);
+    return () => style.remove();
+  }, []);
   useEffect(() => {
     const node = badge.current;
     if (!node || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
