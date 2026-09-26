@@ -147,7 +147,7 @@ Also, and you.
 
 ## Development
 
-Desktop source lives in `dsh-plugin-desktop/`. The outer repository uses Yarn, while the pinned `deepseek-harness/` submodule keeps its own pnpm workspace. From the repository root:
+Desktop source lives in `dsh-plugin-desktop/`; the Web application and WorkDSH feature packages live in [`workdsh-web/`](workdsh-web/README.md). Desktop uses the root Yarn workspace and pinned `deepseek-harness/` submodule, while Web retains its own pnpm workspace. `upstream.json` keeps both on one DSH version. To start Desktop from the repository root:
 
 ```sh
 git submodule update --init --recursive
@@ -155,7 +155,7 @@ corepack yarn install --immutable
 corepack yarn dev
 ```
 
-Use `corepack yarn check` for the headless gate. The [architecture](docs/architecture.en.md) and package [`README`](dsh-plugin-desktop/README.md) describe the full build, test, and release boundaries. See [CONTRIBUTING.en.md](CONTRIBUTING.en.md) for how to contribute.
+For Web development, run `corepack pnpm install --frozen-lockfile` and its scripts from `workdsh-web/`. The root `corepack yarn check` includes the Web planning check and a cross-workspace DSH version gate. The [architecture](docs/architecture.en.md) and Desktop package [`README`](dsh-plugin-desktop/README.md) describe the full build, test, and release boundaries. See [CONTRIBUTING.en.md](CONTRIBUTING.en.md) for how to contribute.
 
 ## Community
 

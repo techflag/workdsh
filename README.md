@@ -147,7 +147,7 @@ WorkDSH 是基于 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-har
 
 ## 开发
 
-Desktop 工程位于 `dsh-plugin-desktop/`。外层仓库使用 Yarn，固定的 `deepseek-harness/` 子模块继续使用自己的 pnpm workspace。从仓库根目录执行：
+Desktop 工程位于 `dsh-plugin-desktop/`；Web 与 WorkDSH 功能包源码位于 [`workdsh-web/`](workdsh-web/README.zh-CN.md)。Desktop 使用仓库根目录的 Yarn workspace 和固定的 `deepseek-harness/` 子模块；Web 保留独立的 pnpm workspace。两边由 `upstream.json` 约束为同一个 DSH 版本。从仓库根目录启动 Desktop：
 
 ```sh
 git submodule update --init --recursive
@@ -155,7 +155,7 @@ corepack yarn install --immutable
 corepack yarn dev
 ```
 
-headless 检查使用 `corepack yarn check`；完整的构建、测试和发布边界见[架构说明](docs/architecture.md)和包级 [`README`](dsh-plugin-desktop/README.md)。如何参与贡献见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+Web 开发从 `workdsh-web/` 执行 `corepack pnpm install --frozen-lockfile` 和该 workspace 的脚本。根目录的 `corepack yarn check` 包含 Web 规划检查和跨 workspace 的 DSH 版本门禁；完整的构建、测试和发布边界见[架构说明](docs/architecture.md)和 Desktop 包级 [`README`](dsh-plugin-desktop/README.md)。如何参与贡献见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## 社区交流
 

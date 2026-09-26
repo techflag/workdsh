@@ -2,9 +2,9 @@
 
 ## 项目目标与用户已确认决策
 
-WorkDSH 是基于 DeepSeek Harness 公开插件接口的 Web 工作平台，参考 WorkBuddy 的应用能力。项目独立于 dsh-ssh-desktop。
+WorkDSH Web 是基于 DeepSeek Harness 公开插件接口的工作平台，参考 WorkBuddy 的应用能力。它位于同一仓库的 `workdsh-web/` 独立 workspace；Desktop 工程位于仓库根目录的 `dsh-plugin-desktop/`。两者保留独立运行与包管理边界，并统一使用根目录 `upstream.json` 指定的 DSH 版本。
 
-1. 仅依赖官方开发文档和已发布 npm 包；禁止要求上游源码 checkout、引入上游子模块、复制上游私有实现或修改上游源码。
+1. Web workspace 仅依赖官方开发文档和已发布 npm 包；禁止在 Web workspace 中要求上游源码 checkout、引入上游子模块、复制上游私有实现或修改上游源码。根目录的官方上游子模块仅供 Desktop 使用。
 2. 基线为 `@deepseek-ai/dsh@0.1.7-rc.2`。DSH 直接依赖按该版本族精确锁定；Cordis 等遵守公开 peerDependencies。不得使用浮动 latest、alpha 混搭，升级必须单独记录兼容证据（见 [docs/DSH-0.1.7-UPGRADE-PLAN.md](docs/DSH-0.1.7-UPGRADE-PLAN.md) 中的 rc.2 Web 升级记录）。
 3. 专家、技能、连接器、行业应用、项目、资料库、自动化、工作台是功能插件。每个插件管理多个业务对象。禁止将每个用户专家强制变为独立 npm 包。
 4. 每个功能的页面操作和 Agent 工具使用同一业务服务；对话式创建专家和技能属于 P1 必做能力。
