@@ -1,7 +1,7 @@
 name: Deploy product website
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths: ['workdsh-web/website/**', '.github/workflows/pages.yml']
   workflow_dispatch:
 permissions:

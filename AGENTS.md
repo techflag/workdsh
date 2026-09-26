@@ -2,6 +2,14 @@
 
 This repository owns WorkDSH Web and Desktop. The Desktop product runs an unmodified pinned DeepSeek Harness checkout; the Web workspace consumes the same DSH version through published packages.
 
+## Git branch and release policy
+
+- Keep exactly one long-lived product branch: the GitHub default branch, currently `main`. Do not maintain `main` and `master` as parallel product or release lines.
+- Development and migration branches are temporary. Bring every accepted change back to the default branch through a reviewed pull request; verify required checks and that the intended commits are present there before treating the work as delivered.
+- Create Desktop release tags and publish product artifacts only from commits reachable from the default branch. A successful build on a temporary branch is validation, not a release.
+- After a temporary branch has been merged and its changes verified on the default branch, delete that temporary branch. Retain an unmerged branch only while its work is still under review; do not delete unique history.
+- If the default branch is renamed, update GitHub settings, CI, website deployment, release triggers, and documentation together before removing the old branch.
+
 ## Prerequisites and setup
 
 - Use Node.js `^22.19.0` or `>=24.0.0` and the root Yarn `4.18.0` release through Corepack.
