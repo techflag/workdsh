@@ -30,17 +30,14 @@ This manifesto is not a unilateral rulebook. It is a **living document**: it fol
 
 Once the plugin marketplace ships, plugins that follow this manifesto will be easier to discover, install, and trust. We want convention-driven development to be the beneficial choice for every author, not an extra burden.
 
-## From a manifesto to a testable contract
+## Current boundary
 
-[DSH Community Fabric](../dsh-community-fabric/README.md) is turning this vision into a public Draft for manifests, capabilities, Host Descriptors, and events. It currently contains documentation only, not a released standard or runtime; plugins still use existing DSH and Cordis APIs today.
+Plugins currently use the published DSH/Cordis APIs. Any future shared manifest or catalog should first be validated against real plugins, compatibility tests, and user needs. Capability declarations can help with compatibility, consent, and audit, but cannot present in-process JavaScript as a security sandbox. Only a Host with evidence of real isolation may claim technical permission enforcement.
 
-Fabric capabilities begin as compatibility, consent, and audit declarations. They do not present in-process JavaScript as a security sandbox. Only a Host with evidence of real isolation may claim technical permission enforcement.
-
-The market is still in its [product and safety design phase](../dsh-community-market/README.md), with no usable page or installer yet. Catalog inclusion means that a project matched catalog rules; it is not a security review or endorsement.
+There is no online market page or installer today. Future catalog inclusion would mean that a project met catalog rules, not that it passed a security review or received an endorsement.
 
 ## How to participate
 
 - Learn how plugins are written in [plugin development](plugin-development.en.md).
-- Read and comment on [Community Fabric RFC 0001](../dsh-community-fabric/docs/rfcs/0001-plugin-manifest-capabilities-events.md).
 - Learn how to install and manage plugins in the [user guide](user-guide.en.md).
 - Share your thoughts on this manifesto through issues and discussions.

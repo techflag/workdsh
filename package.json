@@ -8,9 +8,7 @@
     "node": "^22.19.0 || >=24.0.0"
   },
   "workspaces": [
-    "dsh-plugin-desktop",
-    "dsh-community-fabric",
-    "dsh-community-market"
+    "dsh-plugin-desktop"
   ],
   "resolutions": {
     "app-builder-lib@npm:26.15.7": "patch:app-builder-lib@npm%3A26.15.7#./patches/app-builder-lib@26.15.7.patch"
@@ -33,7 +31,7 @@
     "check:web-dsh-alignment": "node scripts/verify-web-desktop-dsh-alignment.mjs",
     "check:web-plan": "node scripts/check-local-web-plan.mjs",
     "check:layout": "yarn check:bilingual-docs && node scripts/verify-layout.mjs",
-    "check": "yarn check:layout && yarn check:desktop-dsh-alignment && yarn check:web-dsh-alignment && yarn check:web-plan && yarn workspace dsh-community-fabric check && yarn workspace dsh-community-market check && yarn workspace dsh-plugin-desktop check",
+    "check": "yarn check:layout && yarn check:desktop-dsh-alignment && yarn check:web-dsh-alignment && yarn check:web-plan && yarn workspace dsh-plugin-desktop check",
     "dev": "yarn workspace dsh-plugin-desktop dev",
     "start": "yarn workspace dsh-plugin-desktop start",
     "package:dir": "yarn workspace dsh-plugin-desktop package:dir",

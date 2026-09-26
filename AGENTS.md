@@ -30,8 +30,6 @@ This repository owns WorkDSH Web and Desktop. The Desktop product runs an unmodi
 
 - `deepseek-harness/` is a pinned upstream Git submodule. Never edit files inside it from a desktop feature branch.
 - `dsh-plugin-desktop/` owns the Electron carrier, packaging, and release tests. DSH Host and Client code comes from the pinned upstream runtime Profile; WorkDSH features belong to the WorkDSH Profile packages.
-- `dsh-community-fabric/` owns the community interoperability RFC. Until schemas and a reviewed reference adapter exist, it remains a private documentation scaffold and must not declare loadable DSH or package entry points.
-- `dsh-community-market/` owns the community-market shell. Until its runtime is implemented, it remains a private documentation scaffold and must not declare loadable DSH or package entry points.
 - The Desktop workspace uses the root Yarn release with `nodeLinker: node-modules`. The nested `workdsh-web/` workspace retains its own pinned pnpm lockfile and package manager; run its commands from that directory. Do not install it into the root Yarn workspace.
 - The upstream submodule keeps its own pnpm workspace. Run upstream commands through the root `upstream:*` scripts, whose Yarn portable-shell commands enter the submodule before invoking Corepack.
 - Keep presentation and WorkDSH feature changes in the Profile rather than adding a second Desktop Host or Client implementation.

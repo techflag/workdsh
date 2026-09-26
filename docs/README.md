@@ -6,6 +6,6 @@
 
 开发者可阅读[架构说明](architecture.md)、[Desktop 归属约束](desktop-boundaries.md)、[插件开发](plugin-development.md)和[包级构建说明](../dsh-plugin-desktop/README.zh.md)。`deepseek-harness/` 是固定版本且不修改的官方上游子模块；WorkDSH 的功能包由运行时 Profile 组合。
 
-[社区 Fabric 草案](../dsh-community-fabric/README.zh.md)与[社区 Market 草案](../dsh-community-market/README.zh.md)目前只包含设计文档，不代表安装包已提供这些运行时入口。[插件生态倡议书](plugin-ecosystem.md)描述长期方向。
+[插件生态倡议书](plugin-ecosystem.md)描述长期方向；当前没有独立的社区标准或在线市场运行包。
 
 根目录的 [`README.md`](../README.md) 是默认英文产品入口，[`README.zh-CN.md`](../README.zh-CN.md) 是中文入口。各 `.i18n.yaml` 记录相应双语文件的 Git blob hash，修改文档时应同步更新两种语言和记录。

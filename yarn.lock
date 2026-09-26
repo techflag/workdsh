@@ -1131,21 +1131,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv-formats@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "ajv-formats@npm:3.0.1"
-  dependencies:
-    ajv: "npm:^8.0.0"
-  peerDependencies:
-    ajv: ^8.0.0
-  peerDependenciesMeta:
-    ajv:
-      optional: true
-  checksum: 10c0/168d6bca1ea9f163b41c8147bae537e67bd963357a5488a1eaf3abe8baa8eec806d4e45f15b10767e6020679315c7e1e5e6803088dfb84efa2b4e9353b83dd0a
-  languageName: node
-  linkType: hard
-
-"ajv@npm:^8.0.0, ajv@npm:^8.18.0, ajv@npm:^8.20.0":
+"ajv@npm:^8.18.0":
   version: 8.20.0
   resolution: "ajv@npm:8.20.0"
   dependencies:
@@ -1775,21 +1761,6 @@ __metadata:
   checksum: 10c0/15ce56608326ea0d1d9414a5c8ee6dcf0fffc79d2c16422b4ac2268e7e2d76ff5a572d37ffe747c377de12005f14b3cc22361e79fc7f1061cce81f77d2c973dc
   languageName: node
   linkType: hard
-
-"dsh-community-fabric@workspace:dsh-community-fabric":
-  version: 0.0.0-use.local
-  resolution: "dsh-community-fabric@workspace:dsh-community-fabric"
-  languageName: unknown
-  linkType: soft
-
-"dsh-community-market@workspace:dsh-community-market":
-  version: 0.0.0-use.local
-  resolution: "dsh-community-market@workspace:dsh-community-market"
-  dependencies:
-    ajv: "npm:^8.20.0"
-    ajv-formats: "npm:^3.0.1"
-  languageName: unknown
-  linkType: soft
 
 "dsh-plugin-desktop@workspace:dsh-plugin-desktop":
   version: 0.0.0-use.local
