@@ -1,5 +1,5 @@
 name: Feature request / 功能建议
-description: Suggest an improvement to DSH Desktop / 提议改进 DSH Desktop
+description: Suggest an improvement to WorkDSH / 提议改进 WorkDSH
 labels: ["enhancement"]
 body:
   - type: markdown
@@ -13,7 +13,7 @@ body:
     id: duplicate_check
     attributes:
       label: Existing requests / 提交前查重
-      description: Search open and closed issues and Discussions first / 请先搜索已打开、已关闭的 Issue 和 Discussions
+      description: Search open and closed issues first / 请先搜索已打开、已关闭的 Issue
       options:
         - label: I searched existing requests and did not find the same proposal / 我已搜索现有内容，没有发现相同建议
           required: true
@@ -25,7 +25,10 @@ body:
       options:
         - Startup or installation / 启动或安装
         - Updates / 更新
-        - Profiles or plugins / Profile 或插件
+        - Plugins or skills / 插件或技能
+        - Projects, library or Office files / 项目、资料库或 Office 文件
+        - Enterprise login, collaboration or colleague mentions / 企业登录、协作或 @同事
+        - Company models / 公司模型
         - Conversations, models, or tools / 会话、模型或工具
         - Terminal / 终端
         - Window, tray, or interface / 窗口、托盘或界面
@@ -48,7 +51,7 @@ body:
     attributes:
       label: Desired outcome / 期望结果
       description: Describe the user-visible result, not necessarily the implementation / 描述用户最终能做到什么，不必设计技术实现
-      placeholder: I would like DSH Desktop to ... / 希望 DSH Desktop 能够……
+      placeholder: I would like WorkDSH to ... / 希望 WorkDSH 能够……
     validations:
       required: true
 

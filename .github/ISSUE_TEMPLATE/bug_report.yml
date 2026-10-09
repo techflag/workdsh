@@ -1,12 +1,12 @@
 name: Bug report / 问题反馈
-description: Report a reproducible problem with DSH Desktop / 反馈可复现的 DSH Desktop 问题
+description: Report a reproducible problem with WorkDSH / 反馈可复现的 WorkDSH 问题
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping improve DSH Desktop. Every report is welcome. Reports with exact versions, reproduction steps, and error evidence are usually easier to reproduce and prioritize. You do not need to understand the code or provide a patch.
+        Thanks for helping improve WorkDSH. Every report is welcome. Reports with exact versions, reproduction steps, and error evidence are usually easier to reproduce and prioritize. You do not need to understand the code or provide a patch.
 
-        感谢你帮助改进 DSH Desktop。所有反馈都会被查看；版本、复现步骤、错误日志等信息越完整，通常越容易被优先复现和处理。你不需要懂代码，也不需要提供补丁。无法获取某项信息时，请填写“Unknown / 不知道”。
+        感谢你帮助改进 WorkDSH。版本、复现步骤、错误日志等信息越完整，通常越容易被优先复现和处理。你不需要懂代码，也不需要提供补丁。无法获取某项信息时，请填写“Unknown / 不知道”。
 
         Please remove API keys, tokens, account details, and other sensitive data before attaching logs or screenshots.
 
@@ -26,7 +26,10 @@ body:
       options:
         - Startup or installation / 启动或安装
         - Updates / 更新
-        - Profiles or plugins / Profile 或插件
+        - Plugins or skills / 插件或技能
+        - Projects, library or Office files / 项目、资料库或 Office 文件
+        - Enterprise login, collaboration or colleague mentions / 企业登录、协作或 @同事
+        - Company models / 公司模型
         - Conversations, models, or tools / 会话、模型或工具
         - Terminal / 终端
         - Window, tray, or interface / 窗口、托盘或界面
@@ -67,9 +70,9 @@ body:
   - type: input
     id: desktop_version
     attributes:
-      label: DSH Desktop version / DSH Desktop 版本
+      label: WorkDSH version / WorkDSH 版本
       description: Use the installed version when the app cannot start / 无法启动时填写已安装版本
-      placeholder: "For example: 2.0.1; or Unknown / 不知道"
+      placeholder: "For example: 2.0.6-alpha.5; or Unknown / 不知道"
     validations:
       required: true
 
@@ -83,16 +86,14 @@ body:
       required: true
 
   - type: dropdown
-    id: profile_type
+    id: usage_mode
     attributes:
-      label: Profile type / Profile 类型
-      description: Choose the Profile where the problem occurs / 选择发生问题的 Profile
+      label: Usage mode / 使用方式
       options:
-        - Default or built-in Profile / 默认或内置 Profile
-        - Existing upgraded Profile / 从旧版本升级的 Profile
-        - Newly created Profile / 新建 Profile
-        - Custom Profile / 自定义 Profile
-        - Unknown / 不确定
+        - Personal Desktop / 个人桌面端
+        - Enterprise Desktop / 企业桌面端
+        - Personal Web / 个人 Web
+        - Other or unknown / 其他或不确定
     validations:
       required: true
 

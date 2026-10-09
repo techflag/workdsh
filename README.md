@@ -8,6 +8,18 @@
 
 [![GitHub Actions](https://github.com/techflag/workdsh/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/techflag/workdsh/actions/workflows/ci.yml) [![Gitee stars](https://gitee.com/techflag/workdsh/badge/star.svg?theme=dark)](https://gitee.com/techflag/workdsh/stargazers) [![Gitee forks](https://gitee.com/techflag/workdsh/badge/fork.svg?theme=dark)](https://gitee.com/techflag/workdsh/members)
 
+## Feature requests and bug reports
+
+**Help shape WorkDSH: tell us what you need, what feels awkward, or what is broken. No coding experience is required.**
+
+| Feedback | Where to submit | What helps |
+| --- | --- | --- |
+| 🐛 Broken features, installation or UI problems | [Report a bug](https://github.com/techflag/workdsh/issues/new?template=bug_report.yml) | App version, personal/enterprise mode, reproduction steps and error screenshots. |
+| 💡 New features or usability improvements | [Request a feature](https://github.com/techflag/workdsh/issues/new?template=feature_request.yml) | Your use case, current difficulty and desired outcome. |
+| 🔎 Existing reports and progress | [Browse Issues](https://github.com/techflag/workdsh/issues) | Search first; add details or a reaction to an existing report. |
+
+A GitHub account is required to submit. Unsure which category fits? [Start here](https://github.com/techflag/workdsh/issues/new/choose). For backend account, permission or model-forwarding issues, report to [WorkDSH Admin](https://github.com/techflag/workdsh-admin/issues). **Issues are public: do not upload passwords, tokens, API keys or confidential company material.**
+
 **A personal workspace with installable enterprise capabilities is a defining WorkDSH feature.** Projects, the library, experts, skills, and connectors share the same implementation. Install Enterprise Connection and sign in to share text and files with `@` colleagues and use Collaboration; add company models through model settings. Independent business plugins can also reuse member authentication through `workdshEnterprise` to call company business APIs.
 
 The enterprise plugin is **not listed in a plugin marketplace**. [Download Enterprise Connection](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.6-alpha.5/workdsh-enterprise-connection-0.1.0-alpha.2.tgz), enter the downloaded file’s full path in “Plugins → Add plugin”, install and activate it, then connect through “Settings → Enterprise account”. [Installation and login](#enterprise-connection-download-install-and-sign-in) · [Business plugin authentication](#enterprise-authentication-that-independent-plugins-can-reuse) · [Separate admin backend](https://github.com/techflag/workdsh-admin)

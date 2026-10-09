@@ -8,6 +8,18 @@
 
 [![GitHub Actions](https://github.com/techflag/workdsh/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/techflag/workdsh/actions/workflows/ci.yml) [![Gitee stars](https://gitee.com/techflag/workdsh/badge/star.svg?theme=dark)](https://gitee.com/techflag/workdsh/stargazers) [![Gitee forks](https://gitee.com/techflag/workdsh/badge/fork.svg?theme=dark)](https://gitee.com/techflag/workdsh/members)
 
+## 功能建议与 Bug 反馈
+
+**WorkDSH 正在持续改进，欢迎告诉我们：你想要什么功能、哪里不好用、遇到了什么 Bug。无需懂代码。**
+
+| 我要反馈 | 点击这里 | 建议提供 |
+| --- | --- | --- |
+| 🐛 功能异常、安装失败或界面问题 | [提交 Bug](https://github.com/techflag/workdsh/issues/new?template=bug_report.yml) | 应用版本、个人/企业模式、操作步骤及报错截图。 |
+| 💡 新功能或体验改进 | [提交功能建议](https://github.com/techflag/workdsh/issues/new?template=feature_request.yml) | 你的使用场景、目前的困难、希望达到的效果。 |
+| 🔎 查看已有反馈与处理进展 | [查看 Issues](https://github.com/techflag/workdsh/issues) | 先搜索相同问题；已有反馈可补充信息或点赞。 |
+
+GitHub 提交需要登录账号。暂时不知道属于哪类？[从反馈入口开始](https://github.com/techflag/workdsh/issues/new/choose)。公司账号、权限或模型转发的后台问题，请到 [WorkDSH Admin 提交](https://github.com/techflag/workdsh-admin/issues)。**Issue 是公开的，请勿上传密码、Token、API Key 或公司敏感资料。**
+
 **个人工作台 + 可安装的企业能力，是 WorkDSH 的特色。** 资料库、项目、专家、技能和连接器共用同一套功能；企业连接插件按需安装，登录公司账号后使用协作、@同事分享正文与文件，并可在模型设置中添加公司模型。独立业务插件还能通过 `workdshEnterprise` 复用成员认证，连接自己的公司业务接口。
 
 企业插件目前**未上架插件市场**：[下载企业连接包](https://github.com/techflag/workdsh/releases/download/desktop-v2.0.6-alpha.5/workdsh-enterprise-connection-0.1.0-alpha.2.tgz)，在“插件 → 添加插件”填写下载文件的完整路径，安装并启用，再到“设置 → 企业账号”连接公司后台。[安装与登录步骤](#企业连接插件下载安装与登录) · [业务插件认证调用](#企业插件开放认证服务业务插件不用重复登录) · [独立管理后台](https://github.com/techflag/workdsh-admin)
