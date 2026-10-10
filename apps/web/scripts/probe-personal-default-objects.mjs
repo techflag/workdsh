@@ -5,11 +5,11 @@ import { spawn } from 'node:child_process';
 const root=new URL('../',import.meta.url).pathname,evidence=join(root,'.artifacts/plugin-delivery');
 const baseline=JSON.parse(await readFile(join(evidence,'personal-default-runtime.json'),'utf8'));
 const home=await realpath(baseline.home);assert.match(home,/\/T\/workdsh-personal-default-[\w-]+$/);
-const profile=JSON.parse(await readFile(join(home,'../../profiles/personal/package.json'),'utf8'));assert.ok(!JSON.stringify(profile).includes('enterprise'));
+const profile=JSON.parse(await readFile(join(home,'profiles/personal/package.json'),'utf8'));assert.ok(!JSON.stringify(profile).includes('enterprise'));
 const env={PATH:`${root}/node_modules/.bin:${dirname(process.execPath)}:/usr/bin:/bin`,HOME:process.env.HOME,DSH_HOME:home,DSH_AGENTS_HOME:join(home,'agents')};
 let server,host;const checks=[];
 async function stop(){if(!server||server.exitCode!==null||server.signalCode!==null)return;const closed=new Promise(r=>server.once('close',r));server.kill('SIGTERM');const timer=setTimeout(()=>server.kill('SIGKILL'),3000);await closed;clearTimeout(timer);}
-async function start(){let log='';server=spawn(process.execPath,[join(home,'../../profiles/personal/node_modules/@deepseek-ai/dsh/lib/bin.js'),'--profile','personal','--host','127.0.0.1','--port','0','--no-open'],{cwd:home,env,stdio:['ignore','pipe','pipe']});server.stdout.on('data',b=>{log+=b;});server.stderr.on('data',b=>{log+=b;});
+async function start(){let log='';server=spawn(process.execPath,[join(home,'profiles/personal/node_modules/@deepseek-ai/dsh/lib/bin.js'),'--profile','personal','--host','127.0.0.1','--port','0','--no-open'],{cwd:home,env,stdio:['ignore','pipe','pipe']});server.stdout.on('data',b=>{log+=b;});server.stderr.on('data',b=>{log+=b;});
  for(let until=Date.now()+45000;Date.now()<until;){const match=log.match(/http:\/\/127\.0\.0\.1:\d+\/\?token=[\w-]+/);if(match)try{const response=await fetch(match[0],{redirect:'manual',signal:AbortSignal.timeout(1500)}),cookie=response.headers.getSetCookie().map(x=>x.split(';')[0]).join('; ');if(cookie){host={address:new URL(match[0]).origin,cookie};return;}}catch{}if(server.exitCode!==null)break;await new Promise(r=>setTimeout(r,100));}throw new Error('Owned personal Host startup failed');}
 async function api(domain,endpoint,payload={}){const response=await fetch(host.address+'/api/workdsh-'+domain,{method:'POST',headers:{cookie:host.cookie,'content-type':'application/json'},body:JSON.stringify({endpoint,payload}),signal:AbortSignal.timeout(15000)});assert.equal(response.status,200);const result=await response.json();assert.equal(result.ok,true,JSON.stringify(result.error));return result.value;}
 const pass=text=>{checks.push(text);console.log('PASS: '+text);};

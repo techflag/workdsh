@@ -12,7 +12,7 @@ const port = process.env.WORKDSH_PREVIEW_PORT ?? '18989';
 // Preview currently needs a larger startup heap; this does not fix the underlying growth.
 const heapMb = process.env.WORKDSH_PREVIEW_HEAP_MB ?? '8192';
 if (!/^\d+$/.test(heapMb) || Number(heapMb) < 512) throw new Error('WORKDSH_PREVIEW_HEAP_MB must be an integer >= 512');
-const profile = resolve(previewHome, '../../profiles/preview');
+const profile = resolve(previewHome, 'profiles/preview');
 const profileManifestPath = resolve(profile, 'package.json');
 if (existsSync(profileManifestPath)) {
   const profileManifest = JSON.parse(readFileSync(profileManifestPath, 'utf8'));

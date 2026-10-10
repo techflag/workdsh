@@ -31,11 +31,11 @@ try{
  await writeFile(join(assets,'release-manifest.json'),JSON.stringify({version:'unreleased-default-probe',harness:project.devDependencies['@deepseek-ai/dsh'],packageManager:project.packageManager,runtimeOverrides:Object.fromEntries(Object.entries(project.pnpm.overrides).filter(([name])=>name.startsWith('@deepseek-ai/'))),packages,installation:{defaultPackages:packages.map(p=>p.name)}}));
  const wrapper=join(home,'dsh');await writeFile(wrapper,`#!/bin/sh\nexec '${process.execPath}' '${cli}' "$@"\n`,{mode:0o700});
  await run(process.execPath,[join(root,'scripts/install-project-release.mjs'),'--directory',assets,'--profile','personal','--dsh',wrapper]);
- const profile=JSON.parse(await readFile(join(home,'../../profiles/personal/package.json'),'utf8'));
+ const profile=JSON.parse(await readFile(join(home,'profiles/personal/package.json'),'utf8'));
  for(const name of packages.map(p=>p.name))assert.ok(profile.dependencies[name],name);
  for(const name of ['workdsh-plugin-office','workdsh-plugin-projects','workdsh-plugin-activity','workdsh-provider-identity-enterprise','workdsh-plugin-enterprise-collaboration'])assert.ok(!profile.dependencies[name],name);
  pass('Actual source installer creates a fresh personal Profile with only the default owned package set');
- server=spawn(process.execPath,[join(home,'../../profiles/personal/node_modules/@deepseek-ai/dsh/lib/bin.js'),'--profile','personal','--host','127.0.0.1','--port','0','--no-open'],{cwd:home,env,stdio:['ignore','pipe','pipe']});
+ server=spawn(process.execPath,[join(home,'profiles/personal/node_modules/@deepseek-ai/dsh/lib/bin.js'),'--profile','personal','--host','127.0.0.1','--port','0','--no-open'],{cwd:home,env,stdio:['ignore','pipe','pipe']});
  server.stdout.on('data',b=>{log+=b;});server.stderr.on('data',b=>{log+=b;});
  let host;
  for(let until=Date.now()+45000;Date.now()<until;){

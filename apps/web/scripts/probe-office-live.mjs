@@ -313,7 +313,7 @@ export function apply(ctx){ctx.effect(()=>ctx.connection.fetch.register({path:'/
     "web",
     "--dump-config",
   );
-  const profileManifest=join(home,'../../profiles/office/package.json');
+  const profileManifest=join(home,'profiles/office/package.json');
   const profileJson=JSON.parse(await readFile(profileManifest,'utf8'));profileJson.packageManager='pnpm@10.34.5';await writeFile(profileManifest,JSON.stringify(profileJson,null,2)+'\n');
   for(let i=0;i<tarballs.length;i++){
     const digest=createHash('sha256').update(await readFile(tarballs[i])).digest('hex');

@@ -9,7 +9,7 @@ import { chromium, expect } from '@playwright/test';
 const root = new URL('../', import.meta.url).pathname;
 const home = await realpath(process.argv[2]);
 assert.match(home, /^\/private\/tmp\/workdsh-experts-package-[\w-]+$/);
-const profile = join(home, '../../profiles/experts');
+const profile = join(home, 'profiles/experts');
 const manifest = JSON.parse(await readFile(join(profile, 'package.json'), 'utf8'));
 assert.ok(!JSON.stringify(manifest).includes('enterprise'));
 const artifacts = join(root, '.artifacts/connectors-personal-browser');

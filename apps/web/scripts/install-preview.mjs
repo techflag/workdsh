@@ -35,7 +35,9 @@ await mkdir(home, { recursive: true }); await mkdir(artifacts, { recursive: true
 const tarballs = [];
 const packages = [];
 const shared = await sharedProfileFeatures();
-for (const directory of ['../../packages/providers/identity-local', '../../packages/providers/browser-session', '../../packages/plugins/audit', '../../packages/plugins/access', ...shared.features.map(feature => feature.directory), '../../packages/plugins/activity', '../../packages/bundle']) {
+// The shared plan addresses features from the repository root; every other entry
+// here is relative to this app, so qualify the plan entries the same way.
+for (const directory of ['../../packages/providers/identity-local', '../../packages/providers/browser-session', '../../packages/plugins/audit', '../../packages/plugins/access', ...shared.features.map(feature => `../../${feature.directory}`), '../../packages/plugins/activity', '../../packages/bundle']) {
   const manifest = JSON.parse(await readFile(join(root, directory, 'package.json'), 'utf8'));
   await access(join(root, directory, manifest.exports['.'].default));
   await run('pnpm/bin/pnpm.cjs', ['--filter', manifest.name, 'pack', '--pack-destination', artifacts]);
@@ -52,13 +54,13 @@ for (const directory of ['../../packages/providers/identity-local', '../../packa
   packages.push({ directory, manifest });
 }
 let initialized = false;
-try { await access(join(home, '../../profiles/preview/package.json')); initialized = true; }
+try { await access(join(home, 'profiles/preview/package.json')); initialized = true; }
 catch (error) { if (error.code !== 'ENOENT') throw error; }
 if (!initialized) await run('@deepseek-ai/dsh/lib/bin.js', ['--profile', 'preview', '--from-default-profile', 'web', '--dump-config']);
 // Experts already contributes the official Team service, tools and Web action.
 // The standalone Team profile adds the same loader ids again and can be toggled
 // on from the upstream plugin gallery. Keep this preview's bundle list singular.
-const previewManifestPath = join(home, '../../profiles/preview/package.json');
+const previewManifestPath = join(home, 'profiles/preview/package.json');
 const previewManifest = JSON.parse(await readFile(previewManifestPath, 'utf8'));
 const normalizedManifest = withoutRedundantAgentTeamProfile(previewManifest);
 if (normalizedManifest) {
@@ -83,15 +85,15 @@ if (!layersMatch) {
 // Profiles disable automatic peer installation. The platform account adapter
 // also needs its declared native account peer in this standalone runtime.
 const installedVersion = async (name) => {
-  try { return JSON.parse(await readFile(join(home, '../../profiles/preview/node_modules/@deepseek-ai', name, 'package.json'), 'utf8')).version; }
+  try { return JSON.parse(await readFile(join(home, 'profiles/preview/node_modules/@deepseek-ai', name, 'package.json'), 'utf8')).version; }
   catch (error) { if (error.code === 'ENOENT') return undefined; throw error; }
 };
 if (await installedVersion('dsh') !== cliVersion || await installedVersion('dsh-deepseek-account') !== cliVersion || await installedVersion('cordis-plugin-group') !== '1.0.4') {
-  await run('pnpm/bin/pnpm.cjs', ['--dir', join(home, '../../profiles/preview'), 'add', '--save-exact', `@deepseek-ai/dsh@${cliVersion}`, `@deepseek-ai/dsh-deepseek-account@${cliVersion}`, '@deepseek-ai/cordis-plugin-group@1.0.4']);
+  await run('pnpm/bin/pnpm.cjs', ['--dir', join(home, 'profiles/preview'), 'add', '--save-exact', `@deepseek-ai/dsh@${cliVersion}`, `@deepseek-ai/dsh-deepseek-account@${cliVersion}`, '@deepseek-ai/cordis-plugin-group@1.0.4']);
 }
 // DSH Profiles disable automatic peer installation. A fresh preview must
 // install and upgrade the same official runtime peer closure as the release installer.
-const profile = join(home, '../../profiles/preview');
+const profile = join(home, 'profiles/preview');
 const officialScope = join(profile, 'node_modules/@deepseek-ai');
 for (let pass = 0; pass < 9; pass++) {
   const missing = new Map();
@@ -139,16 +141,16 @@ if ((await officialResolutionDrift()).length) {
   const drift = await officialResolutionDrift();
   if (drift.length) throw new Error(`Official preview dependency resolution mismatch: ${drift.join('; ')}`);
 }
-const installedBase = JSON.parse(await readFile(join(home, '../../profiles/preview/node_modules/@deepseek-ai/dsh-base/package.json'), 'utf8'));
+const installedBase = JSON.parse(await readFile(join(home, 'profiles/preview/node_modules/@deepseek-ai/dsh-base/package.json'), 'utf8'));
 if (installedBase.version !== baseVersion) throw new Error(`Installed @deepseek-ai/dsh-base ${installedBase.version} does not match pinned ${baseVersion}.`);
-const installedWebApp = JSON.parse(await readFile(join(home, '../../profiles/preview/node_modules/@deepseek-ai/dsh-web-app/package.json'), 'utf8'));
+const installedWebApp = JSON.parse(await readFile(join(home, 'profiles/preview/node_modules/@deepseek-ai/dsh-web-app/package.json'), 'utf8'));
 if (installedWebApp.version !== webAppVersion) throw new Error(`Installed @deepseek-ai/dsh-web-app ${installedWebApp.version} does not match pinned ${webAppVersion}.`);
 // DSH scopes are module-instance local. Installing only the Web bundle
 // beside a CLI-provided Base bundle can load two physical dsh-scope copies: the
 // Agent consumers must resolve one shared scope module; otherwise new
 // session fails as an "unscoped context". Resolve both consumers from the
 // Profile and fail installation unless they share the exact same module file.
-const profileRequire = createRequire(join(home, '../../profiles/preview/package.json'));
+const profileRequire = createRequire(join(home, 'profiles/preview/package.json'));
 const resolveProfileDependency = async (consumer, dependency) => {
   const consumerManifest = profileRequire.resolve(`${consumer}/package.json`);
   const consumerRequire = createRequire(consumerManifest);
@@ -165,7 +167,7 @@ for (const { directory, manifest } of packages) {
     const entry = manifest.exports[face]?.default;
     if (!entry) continue;
     const expected = await readFile(join(root, directory, entry));
-    const installed = await readFile(join(home, '../../profiles/preview/node_modules', manifest.name, entry));
+    const installed = await readFile(join(home, 'profiles/preview/node_modules', manifest.name, entry));
     if (!expected.equals(installed)) throw new Error(`Installed ${manifest.name} ${face} differs from the current build; refusing to report a successful preview update.`);
   }
 }
