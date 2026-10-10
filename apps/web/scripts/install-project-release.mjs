@@ -86,7 +86,7 @@ if (actualHarness !== expectedHarness) {
   throw new Error(`WorkDSH ${manifest.version} requires dsh ${expectedHarness}; found ${actualHarness || 'unknown'}. Pass --dsh /absolute/path/to/a-compatible-dsh.`);
 }
 
-const profileManifest = join(dshHome, '../../profiles', profile, 'package.json');
+const profileManifest = join(dshHome, 'profiles', profile, 'package.json');
 if (existsSync(profileManifest)) {
   console.log(`Existing profile ${profile} detected; preserving its configuration and stored data.`);
   execute(['--profile', profile, '--dump-config']);
@@ -101,7 +101,7 @@ if (!dryRun && existsSync(profileManifest) && /^pnpm@\d+\.\d+\.\d+$/.test(manife
   writeFileSync(profileManifest, JSON.stringify(profilePackage, null, 2) + '\n');
 }
 
-const workspaceFile = join(dshHome, '../../profiles', profile, 'pnpm-workspace.yaml');
+const workspaceFile = join(dshHome, 'profiles', profile, 'pnpm-workspace.yaml');
 if (!dryRun && existsSync(workspaceFile)) {
   let current = readFileSync(workspaceFile, 'utf8');
   // Native helpers are required by the official runtime; the other two scripts
@@ -157,7 +157,7 @@ for (const name of installOrder) {
 }
 
 // Keep CLI and ConfigEditor in the same Profile dependency graph (0.1.7).
-const runtimeArgs = ['pnpm', '--dir', join(dshHome, '../../profiles', profile), 'add', '--save-exact', `@deepseek-ai/dsh@${expectedHarness}`, `@deepseek-ai/dsh-deepseek-account@${expectedHarness}`, '@deepseek-ai/cordis-plugin-group@1.0.4'];
+const runtimeArgs = ['pnpm', '--dir', join(dshHome, 'profiles', profile), 'add', '--save-exact', `@deepseek-ai/dsh@${expectedHarness}`, `@deepseek-ai/dsh-deepseek-account@${expectedHarness}`, '@deepseek-ai/cordis-plugin-group@1.0.4'];
 console.log(`> ${corepack} ${runtimeArgs.join(' ')}`);
 if (!dryRun) {
   const result = spawnSync(corepack, runtimeArgs, { stdio: 'inherit' });
@@ -168,7 +168,7 @@ if (!dryRun) {
 // are bundled and not published to npm. Install the official runtime peer closure
 // explicitly so a clean Profile can boot without relying on the developer repo.
 if (!dryRun) {
-  const scope = join(dshHome, '../../profiles', profile, 'node_modules', '@deepseek-ai');
+  const scope = join(dshHome, 'profiles', profile, 'node_modules', '@deepseek-ai');
   for (let pass = 0; existsSync(scope); pass++) {
     const missing = new Map();
     for (const entry of readdirSync(scope)) {
@@ -184,11 +184,11 @@ if (!dryRun) {
     }
     if (!missing.size) break;
     if (pass >= 8) throw new Error('Official runtime peer dependencies did not converge.');
-    const result = spawnSync(corepack, ['pnpm', '--dir', join(dshHome, '../../profiles', profile), 'add', '--save-exact', ...missing.values()], { stdio: 'inherit' });
+    const result = spawnSync(corepack, ['pnpm', '--dir', join(dshHome, 'profiles', profile), 'add', '--save-exact', ...missing.values()], { stdio: 'inherit' });
     if (result.error) throw result.error;
     if (result.status !== 0) process.exit(result.status ?? 1);
   }
 }
-const profileCli = join(dshHome, '../../profiles', profile, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js');
+const profileCli = join(dshHome, 'profiles', profile, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js');
 console.log(`\nWorkDSH ${manifest.version} ${dryRun ? 'installation plan verified' : 'is installed'} in profile ${profile}.`);
 console.log(`Start it with: node ${JSON.stringify(profileCli)} --profile ${JSON.stringify(profile)}`);

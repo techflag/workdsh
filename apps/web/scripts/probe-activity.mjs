@@ -11,7 +11,7 @@ await mkdir(cwd,{recursive:true});await mkdir(join(home,'storages'),{recursive:t
 await writeFile(join(home,'storages/workspace.json'),JSON.stringify({unit:{name:'workspace',version:2},global:{initialized:true,workspaceIds:[workspaceId],archivedSessionIds:[]},tables:{workspaces:{[workspaceId]:{path:cwd,title:'Activity fixture',sessionIds:[id],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}}}}));
 const dir=join(home,'sessions','--'+cwd.replaceAll('/','-').replace(/^-+/, '')+'--',id);await mkdir(dir,{recursive:true});
 const disabled=process.argv.includes('--disabled');
-await writeFile(join(home,'../../profiles/preview/cordis.patch.yml'),disabled ? '- id: workdsh-activity\n  disabled: true\n' : '[]\n');
+await writeFile(join(home,'profiles/preview/cordis.patch.yml'),disabled ? '- id: workdsh-activity\n  disabled: true\n' : '[]\n');
 const now=Date.now();const rows=[{type:'session',version:3,id,createdAt:now,cwd,isSeeded:false,delegationDepth:0,agentPreset:'dsh-base'},
 {type:'turn/start',seq:0,time:now,data:{turn:1}},
 {type:'user/message',seq:1,time:now,data:{role:'user',id:'fixture-user',source:{kind:'user'},content:[{type:'text',text:'Activity plugin verification'}]},surfaceOp:'append'},
@@ -44,4 +44,4 @@ assert.ok((await page.locator('body').innerText()).includes('Native conversation
 await mkdir(join(root,'.artifacts/activity'),{recursive:true});await page.screenshot({path:join(root,'.artifacts/activity/browser.png')});
 console.log('PASS: official Profile/Client load; one 46px bar; native body retained; animation off persists; system reduced-motion; Escape; no browser errors.');
 }
-}finally{await browser?.close();if(server.exitCode===null){const closed=new Promise(r=>server.once('close',r));server.kill('SIGTERM');const timer=setTimeout(()=>server.kill('SIGKILL'),5000);await closed;clearTimeout(timer);}await writeFile(join(home,'../../profiles/preview/cordis.patch.yml'),'[]\n');}
+}finally{await browser?.close();if(server.exitCode===null){const closed=new Promise(r=>server.once('close',r));server.kill('SIGTERM');const timer=setTimeout(()=>server.kill('SIGKILL'),5000);await closed;clearTimeout(timer);}await writeFile(join(home,'profiles/preview/cordis.patch.yml'),'[]\n');}

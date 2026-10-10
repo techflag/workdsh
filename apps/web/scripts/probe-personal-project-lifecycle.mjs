@@ -9,10 +9,10 @@ const root=new URL('../',import.meta.url).pathname,evidence=join(root,'.artifact
 const baseline=JSON.parse(await readFile(join(evidence,'personal-default-runtime.json'),'utf8'));
 const home=await realpath(baseline.home);
 assert.match(home,/\/T\/workdsh-personal-default-[\w-]+$/);
-const manifestPath=join(home,'../../profiles/personal/package.json');
+const manifestPath=join(home,'profiles/personal/package.json');
 const before=JSON.parse(await readFile(manifestPath,'utf8'));assert.ok(!before.dependencies['workdsh-plugin-projects']);
 const env={PATH:`${root}/node_modules/.bin:${dirname(process.execPath)}:/usr/bin:/bin`,HOME:process.env.HOME,DSH_HOME:home,DSH_AGENTS_HOME:join(home,'agents'),npm_config_offline:'true'};
-const cli=join(home,'../../profiles/personal/node_modules/@deepseek-ai/dsh/lib/bin.js'),exec=promisify(execFile);
+const cli=join(home,'profiles/personal/node_modules/@deepseek-ai/dsh/lib/bin.js'),exec=promisify(execFile);
 const run=async(args)=>exec(process.execPath,[cli,...args],{cwd:home,env,timeout:120000,maxBuffer:8*1024*1024});
 const checks=[];let server,browser,log='';
 async function stop(){await browser?.close();browser=undefined;if(!server||server.exitCode!==null||server.signalCode!==null)return;const done=new Promise(r=>server.once('close',r));server.kill('SIGTERM');const timer=setTimeout(()=>server.kill('SIGKILL'),3000);await done;clearTimeout(timer);}

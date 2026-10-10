@@ -1,7 +1,9 @@
 import {readFile} from 'node:fs/promises';
-const root=new URL('../',import.meta.url);
+// The plan and every feature directory are addressed from the repository root,
+// not from the Web app: (apps/web/scripts/ -> repository root).
+const root=new URL('../../../',import.meta.url);
 export async function sharedProfileFeatures(){
- const plan=JSON.parse(await readFile(new URL('../../profiles/shared/workdsh-features.json',root),'utf8'));
+ const plan=JSON.parse(await readFile(new URL('profiles/shared/workdsh-features.json',root),'utf8'));
  const names=new Set();
  for(const feature of plan.features){
   if(names.has(feature.name))throw Error('Duplicate shared feature '+feature.name);

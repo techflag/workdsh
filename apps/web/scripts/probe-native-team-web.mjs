@@ -92,7 +92,7 @@ try {
   await command(pnpm, ['pack', '--pack-destination', artifacts], fixture); tarballs.push(join(artifacts, 'workdsh-native-team-probe-0.0.0.tgz'));
   await command(dsh, ['--profile', 'native-team', '--from-default-profile', 'web', '--dump-config']);
   await command(dsh, ['plugin', '--profile', 'native-team', 'add', `@deepseek-ai/dsh-base@${dshVersion}`, `@deepseek-ai/dsh-web-app@${dshVersion}`, ...tarballs, '--prefer-offline']);
-  const profilePatch = join(home, '../../profiles/native-team/cordis.patch.yml');
+  const profilePatch = join(home, 'profiles/native-team/cordis.patch.yml');
   const browserOverride = '- id: browser-use-playwright-mcp\n  disabled: true\n';
   await writeFile(profilePatch, browserOverride);
   pass('seven-independent-packages-installed-via-official-cli');
