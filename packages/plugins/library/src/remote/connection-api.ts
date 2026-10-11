@@ -24,7 +24,8 @@ export function registerLibraryConnection(ctx: Context): void {
         if (endpoint === 'list' && (payload.parentId === undefined || typeof payload.parentId === 'string')) return Response.json(ok(await manager.list(current, payload.parentId as string | undefined, request.signal)));
         if (endpoint === 'create-folder' && typeof payload.name === 'string' && (payload.parentId === undefined || typeof payload.parentId === 'string')) return Response.json(ok(await manager.createFolder(current, payload.name, payload.parentId as string | undefined, request.signal)));
         if (endpoint === 'import' && typeof payload.name === 'string' && typeof payload.base64 === 'string' && typeof payload.operationId === 'string') {
-          return Response.json(ok(await manager.importAsset(current, { name: payload.name, bytes: Buffer.from(payload.base64, 'base64'), operationId: payload.operationId, ...(typeof payload.parentId === 'string' ? { parentId: payload.parentId } : {}), ...(typeof payload.mediaType === 'string' ? { mediaType: payload.mediaType } : {}) }, request.signal)));
+          const source = payload.source === 'upload' || payload.source === 'task' || payload.source === 'created' ? payload.source : undefined;
+          return Response.json(ok(await manager.importAsset(current, { name: payload.name, bytes: Buffer.from(payload.base64, 'base64'), operationId: payload.operationId, ...(typeof payload.parentId === 'string' ? { parentId: payload.parentId } : {}), ...(typeof payload.mediaType === 'string' ? { mediaType: payload.mediaType } : {}), ...(source ? { source } : {}), ...(typeof payload.sourceTaskId === 'string' ? { sourceTaskId: payload.sourceTaskId } : {}) }, request.signal)));
         }
         if (endpoint === 'search' && typeof payload.query === 'string') {
           const kinds = Array.isArray(payload.kinds) && payload.kinds.every(value => typeof value === 'string') ? payload.kinds : undefined;

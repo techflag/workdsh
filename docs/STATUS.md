@@ -1,3 +1,355 @@
+## 2026-10-11（续四十一）：`0.2.0-rc.2 → 0.2.1-alpha.2` 升级执行完成（仓库基线 + 制品 + 线上部署 + 回归全绿）
+
+经用户授权「好的，执行升级吧」分四段执行：仓库基线随升 → 12 制品重出上传 → 服务器换树/profile 重装/`--force-recreate` → 门禁/健康/存量/业务面回归验证。**升级已实质完成并全绿**，证据见 [dsh-0.2.1-alpha.2-upgrade](evidence/dsh-0.2.1-alpha.2-upgrade.md)（从评估段改写为已执行段）。
+
+### 一、仓库基线 + 制品
+
+- 根 `package.json` overrides 296+ 条全部 `0.2.0-rc.2 → 0.2.1-alpha.2`；cordis 家族 5 条切 alpha 通道（`cordis 4.0.5-alpha.1` / `schemastery 3.18.5-alpha.1` 等）；14 个模块 dsh 依赖全量切 alpha.2；lock 全量重解析。
+- 门禁复跑：`check-published-versions` PASS / `check-plan` PASS / install / typecheck / build 通过。
+- 12 制品重出（含 access/audit/automations/identity-local），dsh peer caret `^0.2.0-rc.2`（alpha.2 满足 semver caret 语义），上传 `wd-upload-019` 覆盖后 12/12 MATCH。
+
+### 二、线上部署（`dsh.10ge.cn` / 192.168.11.205）
+
+- **镜像决策**：沿用既有 `...:0.2.0-rc.2-localbuild-patched` tag，不重打派生镜像（1Panel 无 alpha tag；本批差异全在挂载树 + profile）。
+- `standalone` 换树：旧树备份 `standalone.a2.old.20261011`，新树 549M = alpha.2（含 cordis 4.0.5-alpha.1）。
+- 双份 auth-proxy 补丁重放（standalone + profile）：`marker=1` × 2（10-11 复验仍在）。
+- profile `pnpm-workspace.yaml` 287 行 overrides 变更 + `package.json` 4 官方依赖升 alpha.2（**关键教训：pnpm-workspace.yaml 自带 overrides 压过 package.json，须两处同改**）；`pnpm install` 两次：首次 `+1 -116`（overrides 未改），改后 `+282 -127`。
+- `docker compose up -d --force-recreate deepseek-harness`（服务名非容器名 `dsh`；bind mount 换 inode 必须 recreate 生效）。
+
+### 三、验证（全绿）
+
+| 检查 | 实测 |
+| --- | --- |
+| 容器 | `Up (healthy)` / `RestartCount=0`；CLI `0.2.1-alpha.2` |
+| 三层健康 | 内 3080=200；`dsh.10ge.cn` 无跟随 302；host 裸直连 3080=400（alpha.2 对裸 Host 更严，非用户路径） |
+| 存量未改写 | sessions 277=277；storages 114343→114346（+3 可归因：探针 audit 事件 + mcp_connector/ledger 运行时刷新） |
+| 业务探针 | experts 21 / projects 0 / templates 15 / library space 1 / list 14 / skills 52 / catalog 1 / connectors 3 / assistant 0 / errors {}；workdsh:probe activated + portal 3083 |
+| 调度导航 | 无 schedule/time-context 错误日志；`dsh-client-ui-schedule` alpha.2 已装；`cordis.patch.yml` 7 处引用完好 |
+| 门禁 | 未激活条目 =1（仅 agent-teams）；dshmarket 1.66.8 / mcp-connector 0.2.66 正常 |
+
+### 四、agent-teams 豁免（2026-10-11，用户授权「好的，执行豁免」）
+
+- `dsh plugin --profile web allow-version @nanmicoder/dsh-agent-teams@0.1.22 --dsh-version 0.2.1-alpha.2 --accept-risk` → `allowed`；`compatibility.json` 新增条目（共 9 条：8 旧 + 1 新）。
+- `docker compose restart deepseek-harness` 后：healthy、CLI 0.2.1-alpha.2、启动窗口 `skipping profile bundle` / `is incompatible` / `disabling profile plugin row` / `did not activate` 全部 0 ⇒ **agent-teams 已激活**。
+
+### 五、当前任务与下一步
+
+- **当前**：升级 + agent-teams 豁免均完成，证据与 STATUS 已登记。
+- **下一步**：git commit/push 未执行（AGENTS.md 约束，须用户授权）。
+
+### 六、阻塞项与既有问题（非本次引入）
+
+- `cloud189-mcp` 的 `zod/v4` 破损安装致 `core.cjs` 缺失（用户本地 MCP 工具，未触碰）。
+- `compatibility.json` 8 条 workdsh 插件对 `0.1.7-rc.2` 旧豁免（历史遗留）。
+- V8/GC SIGSEGV 既有问题，不因升级解决。
+
+
+
+## 2026-10-10（续四十）：`0.2.1-alpha.2` 升级证据评估（**仅证据与评估，未变更仓库/制品/线上**）
+
+按用户指令「准备升级证据文档」执行。官方稳定通道（`latest`/`next`）仍为 `0.2.0-rc.2`，与线上及仓库基线一致；唯一更新为 alpha 通道 `0.2.1-alpha.2`（2026-10-09 发布）。本批完成版本定位与依赖闭包对比，撰写 [dsh-0.2.1-alpha.2-upgrade](evidence/dsh-0.2.1-alpha.2-upgrade.md) 证据文档，并登记关键风险清单。**未变更任何仓库文件、制品、镜像或线上容器**；是否升级须用户裁决。
+
+### 一、版本定位（实测）
+
+| 项 | 值 |
+| --- | --- |
+| npm `dist-tags` | `alpha=0.2.1-alpha.2` / `latest=0.2.0-rc.2` / `next=0.2.0-rc.2`（`total_versions=31`） |
+| 官方 GitHub releases | `dsh-v0.2.1-alpha.1`（10-03）/ `dsh-v0.2.1-alpha.2`（10-09） |
+| 线上现状 | `dsh` 容器 = `1panel/deepseek-harness:0.2.0-rc.2` / standalone 树 `0.2.0-rc.2` / CLI `0.2.0-rc.2` / `RestartCount=0` |
+
+### 二、闭包差异（0.2.0-rc.2 → 0.2.1-alpha.2，实测）
+
+- deps 总数 82 → **85**；`@deepseek-ai/dsh*` 74 → **77**（全精确 `0.2.1-alpha.2`）。
+- **新增 9 个 experimental 包**：badge-skill / cot-translation / inspector-profile / ralph-bundle / session-search / session-titles / terminal / tool-worktree / tool-schedule。
+- **移除 6 个包**：`dsh-experimental-schedule-bundle`、`dsh-hooks-claude-code`、`dsh-hooks-codex`、`dsh-tool-ralph`、`dsh-webhook`、`dsh-webhook-github`。
+- cordis 家族 5 包**全部切 alpha 通道**（`cordis ~4.0.5-alpha.1` 等）——与仓库精确 override 收敛需实测。
+
+### 三、关键风险清单（升级前须逐项闭环，均未验证）
+
+1. **官方「自动化任务」导航**：`dsh-experimental-schedule-bundle` 移除 → `ui-schedule` 来源变化，0.2.0-rc.2 修复的悬空行问题须重新回归（新增 `dsh-tool-schedule`/`dsh-schedule` 已在闭包）。
+2. **1Panel auth-proxy 补丁**：派生镜像须重打并重放补丁（同 0.2.0-rc.2 流程，`npm install -g` 会覆盖补丁）。
+3. **WorkDSH 制品 peer**：12 制品 caret `^0.2.0-rc.2` 是否满足 alpha.2 语义需验证。
+4. **第三方 bundle 门禁**：`dshmarket`/`agent-teams`/`mcp-connector` peer 是否含 `0.2.1-alpha.2`。
+5. **cordis 家族 alpha 通道**与仓库 override `4.0.4` 的收敛。
+
+### 四、未执行与待裁决
+
+- 仓库基线变更、制品重出、派生镜像构建、线上升级部署**均未执行**（须用户授权 + 兼容证据后实施）。
+- GitHub Release Notes 正文未能抓取（本机/服务器出网 DNS 阻断），版本定位以 npm registry 为准，已在证据文档登记。
+- 官方文档镜像未落盘（沿用既有裁决）。
+
+## 2026-10-01（续三十九）：对话框「提示词增强」`maxOutputTokens` 报错定位与修复（**已修复并实测验证**）
+
+用户指令：「现在网站对话框 中的提示词增强功能，总提示重写结果达到输出上限（maxOutputTokens），请在设置中调大上限或精简原文后重试。这个如何修复。请分析并解决」——要求分析并实际修复。
+
+### 一、根因（端到端确证）
+
+| 环节 | 事实 | 证据 |
+| --- | --- | --- |
+| 报错文案 | 与插件 `dsh-prompt-enhance@0.2.7` 的 `REASON_HINTS['max-tokens']` 逐字一致 | `lib/index.js:470`「重写结果达到输出上限（maxOutputTokens），请在设置中调大上限或精简原文后重试。」 |
+| 触发条件 | `FinishReason.kind === 'max-tokens'` | 插件判定分支 |
+| 请求体取值 | 请求体注入的 `max_tokens` = 插件 `config.maxOutputTokens` | `lib/index.js:701` `maxTokens: config.maxOutputTokens` |
+| 实际生效值 | 线上 `cordis.patch.yml` 的 `prompt-enhance` **原本没有 `config:` 块** ⇒ 回落 `DEFAULT_CONFIG.maxOutputTokens = 2048` | `lib/index.js` `DEFAULT_CONFIG`（`maxOutputTokens:2048` / `maxInputChars:12e3` / `timeoutMs:6e4`） |
+| 放大因素 | 叠加 `reasoningEffort: high` 的思考 token 也计入 `max_tokens` ⇒ 更易提前 `stop_reason: max_tokens` | 实测 |
+
+即：**2048 的默认输出预算过小**，被推理开销挤占后正常长度重写也会触顶。这不是模型/网络故障，是插件配置缺失。
+
+### 二、处置（最小改动、可回滚）
+
+- 修改文件：`/data/dsh/profiles/web/cordis.patch.yml`（线上 `data/dsh/profiles/web/`）；
+- 新增配置（`prompt-enhance` 段）：
+  ```yaml
+  - id: prompt-enhance
+    disabled: false
+    config:
+      maxOutputTokens: 8192
+      timeoutMs: 120000
+  ```
+- 备份：`cordis.patch.yml.bak.promptenhance-maxtokens.20261001115737`（17027 字节，`luoji:luoji`），修改后文件 17085 字节、`-rw-------`、属主 `luoji luoji`，YAML 校验通过。
+
+**注**：`maxOutputTokens` 合法区间为 256–32768（`lib/index.js:71` `intInRange(..., 256, 32768)`），8192 在区间内且为默认值 4 倍。
+
+### 三、验证（严格口径，全部 `HTTP 200`）
+
+终验探针 `/tmp/pe-verify.js`（容器内 `127.0.0.1:3080` 直连），错误判定仅匹配插件真实文案「重写结果达到输出上限」，避免被输入文本中的「输出上限」等词误判：
+
+| 用例 | 输入长度 | 状态 | `ok` | 输出长度 | model | 真实 max-tokens 报错 |
+| --- | --- | --- | --- | --- | --- | --- |
+| short | 6 | 200 | true | 393 | deepseek-flash | **false** |
+| long | 940 | 200 | true | 523 | deepseek-flash | **false** |
+| huge | 2700 | 200 | true | 497 | deepseek-flash | **false** |
+
+响应形状确认：`{"ok":true,"value":{"text","provider":"deepseek-official","model":"deepseek-flash","elapsedMs"}}`（取文本须用 `value.text`）。
+
+**结论：`maxOutputTokens` 报错已消除。**
+
+### 四、边界与未解决项
+
+- **`maxOutputTokens` 问题本身：已修复并验证**（配置存活复核两轮一致，mtime `2026-10-01T11:59:49`）。
+- **另立未决：容器 V8 SIGSEGV 崩溃-自愈抖动（本轮观测中已趋稳，但归因未最终判定）**：
+  - 模式 A：`Segmentation fault` → `status 139`，故障线程恒为 `node::PlatformWorkerThread`（V8 GC 并发标记）；崩溃点行号随 entrypoint 版本漂移（首轮 `119/123` 启动期、`315/319` 运行期）；另有 `--no-flush-bytecode` 于 12:40:58 加入但仍于 12:41:05 / 12:41:24 崩溃（**该旗标不足以消除崩溃**）。
+  - 模式 B：`.credentials.yaml.lock` 写锁超时 ⇒ 必需插件 `connection` 启动失败；**已被 entrypoint 的 `STALE_CRED_LOCK_REAPER_V1` 缓解**，近 10 分钟 `startup failed` = 0。
+  - 新增线索：容器 `/tmp` 为 `tmpfs (rw,nosuid,nodev,noexec,size=262144k)`，而原生 addon 加载器（`narb-attempts.json`）把 `.node` 暂存到 `/tmp/node-addon-native-custom-loader-0/...` ⇒ `failed to map segment from shared object`（noexec 无法 mmap 执行）；已设 `NARB_NATIVE_CACHE_DIR=/data/dsh/tmp/native-cache` 但加载器仍回退 `/tmp`。此为**独立于 max-tokens 的另一问题**，本轮诊断完成、修复未执行。
+  - 本轮末次观测（12:47）：`Up=true Restarts=0 Exit=0 OOM=false Health=healthy`，公网 `302 302 302`，**近 5 分钟 segfault = 0**，entrypoint md5 自 12:40:58 后未再变化（另有并发会话在改同一文件的迹象已暂停）。
+- **未执行**：`check:versions`、全仓 `typecheck`/`build`、`check:plan` 本轮未复跑；未做浏览器真实登录态页面复核。
+- **未提交、未推送、未发布 npm**（本次仅改线上配置文件，仓库源码零改动）。
+
+## 2026-10-01（续三十八）：library α.4 上线 `dsh.10ge.cn` + 8 篇资料 `source` 归属修复（**已上线**）
+
+用户指令：「好的，执行吧」——授权执行「续三十七」§四列出的未决项：**① 把 library α.4 部署到线上 `dsh.10ge.cn`；② 修复方案 B 重建的 8 篇资料 `source`（`upload` → `task`），恢复资料库「产出」视图归属**。
+
+### 一、d5 方案裁决：直改 state 元数据（而非官方重导）
+
+| 方案 | 说明 | 裁决 |
+| --- | --- | --- |
+| ① 官方接口重导 | 门户签名头直连 3080，`remove` 旧 8 条 → `import` 带 `source:'task'` | **未采用**：`importAsset` 的 `assetId`/`nodeId`/`revisionId` 全为 `randomUUID()`，旧 id 无法保留 ⇒ **全量 id 漂移**，且旧 `receipts` 与新 `operationId` 需并存清理；`library/operation-conflict` 仍缺错误码映射 |
+| ② 直改门户 state 元数据 | 按 `contentSha256` 与 `local-user` 空间 8 条一一对齐，仅替换 `source` / `sourceTaskId` | **采用**：两空间 8 篇内容 SHA 集合**完全一致**（字节级同一批资料），`local-user` 侧已有真实 `source='task'` + `sourceTaskId` 可直接映射；**不改 id、不动 objects、不需重导** |
+
+改动字段唯一：`record.assets[*].source` 与 `sourceTaskId`；`nodes`/`revisions`/`receipts`/`references` 逐字节不变。
+
+### 二、执行记录
+
+| 步 | 内容 | 结果 |
+| --- | --- | --- |
+| d1 | 侦察线上状态目录与两空间结构 | 完成：状态目录为 `/data/dsh/storages/workdsh_library/states/`；`record` 各集合是**按 id 键的 map**（非数组）；两空间 8 篇 `contentSha256` 集合一致 |
+| d2 | 本地构建并打包 α.4 | 完成：`.artifacts/library-release/workdsh-plugin-library-0.1.0-alpha.4.tgz`，61279B，SHA256 `4b176118fca3e5972b2fa3957a62ecf26413f2a206cde829e6b6fbd52d833e46` |
+| d3 | 改线上前备份 | 完成：`backups/library-alpha4-20261001-064643/`（192K：两 state + `web-package.json` + `library-objects.tgz` 132622B） |
+| d4 | 部署 α.4 | 完成：指针 → `pnpm install`（+6 -92，8.7s，EXIT=0）→ `node_modules/workdsh-plugin-library` = **α.4**，`dist/remote/connection-api.js` 含 `payload.source === 'task'` → 重启后 `healthy` |
+| d5 | 8 篇 `source` 归属修复 | 完成（含一次失败回滚，见 §三）：`--write` 后回读 `source='task' 且有 sourceTaskId = 8` |
+| d6 | 端到端验证 | 完成，见 §四 |
+
+### 三、d5 失败与纠正（关键教训）
+
+首次尝试以 `sudo`(root) 身份执行 `--write` → 写入文件属主变 **`root:root` 0600**；容器内 DSH 进程以 **`node`** 运行，读该文件 **EACCES** → `ensureState()` 判定「无状态」并**重建为空 space**（523B），原 8 篇元数据被覆盖。
+
+纠正：从本次 `--write` 自动备份 `library-source-fix-20260930-231827` 恢复 → **改以宿主机 `luoji` 身份写**（该 uid 在容器内映射为 `node`，属主与容器进程一致）→ 重跑 `--write`（备份 `library-source-fix-20260930-232041`）→ 启容器后文件 **21935B 保持**、`space.id` 仍是原 `ffe5c38e-…`。
+
+**结论：凡直改容器内运行的 DSH 状态文件，必须（a）先 `docker stop` 规避内存缓存回写；（b）以容器内同 uid 的宿主账号写，禁用 `sudo`；（c）写后回读校验属主与字节数。**
+
+### 四、d6 端到端验证（门户签名身份头直连 `127.0.0.1:3080`）
+
+| 检查 | 结果 |
+| --- | --- |
+| `space` | 200，`id=ffe5c38e-333b-4298-ba01-5d83bd37f334`（**原 space 未漂移**），owner `portal:18938845688` |
+| `search {sources:['task']}`（产出视图口径） | 200，**count=8**，8 篇名称全部命中 |
+| `search`（无过滤） | 200，count=8（与产出视图一致，无遗漏） |
+| `search {sources:['upload']}` | 200，**count=0**（确认已无 upload 残留） |
+| `list` 递归目录树 | 4 个一级文件夹 + 8 篇 asset，名称与层级完全保持 |
+| `read-original` 往返 SHA256 | **8/8 与 state `contentSha256` 一致** |
+| 容器 | `Up (healthy)`，`docker inspect` health = `healthy` |
+
+### 五、边界与未执行项
+
+- **公开契约未变**：本批只改线上 state 数据与部署指针，仓库源码零改动（本地 7 文件 M 状态仍为「续三十七」的 α.4 源码）。
+- **旧 objects 目录经复核确认「不是孤儿、未删」**：`library/objects/` 共 16 个目录（17 个 revision 目录），经 state JSON 结构解析 + 全目录字符串级 `objects/<uuid>/` 正则扫描**双口径交叉核验**，**被引用 16、孤儿 0、悬空引用 0**。此前记为「早期 `local-user` 的 8 个旧 assetId 目录已无 state 引用」的判断**已被实测推翻**：`36e8099e` / `3b88c728` / `5ac5e14b` / `61524e9a` / `bac2224e` / `c548977e` / `c7d33f3b` / `e2978dc3` 仍被 `local-personal_local-user.json`（兜底主体 `local-user` 空间）有效引用，只是门户身份视角不可见；其 `contentSha256` 与门户侧同批资料逐一相同。**故本次未执行删除**——直接删会使 `local-user` 空间 8 篇资料的 `original.md` / `content.md` 落空而 state 留下悬空引用。如需清理该空间，须走官方 `remove` 归档流程使 state 与 objects 同步，不能直接删目录。
+- **临时探针已清理**：`/data/dsh/tmp/wd-lib-{probe,shape,tree}.mjs`、`wd-verify-{library,sha}.mjs` 已删除。
+- **台账一致性收口**：MODULE-VERSIONS.md L48 原写「线上 `dsh.10ge.cn` 未动（仍为 α.3）、未打包」与本批事实不符，已更正为「已部署 α.4 + 已打包 tgz + 未发布 npm / 未提交未推送」，并指向本节；`corepack pnpm check:plan` 复跑 **PASS**（31 modules; 50 documents）。
+- **未执行**：浏览器真实登录态页面复核、「产出」视图 UI 截图、`probe-browser.mjs` 全量回归未做；`check:versions`、全仓 `typecheck`/`build`、`probe:library`、`test:integration` 未复跑。
+- **未提交、未推送、未发布 npm**（HEAD 仍为 `4f48c8dd73`）。
+
+## 2026-10-01（续三十七）：资料库 `import` 分支补 `source` 透传（本节记录时**未上线、未打包**；α.4 已于「续三十八」部署）
+
+用户指令：「给 import 分支补 source 透传」。这是「续三十六」§六偏差 ② 的代码侧收口：`/api/workdsh-library` 的 `import` 分支此前**不透传** `source` / `sourceTaskId`，经接口导入的资料落库恒为默认 `upload`，故方案 B 重建的 8 篇资料不再出现在资料库「产出」视图（该视图按 [LibraryPanel.tsx](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/src/client/LibraryPanel.tsx#L75) 的 `sources: ['task']` 过滤），但仍完整出现在「资料库」「最近」「搜索」。
+
+### 一、三层职责核对（确认只缺转发层）
+
+| 层 | 位置 | 结论 |
+| --- | --- | --- |
+| 契约层 | `packages/contracts/src/library.ts` 的 `LibraryImportInput` | 本就含 `source?` / `sourceTaskId?`，**无需改** |
+| 服务端 | [library-manager.ts](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/src/services/library-manager.ts#L134) `importAsset` | 已正确消费 `input.source` / `input.sourceTaskId`，**无需改** |
+| 转发层（**缺口**） | [connection-api.ts](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/src/remote/connection-api.ts#L26-L29) import 分支 + [management.ts](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/src/client/management.ts#L27) `importFile` | **本次修复** |
+
+### 二、改动内容
+
+1. [connection-api.ts](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/src/remote/connection-api.ts#L26-L29)：`import` 分支新增 `source` **白名单**（仅 `upload` / `task` / `created`）与 `sourceTaskId`（须为字符串）透传。
+2. 回落行为：`source` 缺省或非白名单值（如 `admin`）一律回落默认 `upload` 并**不落库**；`sourceTaskId` 非字符串则丢弃。
+3. [management.ts](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/src/client/management.ts#L27)：`importFile` 新增可选第三参 `origin?: { source?: 'upload' | 'task' | 'created'; sourceTaskId?: string }`，条件展开；不传时请求体与旧版等价。
+4. [library.test.mjs](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/tests/library.test.mjs#L217-L247)：新增第 6 条回归测试，覆盖 `upload` 缺省、`task` + `sourceTaskId`、`created`、伪造值 `admin` / 非字符串 `sourceTaskId` 四类，并断言「产出」视图 `sources: ['task']` 能命中经接口导入的产出件。
+
+### 三、版本与门禁
+
+| 项 | 结果 |
+| --- | --- |
+| 版本裁定 | library **α.3 → α.4**（`0.1.0-alpha.3` 已是线上运行制品，同名不同内容按「撞号必须重新定版」口径处理；属同一能力基线内的兼容补全 ⇒ 递增预发布序号） |
+| 同步文件 | [package.json](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/package.json#L3)、[CHANGELOG.md](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/CHANGELOG.md)、[MODULE-VERSIONS.md](file:///Users/apple/Documents/AI-luoji/workdsh/docs/MODULE-VERSIONS.md#L45) 表行 + 新增 2026-10-01 更新条目 |
+| `corepack pnpm --filter workdsh-plugin-library typecheck` | 退出码 **0** |
+| `corepack pnpm --filter workdsh-plugin-library test` | **6/6 通过**（原 5 + 新增 1），`fail 0`；构建 `contracts` / `ui` / `tsc` / `build-library.mjs` 均退出码 0 |
+| `corepack pnpm check:plan` | **PASS: 31 modules; 50 documents** |
+
+### 四、边界与未执行项
+
+- **公开契约未变**：`LibraryImportInput` 本就含这两个字段，无需改 `docs/CONTRACTS.md`。
+- **UI 行为不变**：[LibraryPanel.tsx](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/src/client/LibraryPanel.tsx#L79) 的页面内上传仍调用 `importFile(file, uploadParent.current)`，不传 `origin`，落库继续为 `upload`。
+- **Agent 工具路径不受影响**：`library-tools.ts` 本已传 `source: 'task'`。
+- **已重建的 8 篇资料未重导**，其 `source` 仍为 `upload`，故「产出」视图当前仍未列出它们；是否用新透传能力重导（`importAsset` 幂等按 `operationId` + sha，**重导会新建 assetId**）仍属未决项，需用户裁决。**（本节记录时状态；已于「续三十八」收口——裁定不重导，改用方案②直改门户 state 元数据，产出视图已恢复 count=8。）**
+- **`library/operation-conflict` 仍缺中文映射**（会落 `library/internal` 500），本次未处理。
+- **未执行**：`corepack pnpm check:versions`、全仓 `typecheck`/`build`、`probe:library`、`test:integration` 未复跑；浏览器真实登录态复核、`probe-browser.mjs` 全量回归、侧栏折叠态复测未执行；**未部署到线上 `dsh.10ge.cn`**（仍为 α.3）；**未打包**、**未发布 npm**、**未提交、未推送**。**（其中「未部署 / 未打包」已由「续三十八」推翻：α.4 已部署线上并已打包 tgz；npm 发布与提交推送仍未做。）**
+
+## 2026-10-01（续三十六）：资料库「方案 B」正式重建执行完成（**已上线 dsh.10ge.cn**）
+
+用户指令：「好的，执行方案 B」。方案 B = 以门户主体 `portal:18938845688` 通过官方 `create-folder` / `import` **公开接口**重建资料库，folder / asset / revision / receipt 全部由官方 `LibraryManager` 生成，**不再手写 state 文件**（与方案 A 区分）；并把 `library/objects` 纳入常规备份源；补做 `workdsh-identity-portal` 源码级复核。
+
+### 一、执行步骤总览
+
+| 步骤 | 内容 | 结果 |
+| --- | --- | --- |
+| b1 | 前置侦察与快照 | 完成：容器进程/端口拓扑、`ensure-rc2-auth-proxy` 机制、`LibraryManager.root=DSH_HOME/library`、`ensureState()` 语义（无 key 即新建空壳）、storage domain 内存缓存不热加载 |
+| b2 | `workdsh-identity-portal` 源码级复核 | 完成：**无 re-own / 迁移分支**；兜底链为「会话绑定 → 已验签身份 → 主账号 `local-user`」 |
+| b3 | `backup-assets.sh` 的 `SOURCES` 纳入 `library/objects` | 完成：源码补丁落地 + 容器内实跑验证通过 |
+| b4 | 官方接口重建 | 完成：4 文件夹 + 8 文档，全部 `sha_match=true` |
+| b5 | 验证 | 完成：递归遍历、正文 SHA 往返一致、state 结构全部由官方生成 |
+| b6 | 本文档记录 | 本节 |
+
+### 二、b2 身份插件复核结论（源码级）
+
+复核对象：服务器 `/data/dsh/tools/` 下 `workdsh-identity-portal`（镜像 24043B）。
+
+| 检查项 | 结论 |
+| --- | --- |
+| 是否存在 re-own / 主体迁移分支 | **无**。插件不含把旧 `local-user` 数据改挂到 `portal:*` 的代码路径 |
+| 主体解析顺序 | ① 会话已有归属绑定 → 以绑定为准；② 请求作用域已验签身份 → 该账号；③ 均无 → 兜底主账号 `local-user` |
+| 与方案 A 的关系 | 方案 A 直接改写 state 属于**人工绕过**，非插件能力；方案 B 才是官方语义下的正解 |
+
+### 三、b3 备份源补齐（源码修改，非临时手工）
+
+- 缺口：`$B/tools/backup-assets.sh` 原 `SOURCES` **不含**资料库正文实体 `dsh/library/objects`，导致方案 A 的备份只能人工补齐。
+- 改动：`SOURCES` 增加 `/data/dsh/library/objects`；`--verify` 增加「资料库正文 `original.md` 计数（期望 ≥ 1，有正文时）」校验项；补丁前副本保留为 `$B/tmp/backup-assets.sh.preB3.20260930-205440` / `.205522` 作回滚。
+- 实测（容器内实跑）：`coverage: skills=36 tools_dist=6 keys=2 objects=9 entries=1298`；`--verify` 输出「资料库正文 original: 9（期望 ≥ 1，有正文时）」+「→ 关键项齐备 ✓」。
+- 当前源码命中行：服务器 `$B/tools/backup-assets.sh` 的 L14 / L29 / L53 / L90 / L147（该文件不属于本地仓库，仅在服务器维护）。
+
+### 四、b4 重建过程与产物
+
+前置：`docker stop dsh` → 快照 → 归档门户 state → `docker start dsh`。**必须先 stop 再 `mv`**，否则 storage domain 的内存缓存会把旧 state 回写覆盖（归档白做）。
+
+| 项 | 值 |
+| --- | --- |
+| 重建方式 | 容器内 `node /data/dsh/tmp/planb-rebuild.mjs`，带门户 HMAC 签名头直连 `http://127.0.0.1:3080/api/workdsh-library` |
+| 端点 | 官方 `space` / `list` / `create-folder` / `import`（body `{endpoint, payload}`） |
+| 幂等键 | `operationId = planb-import-<oldAssetId>`（确定性，可重跑） |
+| **执行中缺陷（已修复）** | 首跑 STAGE4 抛 `ERR_INVALID_ARG_TYPE`：`read-original` 返回 `{base64}`（[connection-api.ts](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/src/remote/connection-api.ts#L41)），脚本误当字符串传 `Buffer.from`。已改为 `Buffer.from(res.base64,'base64')` |
+| 幂等复跑 | 第二次运行 `reuse folder ×4` / `skip ×8`，验证重建可安全重跑 |
+| 新 `space.id` | `ffe5c38e-333b-4298-ba01-5d83bd37f334` |
+| 新 state 落盘 | `states/local-personal_portal-18938845688.json` **21376B** @ 21:02；`space.owner.ownerPrincipalId=portal:18938845688` |
+| state 内部结构（全部官方产物） | topKeys `schemaVersion/space/nodes/assets/revisions/receipts/references/drafts`；nodes 12（4 folder + 8 asset）/ assets 8 / revisions 8 / **receipts 8** / references 0 / drafts 0；sample revision `number=1`、`createdBy=portal:18938845688`、`conversionStatus=ready` |
+| 新 objects | `library/objects` 下 8 个新 assetId 目录；全库 `original.md` 合计 17（8 新 + 9 旧） |
+
+### 五、b5 验证结果
+
+| 检查 | 实测 |
+| --- | --- |
+| `space` | `id=ffe5c38e-…`、`title=我的资料`、`owner=portal:18938845688`（**非 fallback**） |
+| 递归遍历 | `tree folders=4 assets=8`，`tree path match keyed-on-name: true`（4 文件夹 / 8 文档与清单逐条对应） |
+| 正文往返 | **8/8 `roundtrip_match=true`**（接口 `read-original` 回读 SHA256 == 旧 `objects-original.sha256` 固化值） |
+| 正文一致性 | **8/8 `textEqualsOriginal=true`**（`read-text` 与 `original.md` 字节级一致，符合 Markdown 场景预期） |
+| 正文可读 | 例：培训手册 `46690B / 18554` 字符；运维记录 `14700B / 8987` 字符 |
+| 资产属性 | 8/8 `kind=markdown`、`mediaType=text/markdown`、`status=active`、`source=upload` |
+| 产出视图口径 | `search(query='') hits=8`，**`task-sourced=0 / upload-sourced=8`** |
+
+### 六、与旧数据的偏差（**必须知悉，非缺陷但影响 UI 与引用**）
+
+1. **全部 id 重新生成**：`space.id`（`84f9b371-…` → `ffe5c38e-…`）与 8 组 `assetId`/`nodeId`/`revisionId` 均为新 `randomUUID()`。官方 `importAsset` 不接收外部 id，**旧 id 无法保留**。
+2. **`source` 由 `task` 变 `upload`**：[connection-api.ts](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/src/remote/connection-api.ts#L26-L28) 的 `import` 分支**不透传** `source`/`sourceTaskId`，故 HTTP 接口重建的资产 `source` 恒为默认 `'upload'`。资料库面板「产出」视图按 `sources:['task']` 过滤（[LibraryPanel.tsx](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/library/src/client/LibraryPanel.tsx#L75)），**这 8 篇将不再出现在「产出」视图**，但仍完整出现在「资料库」「最近」「搜索」视图。
+3. **历史 revision 未保留**：`c548977e` 原含 2 个 revision，重建后仅第 1 版（`number=1`）；文件字节与最新版一致。
+4. **任务选择引用（references）为空**：新 state `references=0`，旧的任务资料勾选记录未迁移。
+5. **旧 objects 成为孤儿**：9 个旧 `original.md` 目录仍留在 `library/objects`（未删除，已随 recovery-b2 tar 备份）；旧 state 归档件在 `recovery-b2-20260930-210131/archived-local-personal_portal-18938845688.json`。
+
+### 七、备份与回滚点
+
+| 项 | 路径 |
+| --- | --- |
+| 快照目录 | `$B/backups/recovery-b2-20260930-210131/` |
+| states 快照 | `states-snapshot/`（`local-user` 22950B + 门户 23094B） |
+| objects 归档 | `library-objects-20260930-210131.tar.gz` |
+| 旧正文 SHA 清单 | `objects-original.sha256`（9 行） |
+| 归档的旧门户 state | `archived-local-personal_portal-18938845688.json` |
+| 脚本回滚副本 | `$B/tmp/backup-assets.sh.preB3.20260930-205440` / `.205522`（6835B，原 md5 `bcae2aea041b6cc9c22a0e29030d46fe`） |
+
+回滚方式：停容器 → 用快照替换 `states/` 与 `library/objects` → 起容器。
+
+### 八、清理与未执行项
+
+- 清理：`$B/tmp/` 下方案 B 探针（`planb-probe.mjs`、`planb-step1.sh`、`planb-rebuild.mjs`、`patch-backup-assets.py`）已删除；`backup-assets.sh.preB3.*` 保留作回滚。
+- **未执行**：浏览器真实登录态截图复核（验证走门户签名头直连上游 `3080`，非 UI 点击路径）；`probe-browser.mjs` 全量回归；侧栏折叠态复测。
+- **未决**：旧 objects 孤儿目录去留（当前保留）；「产出」视图因 `source=upload` 不再列出这 8 篇是否需要在插件侧补 `source` 透传能力（属源码变更，需另行决策）——**已于同日「续三十七」按用户指令完成该透传能力**（`library α.4`），8 篇本身仍为 `upload`、是否重导未决。
+- **该批次未提交、未推送、未发布 npm**（改动均在服务器 `/data/dsh/`）；**同日「续三十七」在本地仓库产生代码改动**（library α.4），同样未提交、未推送、未部署。
+
+## 2026-10-01（续三十五）：资料库可见性恢复「方案 A」执行完成（**已上线 dsh.10ge.cn**）
+
+用户指令：「先执行方案 A 恢复可见性，后续再按方案 B 正式重建」。方案 A 为**把旧 `local-user` 资料库 state 还原为当前门户主体 state** 的可见性恢复，不搬动正文实体、不新增第二套数据源；方案 B（以门户主体经正式 `importAsset` 接口重建）保留为后续待办。
+
+### 一、定性定因（未丢失，是分文件隔离）
+
+| 事实 | 实测 |
+| --- | --- |
+| 旧数据实体完好 | `local-personal_local-user.json` 22950B，12 nodes / 4 文件夹 / 8 文档 / 9 revisions，mtime Sep 27 18:12 |
+| 正文实体完好 | `/data/dsh/library/objects` 364K，8 assetId / 9 revision 目录；**9/9 `original.md` SHA256 全部 OK** |
+| 现身份为空壳 | `local-personal_portal-18938845688.json` 523B，nodes/assets/revisions 全空 |
+| 根因 | 2026-09-27 补丁层 `workdsh-identity-local` `disabled: true` + `insert: workdsh-identity-portal`；门户 admin 登录后主体 `portal:18938845688` 与旧 `local-user` 分属不同 `stateKey` 文件；`LibraryManager.ensureState()` 查不到 key 即自动新建空壳落盘 |
+| 非权限问题 | library 插件源码全局检索 `authorize`/`workdshAccess`/`assertAccess`/`requireAccess` **均无匹配**；`workdsh_access/grants` 23 条 baseline 全指向 experts/office，**无 library 条目** |
+
+### 二、执行步骤与证据
+
+| 步骤 | 结果 |
+| --- | --- |
+| a1 备份（补此前的备份缺口） | 容器内 `/data/dsh/backups/recovery-a-20261001-040312/`：两份 state 原件 + `library-objects.tar.gz`(66889B) + `cordis.patch.yml` + `package.json`。**`library/objects` 此前从未纳入 `backup-assets.sh` 的 `SOURCES`**，本轮人工补齐 |
+| a2 本地生成 | `.artifacts/logo-019/build-restored-state.py` 产出 `state-portal-restored.json` 23094B；官方编译产物校验 `valid: true`，`nodes:12 / assets:8 / revisions:9`，`space.id=84f9b371-…`（保留旧 id），owner/createdBy 全写为 `portal:18938845688`，正文路径不变（objects 无需搬迁） |
+| a3 落位 | 上传 → `sudo cp` 覆盖 → `chown luoji:luoji` + `chmod 600`，与现存文件一致；宿主/容器双侧 SHA256 = `5719bbd5…6560a` 一致；容器内显示 `node node`（宿主 `luoji` 与容器 `node` 同 uid） |
+| a4 重启生效 | `docker restart dsh` → `running health=healthy started=2026-09-30T20:05:44Z` |
+| **a4 端到端复验**（门户 HMAC 签名，只读） | `x-portal-user/role/job-role/expires/sig`（HMAC-SHA256，密钥 `/data/dsh/portal/identity-bridge.key`）→ `3081` 与 `3080` 双端口结果一致：`space.owner=portal:18938845688`（非 fallback）、`list=4` 文件夹；**递归遍历 = 4 文件夹 / 8 文档**，名称与旧数据逐条对应 |
+| a4 正文抽验 | `read-text` 返回该文档正文 8987 字符真实内容（非空壳） |
+| 清理 | 三支临时验证脚本（`verify-a-portal-lib.mjs` / `verify-a-tree.mjs` / `verify-a-readtext.mjs`）宿主侧与 `/tmp` 均已删除 |
+
+### 三、验证脚本与边界
+
+- 本地留存（`.artifacts/logo-019/`，gitignore 不入库）：`build-restored-state.py`、`state-portal-restored.json`、`verify-a-portal-lib.mjs`、`verify-a-tree.mjs`、`verify-a-readtext.mjs`。
+- **未执行**：浏览器真实登录态截图复核（验证走的是等价的门户签名头直连上游 3080/3081，非 UI 点击路径）；`probe-browser.mjs` 全量回归；侧栏折叠态复测。
+- **未修改**：`backup-assets.sh` 的 `SOURCES` 缺口**仅本次手工备份补齐，源码未改**；`workdsh-identity-portal` 是否存在 re-own 分支未验证（本地无该插件源码，仅存于服务器 `/data/dsh/tools/`）。
+- **未提交、未推送、未发布 npm**。
+
+### 四、后续待办（方案 B）
+
+以门户主体 `portal:18938845688` 通过正式 `importAsset` 接口重建资料，与本轮直接改写 state 的做法区分；`library/objects` 纳入常规备份源；`workdsh-identity-portal` 源码级复核。
+
 ## 2026-10-01（续三十四）：侧栏品牌文案收敛为「企业AI工作台」（bundle α.55 → α.57，**已上线 dsh.10ge.cn**）
 
 用户三轮指令同一条链路：①「LOGO 处 `10ge dsh job ai` 改为 `10GE DSH 企业AI工作台`」（α.55）→ ②「改为 `DSH 企业AI工作台`，与左侧 `10ge` 字标形成视觉对比」（α.56）→ ③「变更为 `企业AI工作台`，去掉文字 dsh」（α.57）。改动点始终只有公开 Slot `sidebar.brand.name` 一处。

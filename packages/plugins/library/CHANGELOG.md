@@ -1,3 +1,12 @@
+# 0.1.0-alpha.4
+
+- 补全 `/api/workdsh-library` 的 `import` 分支：新增 `source`（白名单 `upload` / `task` / `created`）与 `sourceTaskId`（须为字符串）透传，使经 HTTP 接口导入的资料能按调用方声明归入「产出」（`sources: ['task']`）等视图。
+- 回落行为：`source` 缺省或非白名单值一律回落默认 `upload`，`sourceTaskId` 非字符串则丢弃，不透传到业务层。
+- 客户端 `importFile` 新增可选第三参 `origin?: { source?: 'upload' | 'task' | 'created'; sourceTaskId?: string }`；不传时行为与旧版逐字节等价。
+- 公开契约未变（`LibraryImportInput` 本就含 `source` / `sourceTaskId`），服务端 `LibraryManager` 亦已消费这两个字段，本次只补转发层。
+- 资料库面板内的普通上传仍不传 `origin`，落库 `source` 继续为 `upload`，UI 行为不变。
+- 版本号说明：`0.1.0-alpha.3` 已是线上运行制品，故本增量重新定版为 `0.1.0-alpha.4`。
+
 # 0.1.0-alpha.3
 
 - 适配 DeepSeek Harness `0.1.7-alpha.1`（2026-09-25，并入本未发布增量，不单独 bump）：清除 `var(--dsw-*)` 硬编码 fallback 并改用官方语义变量（`LibraryPicker`、`LibrarySelectionChips` 与 `styles.ts`）。

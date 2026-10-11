@@ -24,7 +24,7 @@ export function createLibraryClient(_ctx: Context, lifetime?: AbortSignal) {
     space: () => invoke<LibrarySpace>('space', {}, lifetime),
     list: (parentId?: string) => invoke<readonly LibraryTreeEntry[]>('list', { parentId }, lifetime),
     createFolder: (name: string, parentId?: string) => invoke<LibraryNode>('create-folder', { name, parentId }, lifetime),
-    importFile: async (file: File, parentId?: string) => invoke<LibraryTreeEntry>('import', { name: file.name, mediaType: file.type, parentId, base64: await fileBase64(file), operationId: crypto.randomUUID() }, lifetime),
+    importFile: async (file: File, parentId?: string, origin?: { source?: 'upload' | 'task' | 'created'; sourceTaskId?: string }) => invoke<LibraryTreeEntry>('import', { name: file.name, mediaType: file.type, parentId, base64: await fileBase64(file), operationId: crypto.randomUUID(), ...(origin?.source ? { source: origin.source } : {}), ...(origin?.sourceTaskId ? { sourceTaskId: origin.sourceTaskId } : {}) }, lifetime),
     search: (query: string, filters: LibrarySearchFilters = {}) => invoke<readonly LibrarySearchHit[]>('search', { query, ...filters }, lifetime),
     taskSelection: (sessionId: string) => invoke<readonly LibraryTaskReference[]>('task-selection', { sessionId }, lifetime),
     setTaskSelection: (sessionId: string, nodeIds: readonly string[]) => invoke<readonly LibraryTaskReference[]>('set-task-selection', { sessionId, nodeIds }, lifetime),

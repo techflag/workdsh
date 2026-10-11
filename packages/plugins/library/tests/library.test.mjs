@@ -213,3 +213,35 @@ test('selected library revisions and an explicitly invoked skill coexist in one 
     assert.equal(userMessage, '/material-organizer 整理已添加资料，输出结构化摘要。');
   } finally { if (ctx) await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }); }
 });
+
+test('library import endpoint forwards a whitelisted source and sourceTaskId', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'workdsh-library-import-source-')); let ctx;
+  try {
+    ctx = await boot(join(root, 'storage'), join(root, 'library'));
+    let handler;
+    Object.defineProperty(ctx, 'connection', { value: { fetch: { register: spec => { handler = spec.fetch; return () => {}; } } }, configurable: true });
+    Object.defineProperty(ctx, 'workdshIdentity', { value: { profile: () => ({ principalId: actor.principalId, organization: { id: actor.organizationId }, resolvedBy: actor.resolvedBy }) }, configurable: true });
+    const { registerLibraryConnection } = await import('../dist/remote/connection-api.js');
+    registerLibraryConnection(ctx);
+    const post = async (endpoint, payload) => {
+      const response = await handler(new Request('http://127.0.0.1/api/workdsh-library', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ endpoint, payload }) }));
+      return { status: response.status, body: await response.json() };
+    };
+    const base64 = value => Buffer.from(new TextEncoder().encode(value)).toString('base64');
+
+    const upload = await post('import', { name: '上传.md', base64: base64('# 上传'), operationId: 'source-upload' });
+    const task = await post('import', { name: '产出.md', base64: base64('# 产出'), operationId: 'source-task', source: 'task', sourceTaskId: 'agent-session-1' });
+    const created = await post('import', { name: '生成.md', base64: base64('# 生成'), operationId: 'source-created', source: 'created' });
+    const forged = await post('import', { name: '伪造.md', base64: base64('# 伪造'), operationId: 'source-forged', source: 'admin', sourceTaskId: 7 });
+
+    assert.equal(upload.body.value.asset.source, 'upload', 'omitted source stays the default upload');
+    assert.equal(upload.body.value.asset.sourceTaskId, undefined);
+    assert.equal(task.body.value.asset.source, 'task');
+    assert.equal(task.body.value.asset.sourceTaskId, 'agent-session-1', 'task provenance reaches the stored asset');
+    assert.equal(created.body.value.asset.source, 'created');
+    assert.equal(forged.body.value.asset.source, 'upload', 'unknown source falls back instead of being persisted');
+    assert.equal(forged.body.value.asset.sourceTaskId, undefined, 'non-string sourceTaskId is dropped');
+    assert.deepEqual((await post('search', { query: '', sources: ['task'] })).body.value.map(hit => hit.name), ['产出.md'], 'the outputs view sees an interface-imported deliverable');
+    assert.equal((await ctx.workdshLibrary.search(actor, '', { sources: ['task'] })).length, 1);
+  } finally { if (ctx) await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }); }
+});
