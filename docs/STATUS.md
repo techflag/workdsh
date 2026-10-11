@@ -43,6 +43,33 @@
 - `compatibility.json` 8 条 workdsh 插件对 `0.1.7-rc.2` 旧豁免（历史遗留）。
 - V8/GC SIGSEGV 既有问题，不因升级解决。
 
+## 2026-10-11（续四十二）：升级收尾三项（旧豁免清理 + cloud189-mcp 修复 + tag 推送）
+
+经用户授权「好的，执行吧」确认三项收尾，全部完成。
+
+### 一、compatibility.json 旧豁免清理（8 条 revoke）
+
+- 8 条 workdsh 插件对 `0.1.7-rc.2` 旧豁免逐条 `dsh plugin --profile web revoke-version <pkg>@<ver> --dsh-version 0.1.7-rc.2` → 全部 `dsh: revoked ... for DSH 0.1.7-rc.2`。
+- **关键教训**：`revoke-version` 与 `allow-version` 一样必须带 `--profile web`，否则报 `required option '--profile <name>' not specified`（该命令未列在 `dsh plugin --help`，但实际可用）。
+- 复验：`compatibility.json` 现仅剩 1 条 `@nanmicoder/dsh-agent-teams@0.1.22 → ["0.2.1-alpha.2"]`；容器 `Up (healthy)` / CLI `0.2.1-alpha.2`，豁免变更对运行容器无副作用（旧豁免本就与 alpha.2 不匹配，互不继承）。
+
+### 二、cloud189-mcp zod 破损修复（既有问题，一并处理）
+
+- 根因：`zod@3.25.76` 发布含 `v4/core/`，`v4/core/index.cjs` 经 `__exportStar(require("./core.cjs"), exports)` 引用 `core.cjs`；本地破损安装缺 `core.cjs`/`core.d.cts`/`core.d.ts`/`core.js`/`src/v4/core/core.ts` 五个文件。
+- 修复：容器内从 `registry.npmmirror.com/zod/-/zod-3.25.76.tgz` 直拉官方包，`tar xzf` 提取缺失文件补齐。
+- 复验：`require('/data/dsh/home/dsh/tools/cloud189-mcp/node_modules/zod')` → `zod-root-load-ok function`（`exports-present false` 仅表示 zod 根入口无 `version` 导出字段，不影响加载）。
+
+### 三、推送 tag 到 GitHub fork（18 个缺失 tag）
+
+- 对比本地 tags 与 `git ls-remote --tags fork`：fork 仅至 `v0.1.0-alpha.8`/`desktop-v2.0.5-alpha.11`，本地多 18 个 tag。
+- `git push fork --tags` → 18 个 tag 全部 `[new tag]` 成功：`WorkDSH-Desktop-v2.0.6`、`desktop-v2.0.5-alpha.12~21`、`desktop-v2.0.6-alpha.1`、`v0.1.0-alpha.9~14`。
+- 只推 `fork`（`hkluoji-lab/workdsh`）；`mygitee`/`origin`/`github` 不推（项目记忆约定）。
+
+### 四、收尾状态
+
+- **当前**：三项收尾完成，升级批次（u1-u6）+ 收尾全部闭环；证据文档已同步（八节第 1/3 条更新）。
+- **下一步**：本批无遗留；既有问题仅剩 V8/GC SIGSEGV（与版本无关）。若后续官方发布 0.2.1 稳定线再评估升级。
+
 
 
 ## 2026-10-10（续四十）：`0.2.1-alpha.2` 升级证据评估（**仅证据与评估，未变更仓库/制品/线上**）
