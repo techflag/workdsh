@@ -10,7 +10,7 @@
 
 ## 社区插件推荐：DSH 搭子
 
-[![DSH 搭子：给 DSH 装个聊天室](assets/promotion/dsh-friends-hero.png)](https://github.com/techflag/dsh-friends)
+[![DSH 搭子：给 DSH 装个聊天室](docs/images/dsh-friends/hero.png)](https://github.com/techflag/dsh-friends)
 
 **[DSH 搭子](https://github.com/techflag/dsh-friends) 把公共聊天室直接放进 DSH，也可用于兼容的 WorkDSH 宿主。** 不用先加好友，进入房间就能回看近期消息、接着聊；遇到感兴趣的话可以引用回复，聊得来再由双方进入加密私聊。
 
@@ -19,7 +19,7 @@
 <details>
 <summary>查看真实公共聊天室界面</summary>
 
-![DSH 搭子公共房间、引用回复与近期消息](assets/screenshots/dsh-friends-community-demo.png)
+![DSH 搭子公共房间、引用回复与近期消息](docs/images/dsh-friends/community-demo.png)
 
 <sub>界面演示；人物与对话均为示例。</sub>
 

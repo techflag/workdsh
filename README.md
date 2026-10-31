@@ -10,7 +10,7 @@
 
 ## Community spotlight: DSH Friends
 
-[![DSH Friends: add a public chat room to DSH](assets/promotion/dsh-friends-hero.png)](https://github.com/techflag/dsh-friends)
+[![DSH Friends: add a public chat room to DSH](docs/images/dsh-friends/hero.png)](https://github.com/techflag/dsh-friends)
 
 **[DSH Friends](https://github.com/techflag/dsh-friends) adds public rooms directly to DSH and compatible WorkDSH hosts.** Read recent room messages, join a conversation without adding contacts first, quote a message, and move to encrypted private chat only when both people want to continue.
 
@@ -19,7 +19,7 @@ Install it in **Plugins → Add plugin** from the official npm registry with `ds
 <details>
 <summary>See the actual public-room interface</summary>
 
-![DSH Friends public room with quoted replies and recent messages](assets/screenshots/dsh-friends-community-demo.png)
+![DSH Friends public room with quoted replies and recent messages](docs/images/dsh-friends/community-demo.png)
 
 <sub>Interface demonstration; the people and conversation are sample content.</sub>
 
