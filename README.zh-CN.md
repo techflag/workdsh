@@ -114,6 +114,12 @@ export default {
 
 DSH 插件可以是单项工具，也可以组合界面、服务与其他资源，形成更完整的应用场景。例如，数据管理插件可以提供数据页面和处理工具，再与技能、专家配合完成一套流程；这是插件体系允许的扩展方向，不表示当前版本已内置这样的数据管理系统。用户可以从 SkillHub 发现和安装技能，也可以通过 dsh-market 寻找 DSH 社区插件。安装前应看插件具体提供什么，以及是否兼容当前 DSH 版本。
 
+### 用 DSH 搭子认识其他 DSH 用户
+
+[DSH 搭子](https://github.com/techflag/dsh-friends) 是面向 DeepSeek Harness 和兼容 WorkDSH 宿主的独立社区聊天插件。它提供公共房间、引用回复、加密私聊、近期公共消息回看、房间在线状态和新消息提醒。先进入房间聊聊正在做的事情，聊得来，再由双方决定是否继续私聊，不需要先加好友。
+
+在“插件 → 添加插件”中选择 npm 官方源，安装 `dsh-friends@0.1.0-alpha.11`，启用后完整退出并重新打开 Desktop。macOS 和 Windows 使用同一个安装包。源码、数据说明和当前限制见 [项目仓库](https://github.com/techflag/dsh-friends)，也可以从 [GitHub Releases](https://github.com/techflag/dsh-friends/releases) 下载通用 `.tgz`。DSH 搭子不随 WorkDSH 预装，和其他社区插件一样，安装前请自行核对来源与权限。
+
 WorkDSH 接入两个独立维护的目录：[SkillHub](https://skillhub.cn/) 提供 Skill，[dsh-market](https://dshmarket.com/zh/) 提供 DSH 插件。SkillHub 条目展示来源和版本，许可证信息可到来源页核对；现有插件页通过第三方 dsh-market 插件打开社区目录。目录中的内容**并非全部预装、经 WorkDSH 审核或获得 WorkDSH 背书**，安装前应查看许可证、依赖和 DSH 版本兼容性。[技能管理](packages/plugins/skills/README.md) · [插件开发](docs/plugin-development.md) · [生态倡议](docs/plugin-ecosystem.md)
 
 ![WorkDSH 中的 SkillHub 技能目录：图标、版本、来源与安装入口](apps/web/assets/screenshots/workdsh-skillhub-2026-09.png)
