@@ -8,6 +8,23 @@
 
 [![GitHub Actions](https://github.com/techflag/workdsh/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/techflag/workdsh/actions/workflows/ci.yml) [![Gitee stars](https://gitee.com/techflag/workdsh/badge/star.svg?theme=dark)](https://gitee.com/techflag/workdsh/stargazers) [![Gitee forks](https://gitee.com/techflag/workdsh/badge/fork.svg?theme=dark)](https://gitee.com/techflag/workdsh/members)
 
+## Community spotlight: DSH Friends
+
+[![DSH Friends: add a public chat room to DSH](docs/images/dsh-friends/hero.png)](https://github.com/techflag/dsh-friends)
+
+**[DSH Friends](https://github.com/techflag/dsh-friends) adds public rooms directly to DSH and compatible WorkDSH hosts.** Read recent room messages, join a conversation without adding contacts first, quote a message, and move to encrypted private chat only when both people want to continue.
+
+Install it in **Plugins → Add plugin** from the official npm registry with `dsh-friends@0.1.0-alpha.11`, enable it, and fully restart Desktop. macOS and Windows use the same package. [Source and guide](https://github.com/techflag/dsh-friends) · [Download the universal `.tgz`](https://github.com/techflag/dsh-friends/releases/tag/v0.1.0-alpha.11) · [Public relay status](https://relay.techflag.cn/)
+
+<details>
+<summary>See the actual public-room interface</summary>
+
+![DSH Friends public room with quoted replies and recent messages](docs/images/dsh-friends/community-demo.png)
+
+<sub>Interface demonstration; the people and conversation are sample content.</sub>
+
+</details>
+
 ## Everyone can tailor their own AI service
 
 Describe what you need, confirm the scope, and let the native AI build a workbench you can keep using. This travel example manages multiple trips, each with its own itinerary, budget and checklist.

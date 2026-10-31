@@ -8,6 +8,23 @@
 
 [![GitHub Actions](https://github.com/techflag/workdsh/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/techflag/workdsh/actions/workflows/ci.yml) [![Gitee stars](https://gitee.com/techflag/workdsh/badge/star.svg?theme=dark)](https://gitee.com/techflag/workdsh/stargazers) [![Gitee forks](https://gitee.com/techflag/workdsh/badge/fork.svg?theme=dark)](https://gitee.com/techflag/workdsh/members)
 
+## 社区插件推荐：DSH 搭子
+
+[![DSH 搭子：给 DSH 装个聊天室](docs/images/dsh-friends/hero.png)](https://github.com/techflag/dsh-friends)
+
+**[DSH 搭子](https://github.com/techflag/dsh-friends) 把公共聊天室直接放进 DSH，也可用于兼容的 WorkDSH 宿主。** 不用先加好友，进入房间就能回看近期消息、接着聊；遇到感兴趣的话可以引用回复，聊得来再由双方进入加密私聊。
+
+在“插件 → 添加插件”中选择 npm 官方源，安装 `dsh-friends@0.1.0-alpha.11`，启用后完整退出并重新打开 Desktop。macOS 和 Windows 使用同一个安装包。[项目与使用说明](https://github.com/techflag/dsh-friends) · [下载通用 `.tgz`](https://github.com/techflag/dsh-friends/releases/tag/v0.1.0-alpha.11) · [公共中继状态](https://relay.techflag.cn/)
+
+<details>
+<summary>查看真实公共聊天室界面</summary>
+
+![DSH 搭子公共房间、引用回复与近期消息](docs/images/dsh-friends/community-demo.png)
+
+<sub>界面演示；人物与对话均为示例。</sub>
+
+</details>
+
 ## 每个人，都能定制自己的 AI 服务
 
 说出需求、确认范围，让原生 AI 制作可持续使用的工作台。以旅行管理为例：用户可以自己新增多次旅行，每次独立管理行程、预算和出行待办。
