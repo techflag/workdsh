@@ -114,6 +114,12 @@ It helps to distinguish **the content people use** from **the software extension
 
 DSH plugins can be individual tools or combine UI, services, and other resources into a larger application scenario. For example, a data-management plugin could add data views and processing tools, then work with skills and experts across a workflow. This illustrates what the plugin model can support; it does not mean this release bundles such a data-management system. Users can discover and install skills through SkillHub and find DSH community plugins through dsh-market. Before installing a plugin, check what it provides and whether it supports the current DSH version.
 
+### Meet other DSH users with DSH Friends
+
+[DSH Friends](https://github.com/techflag/dsh-friends) is an independently installed community chat plugin for DeepSeek Harness and compatible WorkDSH hosts. It adds public rooms, quoted replies, encrypted private chat, recent public-message history, room presence and new-message reminders. Open a room first, talk about what you are building, and start a private conversation only when both people want to continue.
+
+In **Plugins → Add plugin**, select the official npm registry and install `dsh-friends@0.1.0-alpha.11`, then enable it and fully restart Desktop. The same package works on macOS and Windows. Source, privacy notes and current limitations are in the [project repository](https://github.com/techflag/dsh-friends); a universal `.tgz` is also available from [GitHub Releases](https://github.com/techflag/dsh-friends/releases). DSH Friends is not bundled with WorkDSH and should be reviewed before installation like any other community plugin.
+
 WorkDSH connects two independently maintained catalogs: [SkillHub](https://skillhub.cn/) for Skills and [dsh-market](https://dshmarket.com/zh/) for DSH plugins. SkillHub entries show their source and version, and open the source page for license information before installation. The DSH catalog is provided by the third-party dsh-market plugin inside the existing plugin page. Catalog entries are **not all preinstalled, reviewed, or endorsed by WorkDSH**; check each item's license, dependencies, and DSH compatibility. [Skill management](packages/plugins/skills/README.md) · [Plugin development](docs/plugin-development.en.md) · [Ecosystem manifesto](docs/plugin-ecosystem.en.md)
 
 ![SkillHub catalog inside WorkDSH, showing skill icons, versions, sources, and install actions](apps/web/assets/screenshots/workdsh-skillhub-2026-09.png)
