@@ -46,3 +46,7 @@ apps/desktop/build/official-release-cache/
 
 # Local package archives are build outputs.
 /packages/plugins/*/*.tgz
+
+# Development desktop data written by `yarn dev`, and local agent notes.
+/apps/desktop/build/dev-user-data/
+/.workbuddy/

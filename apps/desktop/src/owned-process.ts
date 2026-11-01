@@ -43,7 +43,7 @@ export function selectOwnedWindowsProcesses(rows: WindowsProcessIdentity[], owne
   return [...generations.values()].filter(row => current.get(row.pid)?.createdAt === row.createdAt)
 }
 
-async function windowsCommand(script: string, timeoutMs: number): Promise<string> {
+async function windowsCommandOnce(script: string, timeoutMs: number): Promise<string> {
   const executable = process.env.SystemRoot ? join(process.env.SystemRoot, 'System32/WindowsPowerShell/v1.0/powershell.exe') : 'powershell.exe'
   return new Promise((resolve, reject) => {
     const task = spawn(executable, ['-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')], { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] })
@@ -59,6 +59,26 @@ async function windowsCommand(script: string, timeoutMs: number): Promise<string
     task.once('error', () => finish(new Error('Windows 本机进程清理工具不可用')))
     task.once('close', code => finish(code === 0 ? undefined : new Error(`Windows 本机进程清理查询失败 (${code})${/access|denied|unauthorized/iu.test(error) ? '，请核对权限' : ''}`)))
   })
+}
+/** Run a WMI/powershell command, retrying on a transient query timeout (cold WMI
+ *  start on first launch). `retries` is the number of additional attempts. */
+async function windowsCommand(script: string, timeoutMs: number, retries = 1): Promise<string> {
+  let lastError: unknown
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try { return await windowsCommandOnce(script, timeoutMs) }
+    catch (error) {
+      lastError = error
+      // Only retry genuine transient timeouts; surface auth/permission/parse errors.
+      if (error instanceof Error && error.message.includes('Windows 本机进程清理查询超时') && attempt < retries) continue
+      throw error
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('Windows 本机进程清理查询超时')
+}
+/** Native fallback: a single direct taskkill /T /F on the owned root, bypassing
+ *  the WMI snapshot entirely. Used when the query path keeps timing out. */
+async function windowsKillTreeDirect(pid: number, timeoutMs: number): Promise<void> {
+  await windowsCommand(`$ErrorActionPreference='Stop'; & "$env:SystemRoot\\System32\\taskkill.exe" /PID ${pid} /T /F`, timeoutMs, 0)
 }
 async function windowsSnapshot(pids: number[], timeoutMs: number): Promise<WindowsProcessIdentity[]> {
   const filter = [...new Set(pids)].map(pid => `(ProcessId = ${pid} OR ParentProcessId = ${pid})`).join(' OR ')
@@ -80,30 +100,39 @@ function processMissing(pid: number): boolean {
 async function cleanWindowsTree(child: ChildProcess): Promise<void> {
   const state = ownership.get(child)
   if (!state) throw new Error('Windows 本机进程缺少所有权记录，未停止未知进程')
-  const deadline = Date.now() + 12_000
-  const budget = (): number => { const remaining = deadline - Date.now(); if (remaining <= 0) throw new Error('Windows 本机进程树清理超时'); return Math.min(4000, remaining) }
-  for (let pass = 0; pass < 8; pass++) {
-    const queried = new Set([state.pid, ...state.known.map(row => row.pid)])
-    const rows = await windowsSnapshot([...queried], budget())
-    const selected = selectOwnedWindowsProcesses(rows, state, state.known)
-    for (const row of selected) if (!state.known.some(known => known.pid === row.pid && known.createdAt === row.createdAt)) state.known.push(row)
-    if (state.known.length > 128) throw new Error('Windows 本机进程树超出安全清理范围')
-    if (!selected.length) {
-      const current = rows.find(row => row.pid === state.pid)
-      if (current && (current.createdAt < state.startedAt || current.createdAt > state.registeredAt)) return // New generation, never ours.
-      if (processMissing(state.pid)) return
-      throw new Error('Windows 本机进程树清理未确认')
-    }
-    // Discover nested descendants before removing their only visible parent.
-    if (selected.some(row => !queried.has(row.pid))) continue
-    for (const row of [...selected].sort((a, b) => b.createdAt - a.createdAt)) {
-      const result = await windowsTaskkill(row, budget())
-      if (result.status === 'taskkill' && result.code !== 0 && !(result.code === 128 && processMissing(row.pid))) {
-        throw new Error(`Windows 本机进程树清理失败 (${result.code})${/access|denied|权限|拒绝/iu.test(result.output ?? '') ? '，操作被拒绝' : ''}，未确认停止`)
+  const deadline = Date.now() + 45_000
+  const budget = (): number => { const remaining = deadline - Date.now(); if (remaining <= 0) throw new Error('Windows 本机进程树清理超时'); return Math.min(15_000, remaining) }
+  try {
+    for (let pass = 0; pass < 8; pass++) {
+      const queried = new Set([state.pid, ...state.known.map(row => row.pid)])
+      const rows = await windowsSnapshot([...queried], budget())
+      const selected = selectOwnedWindowsProcesses(rows, state, state.known)
+      for (const row of selected) if (!state.known.some(known => known.pid === row.pid && known.createdAt === row.createdAt)) state.known.push(row)
+      if (state.known.length > 128) throw new Error('Windows 本机进程树超出安全清理范围')
+      if (!selected.length) {
+        const current = rows.find(row => row.pid === state.pid)
+        if (current && (current.createdAt < state.startedAt || current.createdAt > state.registeredAt)) return // New generation, never ours.
+        if (processMissing(state.pid)) return
+        throw new Error('Windows 本机进程树清理未确认')
+      }
+      // Discover nested descendants before removing their only visible parent.
+      if (selected.some(row => !queried.has(row.pid))) continue
+      for (const row of [...selected].sort((a, b) => b.createdAt - a.createdAt)) {
+        const result = await windowsTaskkill(row, budget())
+        if (result.status === 'taskkill' && result.code !== 0 && !(result.code === 128 && processMissing(row.pid))) {
+          throw new Error(`Windows 本机进程树清理失败 (${result.code})${/access|denied|权限|拒绝/iu.test(result.output ?? '') ? '，操作被拒绝' : ''}，未确认停止`)
+        }
       }
     }
+    throw new Error('Windows 本机进程树清理未确认')
+  } catch (error) {
+    // On a transient WMI timeout/uncertainty (cold start), fall back to a direct
+    // taskkill /T /F on the owned root before surfacing the original failure.
+    if (error instanceof Error && /超时|未确认|无效|失败|超出/.test(error.message) && !processMissing(state.pid)) {
+      try { await windowsKillTreeDirect(state.pid, 15_000); return } catch { /* surface original error below */ }
+    }
+    throw error
   }
-  throw new Error('Windows 本机进程树清理未确认')
 }
 
 export function cleanOwnedProcessTree(child: ChildProcess): Promise<void> {
