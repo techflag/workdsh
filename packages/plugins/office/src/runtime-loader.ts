@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import type { Context } from "@deepseek-ai/cordis";
 import type { OfficeContentSnapshot } from "workdsh-contracts/office";
 import type { LibraryOriginalPreviewInput } from "workdsh-contracts/library";
+import type { DriveEditorHandle, DriveEditorInput } from "workdsh-contracts/drive";
 import { officeRuntimeModule, officeRuntimeScript } from "./mount.js";
 import type { DocumentOptions, OfficeClient, Rpc } from "./live/model.js";
 
@@ -36,6 +37,10 @@ export interface OfficeRuntime {
     target: HTMLElement,
     input: LibraryOriginalPreviewInput,
   ): Promise<() => void>;
+  mountDriveEditor(
+    target: HTMLElement,
+    input: DriveEditorInput,
+  ): Promise<DriveEditorHandle>;
 }
 
 let pending: Promise<OfficeRuntime> | undefined;

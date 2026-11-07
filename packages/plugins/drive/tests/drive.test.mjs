@@ -109,6 +109,38 @@ test('drive persists tree, content-addressable files, search, ops and restarts c
   } finally { if (ctx) await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }); }
 });
 
+test('drive appends an edited revision only against the current base revision', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'workdsh-drive-append-')); let ctx;
+  try {
+    ctx = await boot(root);
+    const saved = await ctx.workdshDrive.save(actor, { name: '报告.md', bytes: text('# 报告\n\n初稿词 Before'), mediaType: 'text/markdown', source: 'ai-generated', operationId: 'append-save-1' });
+    const first = saved.revision;
+    const written = await ctx.workdshDrive.appendRevision(actor, { fileId: saved.file.id, bytes: text('# 报告\n\n终稿词 After'), baseRevisionId: first.id, operationId: 'append-op-1' });
+    assert.equal(written.revision.number, 2, 'revision numbers increase per file');
+    assert.equal(written.file.currentRevisionId, written.revision.id);
+    assert.equal(written.file.byteLength, text('# 报告\n\n终稿词 After').byteLength);
+    assert.deepEqual(Buffer.from(await ctx.workdshDrive.readBytes(actor, saved.file.id)), Buffer.from(text('# 报告\n\n终稿词 After')));
+    assert.deepEqual(Buffer.from(await ctx.workdshDrive.readBytes(actor, saved.file.id, first.id)), Buffer.from(text('# 报告\n\n初稿词 Before')), 'old revisions stay immutable and readable');
+    // 内容索引跟着最新修订走：旧词不再命中，新词命中。
+    assert.equal((await ctx.workdshDrive.search(actor, 'Before')).length, 0);
+    assert.equal((await ctx.workdshDrive.search(actor, 'After'))[0].revisionId, written.revision.id);
+    // 幂等：同一 operationId + 同一基线 + 同一内容 → 同一修订，不再追加。
+    const retried = await ctx.workdshDrive.appendRevision(actor, { fileId: saved.file.id, bytes: text('# 报告\n\n终稿词 After'), baseRevisionId: first.id, operationId: 'append-op-1' });
+    assert.equal(retried.revision.id, written.revision.id);
+    // 过期基线：另一编辑已经写入当前修订后，旧基线必须被拒绝，不能覆盖。
+    await assert.rejects(ctx.workdshDrive.appendRevision(actor, { fileId: saved.file.id, bytes: text('stale'), baseRevisionId: first.id, operationId: 'append-op-2' }), /drive\/revision-conflict/);
+    // 同一 operationId 但内容不同 → 操作冲突。
+    await assert.rejects(ctx.workdshDrive.appendRevision(actor, { fileId: saved.file.id, bytes: text('other'), baseRevisionId: written.revision.id, operationId: 'append-op-1' }), /drive\/operation-conflict/);
+    await assert.rejects(ctx.workdshDrive.appendRevision(actor, { fileId: 'missing', bytes: text('x'), baseRevisionId: first.id, operationId: 'append-op-3' }), /drive\/not-found/);
+    // 追加修订计入配额，并按新修订重建索引后持久化。
+    await ctx.fiber.dispose(); ctx = undefined;
+    ctx = await boot(root);
+    const entry = await ctx.workdshDrive.stat(actor, saved.file.id);
+    assert.equal(entry.revision.id, written.revision.id, 'current revision survives restart');
+    assert.equal((await ctx.workdshDrive.search(actor, 'After')).length, 1);
+  } finally { if (ctx) await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }); }
+});
+
 test('drive rejects name conflicts, cycles, quota, invalid actors and cross-owner reads', async () => {
   const root = await mkdtemp(join(tmpdir(), 'workdsh-drive-boundary-')); let ctx;
   try {
@@ -179,7 +211,8 @@ test('drive remote endpoint forwards whitelisted sources and exposes sessions', 
   try {
     ctx = await boot(root);
     let handler;
-    Object.defineProperty(ctx, 'connection', { value: { fetch: { register: spec => { handler = spec.fetch; return () => {}; } } }, configurable: true });
+    let download;
+    Object.defineProperty(ctx, 'connection', { value: { fetch: { register: spec => { if (spec.path.endsWith('/download')) download = spec.fetch; else handler = spec.fetch; return () => {}; } } }, configurable: true });
     Object.defineProperty(ctx, 'workdshIdentity', { value: { profile: () => ({ principalId: actor.principalId, organization: { id: actor.organizationId }, resolvedBy: actor.resolvedBy }) }, configurable: true });
     const { registerDriveConnection } = await import('../dist/remote/drive-api.js');
     registerDriveConnection(ctx);
@@ -198,6 +231,17 @@ test('drive remote endpoint forwards whitelisted sources and exposes sessions', 
     const bad = await post('rename', { nodeId: 'missing-node', name: 'x' });
     assert.equal(bad.body.error.code, 'drive/not-found');
     assert.equal(bad.status, 400);
+    // 原生下载路由：真实字节 + 可内联的类型直接返回，不需要 base64 中转
+    const fileId = upload.body.value.file.id;
+    const fetched = await download(new Request(`http://127.0.0.1/api/workdsh-drive/download?fileId=${fileId}`));
+    assert.equal(fetched.status, 200);
+    assert.equal(fetched.headers.get('content-type'), 'text/plain');
+    assert.match(fetched.headers.get('content-disposition'), /^inline; filename=".*\.txt"; filename\*=UTF-8''/);
+    assert.equal(fetched.headers.get('cache-control'), 'private, no-store');
+    assert.equal(fetched.headers.get('x-content-type-options'), 'nosniff');
+    assert.equal(await fetched.text(), '上传内容');
+    assert.equal((await download(new Request('http://127.0.0.1/api/workdsh-drive/download?fileId=missing'))).status, 404);
+    assert.equal((await download(new Request('http://127.0.0.1/api/workdsh-drive/download'))).status, 400);
     // 回收站端点：list-archived / restore / purge
     assert.equal((await post('archive', { nodeId: upload.body.value.id })).body.value.archived, true);
     assert.equal((await post('list-archived', {})).body.value.length, 1);
@@ -205,6 +249,39 @@ test('drive remote endpoint forwards whitelisted sources and exposes sessions', 
     assert.equal((await post('list-archived', {})).body.value.length, 0);
     assert.equal((await post('purge', { nodeId: upload.body.value.id })).body.value.purged, true);
     assert.equal((await post('list-archived', {})).body.value.length, 0);
+  } finally { if (ctx) await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }); }
+});
+
+test('drive archives folder subtrees, restores one batch and frees names', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'workdsh-drive-archive-')); let ctx;
+  try {
+    ctx = await boot(root);
+    const parent = await ctx.workdshDrive.createFolder(actor, '交付');
+    const child = await ctx.workdshDrive.createFolder(actor, '阶段一', parent.id);
+    const kept = await ctx.workdshDrive.save(actor, { name: '保留.md', bytes: text('# 保留'), source: 'ai-generated', operationId: 'batch-1' });
+    const sameBatch = await ctx.workdshDrive.save(actor, { name: '阶段稿.md', bytes: text('# 阶段稿'), mediaType: 'text/markdown', source: 'ai-generated', operationId: 'batch-2', parentId: child.id });
+    const removedEarlier = await ctx.workdshDrive.save(actor, { name: '旧稿.md', bytes: text('# 旧稿'), mediaType: 'text/markdown', source: 'ai-generated', operationId: 'batch-3', parentId: child.id });
+    assert.equal((await ctx.workdshDrive.stat(actor, sameBatch.file.id)).folderPath, '我的网盘 / 交付 / 阶段一');
+    // 先单独删除子文件，再归档整个目录
+    await ctx.workdshDrive.archive(actor, removedEarlier.id);
+    await ctx.workdshDrive.archive(actor, parent.id);
+    assert.deepEqual((await ctx.workdshDrive.list(actor)).map(row => row.id), [kept.id], 'archived folder leaves the parent listing');
+    assert.equal((await ctx.workdshDrive.list(actor, child.id)).length, 0, 'descendants hide together with their folder');
+    // 目录归档后同名不再占用，可直接新建
+    assert.equal((await ctx.workdshDrive.createFolder(actor, '交付')).name, '交付');
+    // 回收站只列顶层归档项：随目录一起归档的子孙由父代表
+    const trash = await ctx.workdshDrive.listArchived(actor);
+    assert.deepEqual(trash.map(row => row.name), ['交付'], 'only the top archived folder is listed');
+    assert.equal(trash[0].folderPath, '我的网盘');
+    // 恢复：同批子孙回来，重建的同名目录导致自动改名；此前单独删除的旧稿保持归档
+    await ctx.workdshDrive.restore(actor, parent.id);
+    assert.deepEqual((await ctx.workdshDrive.list(actor)).map(row => row.name).sort(), ['交付', '交付 (2)', '保留.md'].sort(), 'restored folder renames instead of clobbering');
+    assert.deepEqual((await ctx.workdshDrive.list(actor, child.id)).map(row => row.name), ['阶段稿.md'], 'same-batch child restored, earlier deletion stays archived');
+    assert.equal((await ctx.workdshDrive.search(actor, '旧稿')).length, 0, 'earlier deletion is not resurrected by restoring the folder');
+    const remaining = await ctx.workdshDrive.listArchived(actor);
+    assert.deepEqual(remaining.map(row => row.name), ['旧稿.md']);
+    assert.equal(remaining[0].folderPath, '我的网盘 / 交付 (2) / 阶段一', 'recycle bin keeps the current path of the surviving node');
+    assert.deepEqual(Buffer.from(await ctx.workdshDrive.readBytes(actor, removedEarlier.file.id, removedEarlier.revision.id)), Buffer.from(text('# 旧稿')), 'archived revision stays readable');
   } finally { if (ctx) await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }); }
 });
 

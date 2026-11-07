@@ -582,7 +582,7 @@
       "date": "2026-09-15",
       "evidence": "docs/releases/2026-09-15-dsh-0.1.6-alpha.1.md"
     },
-    "acceptanceNote": "现有适配器已有实现；专项暂停保留，全部格式保真/真实模型/跨平台未完成。"
+    "acceptanceNote": "现有适配器已有实现；专项暂停保留，全部格式保真/真实模型/跨平台未完成。alpha.10 把网盘编辑器桥从 docx 扩到 xlsx/pptx：新增 `mountSpreadsheetEditor`（ExcelJS 导入 → Univer → `spreadsheetXlsx` 导出）与 `mountDrivePresentation`（`mountPptx` + `getContent`），`client.tsx` 注册 `['docx','xlsx','pptx']`；alpha.11 加 `acknowledge()` 两段基线，修「保存成功后再退出编辑追加同内容修订」。两版已部署 dsh.10ge.cn 并完成 xlsx（rev4）/pptx（rev2）真机写回，证据见 docs/evidence/drive-plugin-alpha7.md 第八节。未完成：只读账号拒绝、单元格/文本级编辑自动化、>25 MiB 分支、触屏真机。"
   },
   {
     "path": "packages/plugins/activity",
@@ -619,6 +619,6 @@
       "src/client",
       "tests"
     ],
-    "acceptanceNote": "2026-10-11 用户需求：左侧导航「网盘」自动归档对话产物（AI 生成文档/图片、用户上传附件、工具输出文件）。实现计划见 .trae/documents/netdisk-drive-plugin-plan.md；首期切片开发中，未验收。"
+    "acceptanceNote": "2026-10-11 用户需求：左侧导航「网盘」自动归档对话产物（AI 生成文档/图片、用户上传附件、工具输出文件）。实现计划见 .trae/documents/netdisk-drive-plugin-plan.md。alpha.4 已修 14 项功能缺陷并部署；alpha.5 修浏览器实测 6 项客户端缺陷（title、会话标签、移动抽屉遮罩与 Esc、预览元信息排版、弹层 Esc、390 icon 比例），已部署线上 dsh.10ge.cn 并完成 390/1440/1920 三档复测（5 项完全通过、#3 主体通过）；alpha.6 补 #3 残留的 body 锁滚与焦点管理（打开进焦点、背景 inert、关闭回焦、760px 越界自动关闭），未部署未线上复测；alpha.7 新增 appendRevision（baseRevisionId 冲突检测 + operationId 幂等 + 修订号递增）与 `workdshDriveEditors` 编辑器桥，DOCX 可在线编辑并写回为新修订（409 冲突文案）；alpha.8 契约新增可选 `DriveEditorHandle.acknowledge?()`，网盘仅在 appendRevision 成功后推进编辑器基线，配合 office alpha.11 修掉重复修订；两版已部署 dsh.10ge.cn，docx/xlsx/pptx 写回均真机通过，证据见 docs/evidence/drive-plugin-alpha7.md 第六、八节。首期功能仍未验收。"
   }
 ]

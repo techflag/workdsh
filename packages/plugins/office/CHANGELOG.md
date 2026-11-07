@@ -1,3 +1,39 @@
+## 0.1.0-alpha.12
+
+修复网盘 DOCX 在线编辑只有正文、没有格式工具栏的问题（未发布）。证据见 [drive-plugin-alpha7](../../../docs/evidence/drive-plugin-alpha7.md) 8.13。
+
+- 网盘 DOCX 编辑器（`mountDriveDocument`）改为 `工具栏 + 纸张滚动区` 布局：用 `createRoot` 挂载与实时编辑器同一个 `Toolbar`，字体/字号/颜色/高亮、段落样式、加粗斜体下划线删除线、对齐、行距、列表缩进、表格、插图、查找替换、撤销重做与缩放全部可用。
+- 把工具栏状态读取与全部编辑命令从 `createDocumentModel` 抽成模块级共享实现（`readControls`、`createEditingCommands`、`DocumentControls`、`DocumentTableAction`、`EditingGuards`），实时编辑器与无会话编辑器执行同一份命令，不再各自维护一套。
+- `Toolbar` 的 props 收窄为 `ToolbarModel`（命令 + `subscribe` + `getSnapshot`），并自带 `useSyncExternalStore` 订阅；网盘侧用轻量 store 在 `transaction`/`selectionUpdate` 后刷新光标格式状态。
+- 保存契约不变：仍以 `documentDiff` 判脏、`pending`/`baseline` 两段基线配 `acknowledge()`；`dispose()` 额外卸载 React 工具栏并清空订阅。
+
+## 0.1.0-alpha.11
+
+修复 XLSX / PPTX / DOCX 网盘在线编辑在「保存后再退出编辑」时重复写回同内容（未发布）。证据见 [drive-plugin-alpha7](../../../docs/evidence/drive-plugin-alpha7.md) 第八节。
+
+- 三个 sessionless 编辑器改为「已保存 / 待确认」两段基线：`save()` 只与已保存基线比较并在导出后记录待确认快照；新增 `acknowledge()`，仅在网盘写回成功后推进基线。
+- XLSX：比较 `stateFromUniver` 结果与已保存状态，不再固定与挂载时的导入状态比较。
+- DOCX：抽出 `toState(json)`，`documentDiff` 与 DOCX 导出共用同一份状态构造。
+- PPTX：实测 `isDirty()` 在 `getContent()` 后不会复位，改用与实时编辑器一致的每页内容签名判断；解析完成后记录原始签名作为基线。
+
+## 0.1.0-alpha.10
+
+网盘 XLSX / PPTX 在线编辑写回（消费 `workdsh-contracts/drive` 编辑器桥，未发布）。证据见 [drive-plugin-alpha7](../../../docs/evidence/drive-plugin-alpha7.md) 第八节。
+
+- 新增 `mountSpreadsheetEditor(target, input)`（`src/spreadsheet/DriveEditor.ts`）：`importSpreadsheet(bytes, name)` 解析网盘字节 → Univer 编辑 → `stateFromUniver` → `spreadsheetXlsx` 导出字节。每次保存都与**挂载时导入的原始状态**比较，而非推进内部基线——网盘不回报提交是否成功，推进基线会把失败重试误判成「没有修改」而丢数据。
+- 新增 `mountDrivePresentation(target, input)`（`src/runtime.tsx`）：复用 `mountPptx` 原生编辑器，轮询 `getSlideCount()` 至就绪（15 s 超时），`isDirty() === false` 返回 `undefined`，否则用 `getContent()` 取导出字节。
+- `mountDriveEditor` 改为按扩展名分派，原 DOCX 实现更名 `mountDriveDocument`；`client.tsx` 注册能力扩为 `['docx', 'xlsx', 'pptx']`（`--word-only` 制品仍只有 `['docx']`）。
+- `build-office.mjs` 的 word-only stub 覆盖到 `spreadsheet/DriveEditor.js`，ExcelJS/Univer 不进入精简制品。
+- 保真边界：XLSX 往返只保留单元格值与公式，格式、合并、图表、图片、批注在保存时按单元格重建工作簿而丢失；编辑器内新增格式类改动会被 `stateFromUniver` 拒绝并提示撤销。PPTX 由 `pptx-react-viewer` 自身序列化 OOXML。
+
+## 0.1.0-alpha.9
+
+网盘 DOCX 在线编辑（消费 `workdsh-contracts/drive` 的编辑器桥，未发布）。证据见 [drive-plugin-alpha7](../../../docs/evidence/drive-plugin-alpha7.md)。
+
+- 新增 sessionless 编辑器 `mountDriveEditor(target, input)`：直接用 `importDocx(bytes, name)` 解析网盘下发的字节，本地补齐 `blockId`/`runId` 后交给 Tiptap；保存时用 `editorContent` + `documentDiff` 判断是否有改动，再用 `documentDocx(snapshot)` 导出 DOCX 字节返回，**不调用 Host RPC、不读写工作副本**。
+- `client.tsx` 通过 `ctx.inject(['workdshDriveEditors'], …)` + `ctx.effect` 注册 `['docx']` 能力；未安装网盘时该注入不生效，与既有 `workdshLibraryPreview` 桥同一模式。写回与修订冲突由网盘执行，office 不持有网盘文件状态。
+- 边界：只支持 DOCX；XLSX/PPTX 未提供编辑桥（导出器有，二进制导入侧未接线）。
+
 ## 0.1.0-alpha.8
 
 - 适配 DeepSeek Harness `0.1.7-alpha.1`（2026-09-25，并入本未发布增量，不单独 bump）：官方原生预览已支持 XLSX/XLS/CSV/TSV，两处 `documentPreviews.register`（`workdsh-office`、`workdsh-office-csv`）声明 `priority: "builtin"` 退到 builtin 备选位，官方原生预览恒为 `candidates[0]`，WorkDSH 编辑器保留为「打开方式」下拉备选（编辑入口未丢）。

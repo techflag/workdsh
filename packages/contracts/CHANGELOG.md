@@ -1,3 +1,12 @@
+# 0.1.0-alpha.13 — 2026-10-25
+
+- `DriveEditorHandle` 新增可选 `acknowledge?(): void`：网盘写回成功后才回调，编辑器据此推进「已保存」基线；未回调时编辑器保持保守，避免提交失败的重试被误判为无改动。纯可选新增，既有实现与调用方无需改动。
+
+# 0.1.0-alpha.12 — 2026-10-25
+
+- 新增 `DriveAppendRevisionInput` 与 `DriveService.appendRevision(actor, input, signal?)`：在线编辑写回按 `baseRevisionId` 追加不可变修订，`operationId` 保证重试幂等。
+- 新增编辑器桥契约 `DriveEditorInput` / `DriveEditorHandle` / `DriveEditorMount` / `DriveEditorRegistry`：编辑类插件按扩展名注册挂载能力，网盘不 import 其内部实现。
+
 # 0.1.0-alpha.11 — 2026-09-25
 
 - 新增 `automations` 子路径契约（`workdsh-contracts/automations`）：自动化四对象（`AutomationRule`、`ScheduleOccurrence`、`AutomationRun`、`WebhookDelivery`）的类型、稳定错误码、作者输入 `AutomationRuleInput`、运行历史过滤 `AutomationRunQuery`，以及 `AutomationsService`（含只读 `AutomationCatalog`）。纯新增，既有导出与签名不变。

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useSyncExternalStore } from "react";
 import { Toolbar as NativeToolbar, ToolbarGroup } from "./tiptap-ui/toolbar.js";
 import { Button } from "./tiptap-ui/button.js";
 import { BoldIcon } from "./tiptap-ui/bold-icon.js";
@@ -14,8 +14,30 @@ import { ListOrderedIcon } from "./tiptap-ui/list-ordered-icon.js";
 import { Undo2Icon } from "./tiptap-ui/undo2-icon.js";
 import { Redo2Icon } from "./tiptap-ui/redo2-icon.js";
 import { HighlighterIcon } from "./tiptap-ui/highlighter-icon.js";
-import type { createDocumentModel } from "./model.js";
+import type {
+  createDocumentModel,
+  DocumentControls,
+  DocumentTableAction,
+} from "./model.js";
 type Model = ReturnType<typeof createDocumentModel>;
+/** 工具栏只依赖编辑命令与控件状态；网盘无会话编辑器用轻量实现满足同一契约。 */
+export type ToolbarModel = Pick<
+  Model,
+  | "action"
+  | "format"
+  | "paragraph"
+  | "textStyle"
+  | "alignment"
+  | "lineHeight"
+  | "tableAction"
+  | "canTableAction"
+  | "canAlignImage"
+  | "imageAlignment"
+  | "insertImage"
+  | "find"
+  | "replace"
+  | "subscribe"
+> & { getSnapshot: () => { controls: DocumentControls } };
 const fonts = [
   "宋体",
   "黑体",
@@ -37,12 +59,15 @@ export function Toolbar({
   zoom,
   setZoom,
 }: {
-  model: Model;
+  model: ToolbarModel;
   disabled: boolean;
   zoom: number;
   setZoom: (value: number) => void;
 }) {
-  const { controls } = model.getSnapshot();
+  const { controls } = useSyncExternalStore(
+    model.subscribe,
+    model.getSnapshot,
+  );
   const [searching, setSearching] = useState(false),
     [query, setQuery] = useState(""),
     [replacement, setReplacement] = useState(""),
@@ -116,9 +141,9 @@ export function Toolbar({
         <fieldset disabled={disabled}>
           <div className="wd-office-ribbon-row">
             <ToolbarGroup className="wd-office-toolgroup">
-              <select aria-label="表格操作" value="" onChange={e=>{model.tableAction(e.target.value as Parameters<Model["tableAction"]>[0]);e.target.value="";}}>
+              <select aria-label="表格操作" value="" onChange={e=>{model.tableAction(e.target.value as DocumentTableAction);e.target.value="";}}>
                 <option value="" disabled>表格</option>
-                {[["insertTable","插入3×3表格"],["addRowBefore","上方插入行"],["addRowAfter","下方插入行"],["deleteRow","删除行"],["addColumnBefore","左侧插入列"],["addColumnAfter","右侧插入列"],["deleteColumn","删除列"],["mergeCells","合并选中单元格"],["splitCell","拆分单元格"],["toggleHeaderRow","切换标题行"],["deleteTable","删除表格"]].map(([value,label])=><option key={value} value={value} disabled={!model.canTableAction(value as Parameters<Model["tableAction"]>[0])}>{label}</option>)}
+                {[["insertTable","插入3×3表格"],["addRowBefore","上方插入行"],["addRowAfter","下方插入行"],["deleteRow","删除行"],["addColumnBefore","左侧插入列"],["addColumnAfter","右侧插入列"],["deleteColumn","删除列"],["mergeCells","合并选中单元格"],["splitCell","拆分单元格"],["toggleHeaderRow","切换标题行"],["deleteTable","删除表格"]].map(([value,label])=><option key={value} value={value} disabled={!model.canTableAction(value as DocumentTableAction)}>{label}</option>)}
               </select>
               <label className="wd-office-image-upload">插入图片<input aria-label="插入图片" type="file" accept="image/png,image/jpeg" onChange={async e=>{const file=e.target.files?.[0];e.target.value="";if(file) try{await model.insertImage(file);}catch(error){setSearching(true);setMessage(error instanceof Error ? error.message : "图片插入失败。");}}}/></label>
               <select aria-label="图片对齐" disabled={!model.canAlignImage()} value="" onChange={e=>model.imageAlignment(e.target.value as "left"|"center"|"right")}>

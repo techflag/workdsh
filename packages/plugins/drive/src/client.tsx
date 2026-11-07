@@ -7,10 +7,14 @@ import type {} from '@deepseek-ai/dsh-client-ui-sidebar-right/client';
 import type {} from '@deepseek-ai/dsh-client-ui-slots';
 import type { PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots';
 import { Icon } from 'workdsh-ui';
+import type { DriveEditorRegistry } from 'workdsh-contracts/drive';
 import { createDriveClient, type DriveClient } from './client/management.js';
+import { createDriveEditorRegistry } from './client/editor-registry.js';
 import { DrivePanel } from './client/DrivePanel.js';
 import { DrivePreview, type DrivePreviewInput } from './client/DrivePreview.js';
 import { driveCss } from './client/styles.js';
+
+declare module '@deepseek-ai/cordis' { interface Context { workdshDriveEditors: DriveEditorRegistry; } }
 
 declare module '@deepseek-ai/dsh-client-ui-sidebar-right/client' {
   interface SidebarRightTabParamsMap {
@@ -25,14 +29,17 @@ export function apply(ctx: Context): void {
   const lifetime = new AbortController();
   ctx.effect(() => () => lifetime.abort(), 'workdsh.drive.client');
   const management = createDriveClient(ctx, lifetime.signal);
+  // 在线编辑能力由编辑类插件注入（Office 等），网盘只持有按扩展名路由的公开注册表。
+  const editors = createDriveEditorRegistry();
+  ctx.provide('workdshDriveEditors', editors);
   ctx.effect(() => ctx.sidebarRightTabs.register({ id: 'workdsh-drive-preview', kind: 'workdsh-drive-preview', title: () => '网盘预览' }));
-  ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register({ name: 'sidebar.right.pane.tab', key: 'workdsh-drive-preview', inject: () => ({ management }) }, DriveReferencePage));
-  ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: 'workdsh-drive', inject: () => ({ management, toggleNavigation: () => ctx.layout.toggleSidebar() }) }, DrivePanel));
+  ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register({ name: 'sidebar.right.pane.tab', key: 'workdsh-drive-preview', inject: () => ({ management, editors }) }, DriveReferencePage));
+  ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: 'workdsh-drive', inject: () => ({ management, editors, toggleNavigation: () => ctx.layout.toggleSidebar() }) }, DrivePanel));
   ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({ name: 'sidebar.panellist', id: 'workdsh-drive', label: '网盘', order: 55 }, DriveNavigationIcon));
 }
 
 /** 侧栏 tab 预览页：由会话引用或外部打开时复用同一预览组件（自带样式）。 */
-function DriveReferencePage({ management, useTabInfo }: PropsRuntime<'sidebar.right.pane.tab'> & { management: DriveClient }) {
+function DriveReferencePage({ management, editors, useTabInfo }: PropsRuntime<'sidebar.right.pane.tab'> & { management: DriveClient; editors: DriveEditorRegistry }) {
   const info = useTabInfo();
   const params = info.tab.navigation.params as Record<string, unknown> | undefined;
   if (!params || typeof params.fileId !== 'string') return <><style>{driveCss}</style><section className="wd-drive-preview"><div className="wd-drive-state">网盘预览参数不完整。</div></section></>;
@@ -47,7 +54,7 @@ function DriveReferencePage({ management, useTabInfo }: PropsRuntime<'sidebar.ri
     ...(typeof params.sessionId === 'string' ? { sessionId: params.sessionId } : {}),
     ...(typeof params.folderPath === 'string' ? { folderPath: params.folderPath } : {}),
   };
-  return <><style>{driveCss}</style><DrivePreview management={management} input={input} /></>;
+  return <><style>{driveCss}</style><DrivePreview management={management} editors={editors} input={input} /></>;
 }
 
 /**

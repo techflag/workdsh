@@ -1,14 +1,25 @@
 {
   "name": "workdsh-plugin-drive",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.9",
   "private": false,
   "type": "module",
   "description": "Conversation artifact netdisk for WorkDSH: automatic capture, browse and search of documents and images produced in chat",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
-    "./client": { "types": "./dist/client.d.ts", "default": "./dist/client.browser.js" }
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.browser.js"
+    }
   },
-  "files": ["dist", "README.md", "CHANGELOG.md", "cordis.patch.yml"],
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "cordis.patch.yml"
+  ],
   "scripts": {
     "build": "corepack pnpm --filter workdsh-contracts build && corepack pnpm --filter workdsh-ui build && tsc -p tsconfig.json && node ../../../scripts/build-drive.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -72,7 +83,9 @@
     "zod": "4.4.3"
   },
   "dsh": {
-    "bundle": { "patch": "./cordis.patch.yml" },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "platform": "web",
       "inject": [

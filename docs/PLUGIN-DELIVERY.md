@@ -38,6 +38,7 @@
   - 探针：`packages/plugins/drive/tests/probe-interfaces.mjs`（隔离临时 Agents home + 最小 Context：Storage/JsonStorage/StorageDomain/LocalAttachmentStore/LocalFileSystem）实测通过——saveFile 返回内容寻址引用、readFileStream 逐字回读、fileHostPath 落盘校验、session/event 监听可达、fs.resolve+readBytes 读文件字节。任务 ID=P1-14。
 - 自有边界：仅新增 files/nodes/revisions 业务对象、owner/status/source/sessionId 元数据、授权校验、侧栏与 main 页面、Agent 工具。执行事实归 Harness 日志。
 - 验收：正例（上传/AI 产物/工具输出归档 + 列表预览搜索 + 会话筛选 + 重命名/移动/归档/下载）+ 两主体两组织授权矩阵 + 幂等捕获；typecheck/build/check-plan 通过；浏览器实测 dsh.10ge.cn 侧栏。
+- α.4 → α.5（2026-10-25）：只修浏览器实测的 6 项客户端缺陷（`title`、会话标签尾部 8 位、移动抽屉遮罩/dialog 语义/Esc、预览元信息 `nowrap`、弹层 Esc、390 icon 比例与重复标题），**代码不改契约、存储、服务端**；官方能力与所有权边界同本节不变，复用记录见 [drive-plugin-alpha5](evidence/drive-plugin-alpha5.md)。已按用户二次授权部署线上 `dsh.10ge.cn`（指针随后同步 α.5）；6 项浏览器复测**已完成**（线上 390/1440/1920 三档 DOM 实测，5 项完全通过、#3 主体通过；残留 `body` 未锁滚与无焦点管理），结果见 [drive-plugin-alpha5 第八节](evidence/drive-plugin-alpha5.md#八浏览器-6-项复测2026-10-25)。`currentStep` 仍为 `D04`。
 
 > 当前用户授权专项（2026-09-12）：OFFICE-AI-01 / Office模块0.1，覆盖Word、PPT、Excel、PDF、画布、多维表格、HTML、Markdown的原生编辑与统一AI工具。依[ADR-0024](adr/0024-ai-visible-browser-editing.md)、[U1—U5](design/office/UNIFIED-API.md)与[插件门槛](design/office/PLUGIN-ARCHITECTURE.md)推进；顺序台账activeSlice为当前专项，currentStep保留主线D04。U1最小插件和U2确定性工具/UI链路已通过，[真实证据](evidence/office-live-u1.md)记录范围；真实模型、完整格式和生命周期门槛待验，不以该专项标记D04/D15完成。下方旧Skill专项及主线说明保留历史；用户此项范围优先。
 

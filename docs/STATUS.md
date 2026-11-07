@@ -1,5 +1,157 @@
 # 当前进度
 
+## 2026-10-25（续七十）：office α.12 线上部署与真机验收 + drive α.9 容器宽度修复
+
+用户指令「office α.12 部署到 `dsh.10ge.cn` 做线上真机验收」。首轮线上验收发现网盘 DOCX 编辑容器宽度溢出（编辑器 1445 px > 预览区 912 px，工具栏两端控件被裁切），用户确认「修 drive 并重新部署（推荐）」。**未发布 npm、未提交、未推送。**
+
+- **部署（通过）**：office `0.1.0-alpha.12` 19,556,929 B / sha256 `9a047c03…9b22`；drive `0.1.0-alpha.9` 63,471 B / sha256 `df1851d3969eec783693117625d2f620149dc10d220afe5ca08d98471b8f1b1e`（本地 / 服务器 `/tmp` / `wd-upload-024/` 三处一致）。备份 `/home/luoji/drive-a9-backup-20261025/{package.json,pnpm-lock.yaml}`；Profile L28 drive α.9、L31 office α.12；容器内 `pnpm install --config.minimumReleaseAge=0` → `Packages: +1 -94`；`force-recreate` 后 `state=running health=healthy restarts=0`；容器内版本与 `dist/client.browser.js` 含 `wd-drive-editor{width:100%`；`127.0.0.1:3080` → 200；近 5 分钟日志仅 1 条良性 `quic-go UDP-Buffer-Sizes`。
+- **缺陷与修复（drive α.9，高）**：[styles.ts](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/drive/src/client/styles.ts) 中 `.wd-drive-preview-body.editing` 改 `display:flex;flex-direction:column`，`.wd-drive-editor` 补 `width:100%;max-width:100%;min-width:0;flex:1 1 auto`。修复前 `editor 1445 / body 912 / ribbon scrollWidth 1448`，查找与替换、文档缩放、表格操作及右侧列表/缩进/全选/清除格式落到视口外；修复后编辑器与挂载点同宽 912 px。纯客户端，无契约/存储/服务端变更。
+- **线上真机（通过）**：尺寸 `body=[912,912,0]`、`editor=[912,912]`、`host=[912,912]`，ribbon `clientWidth 912 / scrollWidth 1448` 可横向滚动；26 个控件逐一 `scrollIntoView` 后 hit test `{"total":26,"bad":[]}`；文档缩放 150% → `zoom 1.5`（已复位）；表格操作 → `tables 1 / rows 3 / td 6`；查找与替换 `Word`→`WordPRO` 全部替换成功（正文 `Office WordPRO test`，toast「已替换 1 处」）；项目符号 `ul 1 / li 1`；缩进 `margin-left: 24px` 与还原；全选 52 字符 + 加粗 `strong 3`；清除格式后 `strong 0`、`font-weight`/`text-decoration`/`u`/`s` 全 0；保存提示「已保存为第 2 版。」，再保存提示「没有需要保存的修改。」；`reload` 重开仍 `hasTable/hasPRO/hasListText/hasIndentText` 全为真、编辑器 912 px。
+- **认知更正**：单条列表项「增加缩进」无变化属 ProseMirror 正常行为（`sinkListItem` 无前序兄弟项不嵌套），非缺陷；缩进用普通段落验证。
+- **视觉对照（UI-DESIGN 第 8 节）**：1440×900 工具栏单行、纸张居中、左侧控件可见且右侧需横向滚动（`/tmp/office-a9-editor-1440.png`）；390×844 `vw 390 / editor 334 / ribbon [334,1450] / bodyOverflow:false`，纸张 794 px 由 host 横向滚动（`/tmp/office-a9-editor-390.png`）。截图属临时产物，未入库；触屏真机未执行。
+- **清理**：`e2e-docx-toolbar-20261025.docx` 先入回收站（tiles 37→36）再彻底删除；回收站仅剩用户原有 `diskverify-2026.md`、`周报_2026-W41.md`（未动）。
+- **门禁实测**：drive `build` 退出码 0（`dist/client.browser.js` 62,837 B，`grep` 确认含 `.wd-drive-editor{width:100%`）；drive `test` **7/7 通过**；`pnpm check:plan` PASS。
+- **未执行**：只读/无权账号拒绝；office 自动化测试（仓库仍无 test 脚本）；1920 视口、触屏真机、> 25 MiB 分支；npm 发布、提交与推送。
+- 证据：[drive-plugin-alpha7 第 8.14 节](evidence/drive-plugin-alpha7.md#814-office-α12--drive-α9-线上部署与真机验收2026-10-25用户指令office-α12-部署到-dsh10gecn-做线上真机验收)；版本登记已回填 [MODULE-VERSIONS](MODULE-VERSIONS.md)、drive `CHANGELOG`，`deploy/profile/package.json` 指针同步 α.9 / α.12。
+- **下一步**：①只读/无权账号拒绝 ②编辑器桥自动化断言 ③1920 视口与触屏真机。`currentStep` 仍为 `D04`。
+
+## 2026-10-25（续六十九）：网盘 Word 编辑器补齐格式工具栏（office α.12）
+
+用户指令「word文档编辑器需要修复」，澄清后确认缺陷是**编辑操作异常**：网盘 DOCX 在线编辑打开后只有正文纸张，**没有任何格式工具栏**，字体、加粗、字号、查找替换等全部不可用（实时编辑器有工具栏，网盘侧 `mountDriveDocument` 自建 shell 漏挂）。对 `packages/plugins/office` 开 `0.1.0-alpha.12`（Unreleased）。**未发布 npm、未提交、未推送、未部署。**
+
+- **根因（高）**：[runtime.tsx](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/office/src/runtime.tsx) 的 `mountDriveDocument` 只拼 `scroll + paper + Tiptap`，工具栏与全部编辑命令仅存在于 `live/`（`Toolbar.tsx` + `createDocumentModel`，后者依赖会话 RPC/lease），无会话编辑器没有入口。
+- **修复（高）**：`mountDriveDocument` 改为「工具栏 + 纸张滚动区」，用 `createRoot` 挂载与实时编辑器**同一个** `Toolbar`；字体/字号/颜色/高亮、段落样式、加粗斜体下划线删除线、对齐、行距、列表与缩进、表格、插图、查找替换、撤销重做、缩放全部可用，缩放只作用于纸张（`paper.style.zoom`）。
+- **共享实现（高）**：把 `readControls`、`createEditingCommands`、`DocumentControls`、`DocumentTableAction`、`EditingGuards` 从 `createDocumentModel` 抽为模块级共享，实时与网盘编辑器执行同一份命令；`Toolbar` props 收窄为 `ToolbarModel`（命令 + `subscribe`/`getSnapshot`），组件内 `useSyncExternalStore` 自订阅；网盘侧用轻量 store 在 `transaction`/`selectionUpdate` 后刷新格式状态。
+- **契约不变**：仍以 `documentDiff(baseline, json)` 判脏，`pending`/`baseline` 两段基线配 `acknowledge()`；`dispose()` 增加 `bar.unmount()` 与订阅清理，最后清空挂载点。未新增/变更 Harness 扩展面，未新增官方依赖。
+- **门禁实测**：office `typecheck` 退出码 0；office `build` 退出码 0（`dist/index.js` 22,768,456 B、`dist/office-runtime.js` 25,017,746 B、`dist/editor.html` 19,985,906 B）；`node scripts/check-plan.mjs` PASS（34 modules; 50 documents）。**drive 测试本轮未执行**（drive 未改动）。
+- **自动化探针（通过）**：新增 [probe-drive-docx.mjs](file:///Users/apple/Documents/AI-luoji/workdsh/scripts/probe-drive-docx.mjs)，esbuild 打包 office 运行时后在 `http://127.0.0.1` 空白页直接调用 `mountDriveEditor`（无 Host）；`result.json` 记录 `barHeight 44 / scrollTop 44 / scrollHeight 956 / paperWidth 794`，缩放 125% 得 `zoom=1.25`、宽 `992.5`，全选加粗、字号 18、字体黑体、查找替换 1 处、项目符号均生效；导出 DOCX 2756 B 且 `word/document.xml` 含 `<w:b/>`、`w:sz w:val="36"`、`<w:numPr>`、`已修复`；未 ack 重复保存仍导出（2756 B），ack 后无改动返回空，再编辑 2764 B；`dispose()` 后挂载点 `children 0 / html 0`；`pageErrors []`。产物 `.artifacts/drive-docx-probe/{result.json,editor.png,saved.docx}`。
+- **视觉对照（UI-DESIGN 第 8 节）**：探针页 1440×1000 CSS（dpr 1）下工具栏单行完整、纸张居中、无横向溢出、字符数计数可见；线上窄视口（627×706）与 1920 / 390×844 **未执行**，触屏真机**未执行**。
+- **未执行**：部署与线上真机验收（需授权）；只读/无权账号拒绝；office 侧自动化测试脚本（仓库仍无）；1920 / 390×844 视口、触屏真机、> 25 MiB 分支、word-only 制品打包；npm 发布、提交与推送。
+- 证据：[drive-plugin-alpha7 第 8.13 节](evidence/drive-plugin-alpha7.md#813-网盘-docx-补齐格式工具栏2026-10-25用户指令word文档编辑器需要修复)（官方能力复用记录六字段、实现与所有权、探针实测、视觉对照、未执行）；版本登记已回填 [MODULE-VERSIONS](MODULE-VERSIONS.md) 与 office `CHANGELOG`。
+- **下一步**：①用户授权后部署到 `dsh.10ge.cn` 并做线上真机复验 ②只读账号拒绝 ③多视口对照。`currentStep` 仍为 `D04`。
+
+## 2026-10-25（续六十八）：登录后线上复验 —— 编辑器挂载与回收站一致性
+
+用户告知「已打开网站登录成功」后，在 `https://dsh.10ge.cn/?workdsh-view=drive` 复用同一浏览器会话复验已部署的 drive α.8 / office α.11。**未改代码、未改版本、未提交、未推送、未发布 npm。**
+
+- **回收站与服务端一致（通过）**：标签页首帧仍显示已清理的 `e2e-pptx-20261025.pptx`；刷新后重进回收站只剩 `diskverify-2026.md`、`周报_2026-W41.md`。服务端状态文件复核 `nodes 44 / files 43 / revisions 46 / receipts 46`、`status==='archived'` 节点 **0**、`e2e-*` 节点与文件**无命中**、archived 文件 2 条（legacy）。
+- **续六十七 8.8 观察项根因（已定位）**：清理时 purge 走**接口直连**，页面未参与，React 的 `archived` 仍保留清理前列表；`purgeEntry` 在成功后本身有 `await loadArchived()`，经 UI 操作不会残留。**属陈旧列表，不是服务端残留，也不是渲染缺陷，无需改代码。**
+- **pptx 编辑器挂载（通过）**：`罗纪-数字化运维服务提供商-云管端简介.pptx`（7.3 MB）→「在线编辑」→ 19 页缩略图、开始/插入/切换/动画/视图工具栏、「第 1 页 / 共 19 页」、`PARTIAL_SMARTART_SUPPORT` 兼容提示；「退出编辑」未提示保存，修订仍 46、最新修订时间仍 `11:07:09.191Z`。
+- **xlsx 编辑器挂载（通过）**：`梅林一村党群服务中心报价方案2_含税单价.xlsx`（18.2 KB）→「在线编辑」→ `Sheet1`、公式/数据工具栏、canvas 3 个，并显示「只保留单元格值与公式…不会保留格式、合并单元格、图表、图片与批注」；退出后修订仍 46。
+- **认知更正**：状态文件 `record.nodes` / `record.files` 是**以 id 为键的对象映射**，不是数组（此前探针 `.filter` 报 `TypeError` 即此原因）；列表类型标签按 `DriveFileKind` 显示「文档」属既定设计，不作为缺陷。
+- **视觉对照（UI-DESIGN 第 8 节）**：浏览器窗口固定 **627×706 CSS（dpr 2）**，工具集无设置视口能力；**1440×900、1920、390×844 未执行**，触屏真机未执行。
+- **未执行**：只读/无权账号的入口与写回拒绝；编辑器桥与 ack 自动化断言；> 25 MiB 分支；触屏真机；npm 发布、提交与推送。
+- 证据：[drive-plugin-alpha7 第 8.12 节](evidence/drive-plugin-alpha7.md#812-登录后复验2026-10-25用户告知已登录)。
+- **下一步**：可选 ①只读账号拒绝 ②编辑器桥与 ack 自动化断言 ③多视口对照（需可设置视口的浏览器或用户协助调整窗口）。`currentStep` 仍为 `D04`。
+
+## 2026-10-25（续六十七）：xlsx / pptx 写回补齐、ack 修复并上线（drive α.8 / office α.11）
+
+用户指令「xlsx 与 pptx 都补」后执行实现，再以「继续」推进线上真机复测与收尾。对 `packages/plugins/office` 开 `0.1.0-alpha.10`（xlsx/pptx 写回）、`0.1.0-alpha.11`（ack 修复），对 `packages/plugins/drive` 开 `0.1.0-alpha.8`（ack 契约与客户端）。两版已部署到 `https://dsh.10ge.cn`。**未发布 npm、未提交、未推送**。
+
+- **xlsx 写回（高）**：新增 `importSpreadsheet(bytes,name)`——ExcelJS 解析 xlsx → `SpreadsheetSnapshot`，上限 `sheets 20 / rows 1000 / columns 100 / cells 10000 / 2 MiB`，超限拒绝；新增 sessionless `mountSpreadsheetEditor`：导入 → Univer 编辑 → `stateFromUniver` 判脏 → `spreadsheetXlsx` 导出字节，不依赖 `sessionId`/Host RPC。
+- **pptx 写回（高）**：新增 `mountDrivePresentation`，复用现有 `mountPptx` 原生编辑器；`getSlideCount()` 15 s 内轮询就绪，因 `isDirty()` 不可靠改按**每页签名**判脏，`getContent()` 取真实 OOXML 字节。
+- **能力分派（高）**：`mountDriveEditor` 按扩展名分派（`.xlsx`/`.pptx`/其余 docx）；`client.tsx` 注册 `['docx','xlsx','pptx']`，`--word-only` 制品仍只注册 `['docx']`。
+- **重复修订缺陷（高，复测中发现）**：首轮出现「保存成功后再点退出编辑，追加同内容修订」。取证：xlsx rev2/rev3 均 6448 B，整包 sha 因 zip 时间戳不同，但 `sheet1.xml` md5 同为 `55313fdb…`、`sharedStrings.xml` md5 同为 `770621e6…`（A1 都是 `Office Excel test`），确证重复写回。
+- **修复方式（高）**：契约加可选 `DriveEditorHandle.acknowledge?()`，三个编辑器统一「已保存 / 待确认」两段基线——`save()` 只与已保存基线比较并记录待确认快照；网盘 `appendRevision` 成功后才 `acknowledge()` 把待确认提升为基线；未 ack 不推进，提交失败重试仍导出字节不丢数据。
+- **门禁实测**：drive `typecheck` 退出码 0；`corepack pnpm --filter workdsh-plugin-drive test` **7/7 通过**（本版无用例增减）；office `typecheck`/`build` 退出码 0（制品 19,557,020 B）；`check:plan` PASS（34 modules; 50 documents）；`check:published-versions` PASS（600 条锁定 `0.2.1-rc.3`；Cordis 4.0.5 family only）。
+- **线上部署**：drive 63,436 B / sha256 `19efae03…c243`、office 19,557,020 B / sha256 `622516aa…5b08`，落到 `data/workspace/wd-upload-024/`（就地 sha256 一致）；备份 `/home/luoji/drive-a8-office-a11-backup-20261025114008/{package.json,pnpm-lock.yaml}`；Profile L28 α.7→α.8、L31 α.9→α.11；容器内 `pnpm install --config.minimumReleaseAge=0` → `Packages: +2 -94`、`Lockfile passes supply-chain policies (1162 entries)`；`force-recreate` 后 `healthy`、`RestartCount=0`；容器内 http 3080 200、公网 302→/portal、启动日志加载错误 0、运行时 `acknowledge` 命中 3（docx/xlsx/pptx 各一）；`deploy/profile/package.json` 指针已同步。
+- **xlsx 真机写回（通过）**：`e2e-xlsx-20261025.xlsx` 打开「在线编辑」→ A1 写 `r4ack` → 「保存到网盘」提示「已保存为第 4 版。」→ 立刻退出编辑**无新增修订**；探针 `revs=4 | current=56538d92-fb1f-4740-924f-a95b8e0e7296`，6440 B、sha256 `c9660077…7bf`，`sharedStrings.xml` 为 `r4ack` / `WD-E2E-20261025`。
+- **pptx 真机写回（通过）**：「添加幻灯片」至 2 页 → 保存提示「已保存为第 2 版。」→ 退出无新增；探针 `revs=2 | current=12b6137f-8256-4dcd-87db-37f4b57051a9`，17109 B、sha256 `7c714c3b…bb05`，`unzip -l` 含 `slide1.xml` + `slide2.xml`；重开仍显示「第 1 页 / 共 2 页」。
+- **无改动不写修订**：重开 xlsx/pptx 后直接退出，探针仍为 `revs=4` / `revs=2`。
+- **回收站观察项（续六十八已定位根因）**：清理时 `list-archived` 直连依次返回 2 条、4 条，而 UI 首帧显示「回收站是空的」，重进后正常；现有证据只指向首帧刷新时序，本轮不改代码。同批两条 legacy 归档（`diskverify-2026.md`、`周报_2026-W41.md`）未动。
+- **清理与复核**：两个 e2e 文件先归档（xlsx 于 `12:30:49.320Z`、pptx 于 `12:31:06.087Z`），xlsx 经回收站 UI「彻底删除 → 确认」、pptx 经同一 `purge` 端点（`{"ok":true,"value":{"purged":true}}`）删除；`list-archived` 仅剩两条 legacy；状态文件 `nodes 44 / files 43 / revisions 46 / receipts 46`、`archivedNodes 0`、`e2e-*` 无命中；容器内探针 `/data/dsh/tmp/probe-revs.mjs` 已删除。
+- **视觉对照（UI-DESIGN 第 8 节）**：本轮浏览器窗口固定 **627×706 CSS（dpr 2）**，`resizeTo`/`window.open` 均拿不到 1440×900 或 390×844，只取得 5 张窄视口截图（xlsx 编辑、pptx 第 2 页、卡片列表、xlsx 详情、文件菜单含「在线编辑」）；保存/退出按钮可见、表格未横向溢出容器、菜单完整。**1440×900 与 390×844 未执行**，触屏真机未执行；截图在 Trae 浏览器会话目录（临时产物，未入库）。
+- **未执行**：xlsx 格式/公式/合并单元格编辑与 pptx 文本/图片级编辑的自动化断言；只读/无权账号的入口与写回拒绝；编辑器桥与 ack 的自动化断言（现有 7 条用例只覆盖服务端）；> 25 MiB 分支；触屏真机；word-only 制品打包（许可证门禁缺 `@ai-sdk/provider-utils@5.0.0/5.0.28`、`@nodable/entities@3.0.0`、`@pdf-lib/fontkit@1.1.1`、`pptx-viewer-mcp@2.5.1`）；npm 发布、提交与推送。
+- 证据：[drive-plugin-alpha7 第八节](evidence/drive-plugin-alpha7.md#八xlsx--pptx-写回补齐ack-语义修复与真机复测2026-10-25用户指令xlsx-与-pptx-都补继续)（官方能力复用记录、实现与所有权表、门禁、六步部署、xlsx/pptx 真机表、重复修订取证、回收站观察项、清理复核、视觉对照、未执行）；官方能力复用记录同步写入 [NEXT-STAGE](design/office/NEXT-STAGE.md)；版本登记已回填 [MODULE-VERSIONS](MODULE-VERSIONS.md)、[modules.json](modules.json) 与两包 `CHANGELOG`。
+- **下一步**：可选 ①回收站首帧空列表根因（需授权改代码）②只读账号拒绝 ③编辑器桥与 ack 的自动化断言。`currentStep` 仍为 `D04`。
+
+## 2026-10-25（续六十六）：xlsx / pptx 在线编辑写回实测 —— 能力不存在
+
+用户指令「继续执行 xlsx 和 pptx 在线编辑写回测试」。在 `https://dsh.10ge.cn`（drive `0.1.0-alpha.7` + office `0.1.0-alpha.9`，1440×900，`agent-browser` 会话 `drive-e2e`）上传 `tests/fixtures/office-native/input.xlsx`（6395 B）与 `input.pptx`（16420 B），并同时上传 `input.docx`（8503 B）作对照。
+
+- **结论（不通过）**：`xlsx` / `pptx` **当前不支持网盘在线编辑与写回**——文件「更多操作」只有 下载 / 移动到… / 重命名 / 删除，**无「在线编辑」**；预览页顶部只有「返回列表 / 下载」，正文为「该格式暂不支持在线预览，可下载后查看。」。同轮 `docx` 菜单含「在线编辑」，排除全局故障。正向链路（打开→编辑→保存→新修订）**无可测入口，未执行**。
+- **代码根因（已核对）**：① [office/src/client.tsx](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/office/src/client.tsx#L90-L92) 只向 `workdshDriveEditors` 注册 `['docx']`（`["xlsx","pptx"]` 属 library 预览注册，与网盘编辑无关）；② [runtime.tsx](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/office/src/runtime.tsx#L116-L173) 的 `mountDriveEditor` 为 DOCX 专用（`importDocx → Tiptap → documentDocx`）；③ [spreadsheet/xlsx.ts](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/office/src/spreadsheet/xlsx.ts) 只有导出缺 xlsx→状态导入器；④ [native-react/editor.tsx](file:///Users/apple/Documents/AI-luoji/workdsh/packages/plugins/office/src/presentation/native-react/editor.tsx#L23-L28) 的 `mountPptx` 不返回导出字节方法。故属**能力未实现**，非配置或权限问题。
+- **补齐路径（未实现，待决策）**：xlsx 需新增 ExcelJS 导入器（受 `sheets 20 / rows 1000 / columns 100 / cells 10000 / 2 MiB` 约束，图表/格式/合并单元格会丢失）并复用 `spreadsheetXlsx` 导出、注册 `["xlsx"]`；pptx 需先探针确认 `pptx-react-viewer` 是否具备导出字节能力，否则要自建 OOXML 导出（工作量与保真风险更高）。
+- **视觉对照（UI-DESIGN 第 8 节）**：`.artifacts/drive-e2e/{xlsx-menu-1440,xlsx-preview-1440,pptx-menu-1440,pptx-preview-1440,docx-menu-control-1440}.png`；1440×900 下菜单与空态提示完整可读，无横向溢出、无布局错位。
+- **清理**：三个测试文件经 UI 删除入回收站后逐个「彻底删除」（提示「已彻底删除。」），仅处理本轮三个 `input.*`，未动其它条目；宿主 `docker exec dsh grep -rl "input\.\(xlsx\|pptx\|docx\)" /data/dsh/storages /data/dsh/profiles` **无命中**。
+- **未执行**：xlsx/pptx 正向写回与对应补齐实现、单测、端到端；只读/无权账号的入口与写回拒绝；编辑器桥自动化断言（现有 7 条用例只覆盖服务端）；> 25 MiB 分支；触屏真机；npm 发布、提交与推送。
+- 证据：[drive-plugin-alpha7 第七节](evidence/drive-plugin-alpha7.md)（结论、5 行实测表、代码根因表、补齐路径、清理复核、未执行）。
+- **下一步**（已被「续六十七」更新）：xlsx/pptx 已按用户「xlsx 与 pptx 都补」补齐并上线复测通过，见下条。`currentStep` 仍为 `D04`。
+
+## 2026-10-25（续六十五）：网盘 Office 在线编辑落地（drive α.7 / office α.9）
+
+用户指令「缺口（「不存在」，需要新增实现）请分析并执行修复」。把「在线编辑并保存回原文件」链路上此前被判定为**不存在**的 5 项能力全部落实为代码，对 `packages/plugins/drive` 开 `0.1.0-alpha.7`、`packages/plugins/office` 开 `0.1.0-alpha.9`（均 Unreleased）。随后用户指令「好的，执行部署流程」，两版已部署到 `https://dsh.10ge.cn`（见下「线上部署」）；再经用户指令「继续执行浏览器端到端在线编辑测试」，线上打开→改字→保存→第 2 版→刷新可见与 409 冲突保留内容均已真机闭环（见下「浏览器端到端复测」）。未提交、未推送、未发布 npm。
+
+- **a 契约与服务（高）**：`workdsh-contracts/drive` 新增 `DriveAppendRevisionInput` 与 `DriveService.appendRevision(actor, input, signal?)`；`drive-manager` 在 `enqueue` 内先做收据幂等（同 `operationId` 同内容直接返回、异内容 `drive/operation-conflict`），再校验文件/节点 active 与 `baseRevisionId === file.currentRevisionId`（否则 `drive/revision-conflict`），沿用单文件上限、总配额与内容寻址存字节，`revision.number = 同文件最大 + 1` 并同步 `currentRevisionId`/`byteLength`/`mediaType`/`updatedAt`/`textIndex`。
+- **b Remote（高）**：新增 `append-revision`（base64）与 `stat` 端点；`drive/revision-conflict` → HTTP 409「文件已被其他编辑更新，请刷新后重试。」，`drive/internal` → 500；客户端 `management.appendRevision`/`stat`。
+- **c Office 写回（高）**：新增 sessionless `mountDriveEditor(target, input)` —— `importDocx(bytes, name)` → 本地补 `blockId`/`runId` → Tiptap → `editorContent` + `documentDiff` 判改动 → `documentDocx(snapshot)` 返回字节。**不依赖 sessionId 与 Host RPC**，不读写工作副本；写回与冲突由网盘按自己的授权执行。
+- **d UI（高）**：预览 header 与文件菜单新增「在线编辑」；打开前用 `stat` 取真实 `currentRevisionId` 作基线再取字节；保存成功推进基线、刷新列表并回调 `onSaved`；409 显示冲突文案并**保留编辑器内改动**；退出编辑先写回，失败留在编辑器；无改动提示「没有需要保存的修改。」；> 25 MiB 不提供在线编辑。
+- **e 跨插件契约（高）**：新增 `DriveEditorInput`/`DriveEditorHandle`/`DriveEditorMount`/`DriveEditorRegistry`；网盘 `createDriveEditorRegistry()` + `ctx.provide('workdshDriveEditors')`（`register` 返回 disposer），Office 用 `ctx.inject(['workdshDriveEditors'], scope => scope.effect(...))` 注册 `['docx']`。**drive 不 import office 内部实现**，office 只依赖公开契约；不新增第二套状态真源，禁用 `ctx` 进组件。
+- **能力晚到**：`useSyncExternalStore` 订阅注册表 revision；未安装 Office 时 `canEdit` 恒 false、入口不渲染，后加载后自动出现。
+- **门禁实测**：`corepack pnpm --filter workdsh-plugin-drive test` **7/7 通过**（新增 `drive appends an edited revision only against the current base revision`，覆盖修订号递增、字节更新、旧修订可读、搜索切换、幂等重试、过期基线冲突、异内容冲突、缺失文件、重启后一致）；drive `typecheck` 退出码 0；office `typecheck`/`build` 退出码 0；`check:plan` PASS（34 modules; 50 documents）；`check:versions` PASS（600 条锁定 `0.2.1-rc.3`；Cordis 4.0.5 family only）。产物抽查确认 `dist/client.browser.js` 已含 `wd-drive-editor` 与 `appendRevision`，入口文案「在线编辑」被打包器转义为 `\u5728\u7EBF\u7F16\u8F91`（中文 grep 为 0 属正常，非漏打包）。
+- **线上部署（用户指令「好的，执行部署流程」后执行）**：drive `0.1.0-alpha.7`（63001 B，sha256 `3ae8b3f4…073b4`）+ office `0.1.0-alpha.9`（21814993 B，sha256 `0224f782…af8c`）；scp→`sudo cp` 落到 `data/workspace/wd-upload-022/`（drive）与 `wd-upload-019/`（office），就地 sha256 一致、`root:root 644`；备份 `/home/luoji/drive-a7-office-a9-backup-20261025033541/{package.json,pnpm-lock.yaml,compatibility.json}`；Profile L28 α.5→α.7、L31 α.8→α.9；容器内 `pnpm install --config.minimumReleaseAge=0`（`Packages: +3 -95`、`Lockfile passes supply-chain policies (1163 entries in 22.6s)`、32.4s）；`docker compose up -d --force-recreate` → `Up (healthy)`、`RestartCount=0`、`StartedAt=2026-10-25T03:36:36Z`。复验：容器内 **http** `127.0.0.1:3080` `200`；公网 `302 → /portal`；启动日志 `did not activate`/`Failed to load plugins`/`does not match its schema`/`workdsh_drive` 合计 **0**；制品标记 drive `wd-drive-editor`×3 / office `workdshDriveEditors`×1 / `drive-api.js` `append-revision`×1；只读 API（门户 HMAC，账号 `18938845688`）`space` 24.5MB/5GiB 且沿用 `createdAt=2026-10-11` 原空间、`list` **34**、`stat` rev 1 / 496183 B、`search('根因')` **2**、`list-archived` **2**、`append-revision` 缺字段 **400 `drive/invalid-request`**、`errors: NONE`；三份状态记录 mtime 未变；`deploy/profile/package.json` 指针已同步 α.7/α.9。部署期两个坑已记录：容器 rootfs 只读（探针改走 `/data/dsh/tmp`）、门户 HMAC 用户名须为裸账号 `18938845688`（带 `portal-` 前缀会建出空空间，误建记录已删除）。
+- **浏览器端到端复测（用户指令「继续执行浏览器端到端在线编辑测试」后执行，2026-10-25）**：线上 `https://dsh.10ge.cn`（α.7/α.9），`agent-browser` 会话 `drive-e2e`，门户账号由用户手动登录。①**主链路通过**：上传 `e2e-edit-test-20261025.docx`（rev1，8507 B）→ 文件菜单「在线编辑」→ 正文追加 `E2E-EDIT-20261025` → 「保存到网盘」提示「已保存为第 2 版。」（rev2，2126 B）→ **整页重载后重新进入在线编辑，新内容仍在**；服务端 `files[fid].currentRevisionId` 指向 rev2、blob sha256 一致、`unzip -p word/document.xml` 含该文本（真实 docx，非 HTML 旁路）。②**保真度边界**：22 个 OOXML 部件 → 8 个，`numbering/comments/footnotes/docProps/fontTable` 丢失、8507 → 2126 B，属 HTML→docx 重写的已知设计边界，需要全保真须另立「服务端 OOXML 增量改写」。③**双标签页自然并发不构成冲突**：切标签会刷新为最新修订，tab2 保存得「已保存为第 4 版。」。④**409 真机复现**：改用服务端 HMAC 探针从 rev4 基线写入生成 rev5 `dda2e5cb-…`（2190 B，`createdAt 2026-10-25T03:53:16.593Z`），tab2 仍以 rev4 为基线追加 ` STALE-R5` 保存 → 提示「文件已被其他编辑更新，请刷新后重试。」且**编辑内容保留**；服务端仍 5 个修订、**无 rev6**；重载后正文为 rev5 内容，`STALE-R5` 未落盘。⑤**视觉对照**（UI-DESIGN 第 8 节）：`.artifacts/drive-e2e/{editor-conflict-1440,editor-390,list-1440,list-390}.png`，1440×900 与 390×844 均无横向溢出、关键按钮可见。⑥**清理**：UI 删除 → `archived`（`archivedAt 2026-10-25T03:56:23.690Z`）→ `purge` 返回 `{"ok":true,"value":{"purged":true}}`，宿主侧复核 `nodes 42 / files 41 / revisions 42` 且 `155ba9d9-…`/`43fd35b2-…` 均已移除。⑦**新事实**：宿主机 3080 是容器内 Caddy（8443，按 Host 路由），DSH 应用在容器内 **http** `127.0.0.1:3080`；探针必须 `docker exec dsh curl` 且 `data-binary` 用容器内路径。
+- **未执行**：只读/无权账号的入口与写回拒绝；`xlsx`/`pptx` 写回；编辑桥与上述交互的自动化断言（现有 7 条用例只覆盖服务端）；> 25 MiB 不提供在线编辑的分支；触屏真机（390 仅桌面浏览器缩窄视口模拟）；上传全链路回归、npm 发布、提交与推送。
+- 证据：[drive-plugin-alpha7](evidence/drive-plugin-alpha7.md)（官方能力复用记录六字段、5 项缺口与实现表、所有权边界、门禁实测、UI 第 8 节交付检查、未执行、**线上部署与复验表**、回退锚点、**第六节浏览器端到端实测**）；版本登记已回填 [MODULE-VERSIONS](MODULE-VERSIONS.md)、[modules.json](modules.json)、[CONTRACTS](CONTRACTS.md) 与两包 `CHANGELOG`。
+- **下一步**（已被「续六十六」更新）：`xlsx`/`pptx` 经实测为能力不存在，需先决定是否实现；其余仍为只读账号拒绝与自动化断言。`currentStep` 仍为 `D04`。
+
+## 2026-10-25（续六十四）：网盘 alpha.6 补 #3 抽屉锁滚与焦点管理
+
+用户指令「修复 #3 的 body 锁滚和焦点管理问题」。对 `packages/plugins/drive` 开 `0.1.0-alpha.6`，补 [drive-plugin-alpha5 第八节](evidence/drive-plugin-alpha5.md#八浏览器-6-项复测2026-10-25) 记录的 #3 两项残留。**纯客户端改动**，仅 `DrivePanel.tsx`；不改契约、存储、服务端，无数据迁移；`deploy/profile` 指针未动（线上仍 α.5）。
+
+- **`body` 锁滚**：抽屉打开时记录并在 `document.body` 覆写 `overflow:hidden`，cleanup 恢复**原值**（不硬写 `visible`）。
+- **焦点管理**：打开后聚焦 `.wd-drive-drawer-close`；`.wd-drive-mobilebar` 与 `.wd-drive-content` 设 `inert`（`setAttribute`/`removeAttribute`，避开 `lib.dom` 的 `HTMLElement.inert` 类型差异）；关闭后仅在 `activeElement` 为空/`body`/仍在抽屉内时回焦 `.wd-drive-filter-toggle`，避免抢走用户主动点到的位置。
+- **断点越界**：新增 `matchMedia('(max-width: 760px)')` 监听，放大到桌面宽度自动关闭抽屉，防止锁滚与 `inert` 残留。
+- **门禁实测**：`corepack pnpm --filter workdsh-plugin-drive test` **6/6 通过**（`contracts`/`ui` build + `tsc` + `build-drive.mjs` + 服务端用例；本版无用例增减）；`check:plan` PASS（34 modules; 50 documents）；`check:versions` PASS（600 条锁定 `0.2.1-rc.3`；Cordis 4.0.5 family only）。
+- **未执行**：部署与线上复测（`overflow:hidden`、`inert` 生效、打开进焦点、关闭回焦、760px→桌面自动关闭无残留）、Tab 完整序列、读屏验证、触屏真机、上传全链路、npm 发布、提交与推送。锁滚与焦点管理属浏览器行为，**无自动化断言**（现有 6 条用例只覆盖服务端）。
+- 证据：[drive-plugin-alpha6](evidence/drive-plugin-alpha6.md)（官方能力复用记录、两项残留与修复表、代码清单、门禁实测、UI 第 8 节交付检查、未执行、回退锚点）；版本登记已回填 [MODULE-VERSIONS](MODULE-VERSIONS.md)、[modules.json](modules.json) 与 [CHANGELOG](../packages/plugins/drive/CHANGELOG.md)。
+- **下一步**：如需上线，另行授权部署（制品 `workdsh-plugin-drive-0.1.0-alpha.6.tgz` → `wd-upload-0xx/` + profile 指针 + 容器内 `pnpm install` + `force-recreate`），随后按本节「未执行」清单做线上复测。`currentStep` 仍为 `D04`。
+
+## 2026-10-25（续六十三）：网盘 alpha.5 修浏览器实测 6 项缺陷
+
+用户指令「现在 开`0.1.0-alpha.5` 修这 6 项」。对 `packages/plugins/drive` 开 `0.1.0-alpha.5`，修 [drive-plugin-alpha4 第八节](evidence/drive-plugin-alpha4.md#八浏览器逐页人工交互实测2026-10-25) 8.3 表的 6 项缺陷。**代码为纯客户端改动**（`DrivePanel.tsx` / `DriveFileList.tsx` / `styles.ts`），不改契约、存储、服务端，无数据迁移；`deploy/profile` 指针仅在部署成功后同步为 α.5。
+
+- **① 名称可发现性**：卡片名 `.wd-drive-tile-name` 与搜索结果 `<strong>` 补 `title`（保持 ellipsis，不重排布局）。
+- **② 会话筛选不可区分**：`shortId` 去掉 `session-` 前缀后取**尾部 8 位**（原 `slice(0,8)` 截在公共前缀上），按钮 `title` 保留完整 ID 兜底。
+- **③ 移动筛选抽屉**：新增 `.wd-drive-backdrop`（点击关闭）；抽屉态 `<aside>` 加 `role="dialog"` / `aria-modal` / `aria-label`；header 增「分类与筛选」标题 + `aria-label="关闭筛选"` 关闭按钮；抽屉态 `.wd-drive-filter-list{flex:none;overflow:visible}` 取消三层内嵌裁切。
+- **④ 390 预览元信息竖排**：标签 `flex:none;white-space:nowrap`，值 `min-width:0` + `overflow-wrap:anywhere`（替换 `word-break:break-all`）。
+- **⑤ 弹层 Esc**：与 ③ 共用一个 `window keydown` 监听，`Escape` 同时关闭 `menu` 与 `filtersOpen`，卸载即移除。
+- **⑥ 390 卡片比例与标题重复**：抽屉态隐藏 `h1` 改显「分类与筛选」；移动端 `.wd-drive-tile-icon` 改 `height:auto;aspect-ratio:4/3;max-width:150px` 居中。
+- **桌面零变化**：新增选择器统一默认 `display:none`，仅在唯一 `@media(max-width:760px)` 内生效。
+- **门禁实测**：`corepack pnpm --filter workdsh-plugin-drive test` **6/6 通过**（`contracts`/`ui` build + `tsc` + `build-drive.mjs` + 服务端用例；纯客户端改动，无用例增减）；`check:plan` PASS（34 modules; 50 documents）；`check:versions` PASS（600 条锁定 `0.2.1-rc.3`）。
+- **线上部署（用户二次授权「好的，执行部署流程」后执行）**：制品 `workdsh-plugin-drive-0.1.0-alpha.5.tgz`（54481 B，sha256 `139a7a43…aa4e`）三方 sha256 一致（本地/宿主 `/tmp`/制品目录），落到 `wd-upload-022/`；备份 `/home/luoji/drive-a5-backup-20261025020258/{package.json,pnpm-lock.yaml,compatibility.json}`；profile L28 指针 α.4→α.5，容器内 `pnpm install --config.minimumReleaseAge=0`（`Lockfile passes supply-chain policies (1163 entries)`、`Packages: +1 -94`、21.3s）；`docker compose up -d --force-recreate` → `healthy`、`RestartCount=0`、`StartedAt=2026-10-25T02:03:37Z`。复验：CLI `0.2.1-rc.3`、容器内 **http** `127.0.0.1:3080` `200`（此前 https 得 `000` 属协议误用）、公网 `302 → /portal`、启动日志 `did not activate`/`Failed to load plugins`/`workdsh_drive`/`does not match its schema` 均 **0**、已装 `0.1.0-alpha.5` 且 `dist/client.browser.js` 含 `wd-drive-backdrop`/`wd-drive-drawer-close` 各 3 处；只读 API（门户 HMAC）`space` 24.5MB/5GiB、`list` 34、`search` 有命中、`list-archived` 2、`errors: NONE`，三份 drive 状态记录 mtime 未被改写；`deploy/profile/package.json` 指针已同步 α.5。
+- **浏览器 6 项复测（用户指令「好的，执行浏览器 6 项复测」后执行）**：线上 `https://dsh.10ge.cn/?workdsh-view=drive`（带 `__fresh=20261025a5` 硬加载避开旧产物），`agent-browser` CDP 三档视口（1440×900 / 1920×1080 / 390×844），全程只读。**5 项完全通过、#3 主体通过**：①卡片 `title` 34/34 + 搜索结果 `title` 6/6；②7 条会话标签尾部 8 位互不相同（`5d444776`…`fff07c7b`）且保留全 ID `title` 与文件数徽标；③390 抽屉遮罩存在、`role="dialog"`/`aria-modal`/`aria-label`、30×30 关闭按钮、`Escape`/点击遮罩/关闭按钮三条路径均可关，三块筛选列表由 `196/100`、`124/67`、`268/134` 变为 `196/196`、`124/124`、`268/268`（内嵌裁切消除，改由抽屉单一滚动）；④390 预览标签 28px 横排 `nowrap`、MIME「文档 · / application/msword」自然换行无硬断；⑤1440 弹层 `Escape` 关闭；⑥390 icon 150×113（4/3）居中、抽屉标题「分类与筛选」且 `h1` 隐藏。回归：1440（248 / 5 列 164×136）、1920（8 列 159 / 247 三列表）、390（单列 301 / mobilebar 46）与 alpha.4 基线一致，`docScroll` 均等于视口宽。
+- **未执行**：抽屉打开后焦点进入/关闭后回焦与背景 `inert`、`body` 锁滚（本版未声明修复，实测仍为 `overflow:visible`）、Tab 完整序列、触屏真机、上传全链路、npm 发布、提交与推送。现有 6 条用例只覆盖服务端，**6 项修复无自动化断言**。
+- **已知残留**：会话标签尾部 8 位理论仍可能碰撞，依赖 `title` 兜底；未改用会话标题（`DriveSessionRef` 无标题字段，需契约变更）。搜索结果全局语义与面包屑作用域提示不一致（低）仍为设计内不改。
+- 证据：[drive-plugin-alpha5](evidence/drive-plugin-alpha5.md)（含官方能力复用记录、6 项缺陷表、代码清单、门禁实测、UI 交付检查、第七节线上部署、**第八节浏览器 6 项复测**、未执行、回退锚点 `alpha.4` 制品 `wd-upload-022/workdsh-plugin-drive-0.1.0-alpha.4.tgz`）；版本登记已回填 [MODULE-VERSIONS](MODULE-VERSIONS.md)、[modules.json](modules.json) 与 [CHANGELOG](../packages/plugins/drive/CHANGELOG.md)。截图在 `/tmp/drive-a5-1440.png`、`/tmp/drive-a5-390.png`、`/tmp/drive-a5-390-drawer.png`、`/tmp/drive-a5-390-preview.png`（临时文件，未入库）。
+- **下一步**：本版 6 项已在线上闭环；剩余可选项为抽屉焦点管理（打开进抽屉、关闭回焦）、背景 `inert` 与 `body` 锁滚，以及 6 项修复的自动化断言。`currentStep` 仍为 `D04`，不因网盘专项推进。
+
+## 2026-10-25（续六十一）：网盘插件全量缺陷修复并上线（drive α.4 → `dsh.10ge.cn`）
+
+按用户指令「本网站的网盘功能请全面分析，存在的缺陷功能，进行修复」对 `packages/plugins/drive` 做全量复核，修 13 项缺陷（1 项属契约设计内不改），版本 `0.1.0-alpha.3 → 0.1.0-alpha.4`。
+
+- **高（4）**：①删除文件夹无效——`archive` 只改文件状态，改节点级级联归档（`DriveNode` 增 `status`/`archivedAt`，zod default，`schemaVersion` 仍为 1）；②回收站无原路径/文件夹——`listArchived` 只列顶层归档节点并返回 `folderPath`，可整目录恢复；③面包屑 `slice(0, index - 1)` 丢层级；④PDF/DOCX/XLSX/PPTX 预览按 UTF-8 解码成乱码、无体积阈值——改按 MIME/扩展名分流。
+- **中（5）**：⑤上传/下载固定 60s 超时 + base64 全量驻留——新增 GET `/api/workdsh-drive/download` 直出字节（服务端真值填 `Content-Type`/`Content-Disposition`/`no-store`/`nosniff`），删 `read-bytes` 端点，客户端改 `Blob`，上传超时 10 分钟；⑥筛选态进文件夹不清筛选；⑦「全部文件」走平铺搜索且静默截断 50；⑧上传部分失败不刷新 + `uploadParent` ref 陈旧（改 `uploadTarget` state）；⑨归档节点仍参与重名检查。
+- **低（4）**：⑩`excerptOf` 大小写折叠后切片错位；⑪`drive_read` 未限制文本类型（新增 `TEXT_LIKE` 校验，二进制返回 `drive/unsupported-read`）、`drive_save` 描述自相矛盾；⑫搜索/会话 50 条硬截断无提示；⑬恢复文件夹连带恢复此前单独删除的文件（改用 `archivedAt` 时间戳同批判据 + 重名自动改名）。
+- **UI**（按 [UI-DESIGN](UI-DESIGN.md) 第 4/6 节）：面板操作全部换 `Icon`（`packages/ui` 补 `trash/image/video/audio/archive/file/chat/tag/download` 等 8 个路径），纯图标按钮补 `aria-label`，新增移动端筛选抽屉与上传目标条。
+- **门禁实测**：`contracts`/`ui` build 退出码 0（下游 `tsc` 读 `dist/*.d.ts`）；`corepack pnpm --filter workdsh-plugin-drive test` **6/6 通过**（新增「整目录归档 / 分批恢复 / 同名释放 / 自动改名」用例，并补原生下载路由断言；同时修掉测试 mock 单槽导致 GET 覆盖 POST 的问题）；`check:plan` PASS（34 modules; 50 documents）；`check:versions` PASS（600 条 DSH 锁定 `0.2.1-rc.3`；Cordis 4.0.5 family only）。
+- **线上部署（用户授权「好的，执行部署流程」后执行）**：制品 `workdsh-plugin-drive-0.1.0-alpha.4.tgz`（52878 B，sha256 `bea49989…657e`）→ `wd-upload-022/`；profile 指针 α.3→α.4，容器内 `pnpm install --config.minimumReleaseAge=0`（`Packages: +1 -94`，20.9s）；`docker compose up -d --force-recreate` → `healthy`、`RestartCount=0`。复验：CLI `0.2.1-rc.3`、容器内 3080 `200`、`https://dsh.10ge.cn/` `302 → /portal`、启动日志 `did not activate`/`workdsh_drive`/`does not match its schema` 均 **0**、已装版本 `0.1.0-alpha.4` 且装好的 `dist` 含新下载路由与 `wd-drive-mobilebar`；只读 API 全 200（`space` 24.5MB/5GiB、`list` 34、`sessions` 7、`list-archived` 2、`search("根因")` 2 命中含长正文索引），存量数据完好；实跑「建目录→级联归档→回收站只列顶层且 parentId 为空→恢复带回子目录→purge 清理」全 PASS 残留 0；GET 下载实测 `02-home.png` 200/496183 B/`attachment`/`no-store`、`.doc` 200/110716 B、不存在 `fileId` 404。备份 `/home/luoji/drive-a4-backup-20261025010911/`；`deploy/profile/package.json` 指针已同步 α.4。
+- **未执行（已由续六十二补齐浏览器部分）**：上传全链路 UI 实测（隐藏 `input[type=file]` 无 ref）、npm 发布、提交与推送；浏览器逐页人工交互实测与 1440/1920/390 小屏比对已于同日完成，见下条。
+- **设计内不改**：`purge` 不删除附件字节（契约明示，UI 已告知）。
+- 证据：[drive-plugin-alpha4](evidence/drive-plugin-alpha4.md)（含官方能力复用记录、14 项缺陷表、门禁实测、UI 交付检查、线上部署与复验、浏览器实测第八节、回退锚点 `52617437e4`）；版本登记已回填 [MODULE-VERSIONS](MODULE-VERSIONS.md) 与 [CHANGELOG](../packages/plugins/drive/CHANGELOG.md)。
+- **下一步**：见续六十二（浏览器实测已闭环，新增 6 项缺陷待 `alpha.5` 修复）；回退路径见证据第七节。
+
+## 2026-10-25（续六十二）：网盘 alpha.4 浏览器逐页人工交互实测
+
+用户指令「好的，执行浏览器逐页人工交互实测」。对线上 `dsh.10ge.cn/?workdsh-view=drive`（`0.1.0-alpha.4`）用 agent-browser CLI 独立会话逐页走查；门户账号由用户在可见窗口手动登录，凭据未进入命令与日志。**本轮只读**，未上传/新建/删除任何对象。
+
+- **视口实测**：1440×900（侧栏 248、5 列 164×136、`docScroll=1440`）、1920×1080（8 列 159、`1920`）、390×844（侧栏 `0×0`/`display:none`、单列 301、`390`），三档均无横向溢出；760px 单断点符合设计。
+- **通过项**：根目录 34 项 → `业务材料` 6 项面包屑正确；tile `focus`+`Enter` 进目录、再 `Enter` 开预览；预览分流 zip/.doc/.pdf/图片/文本/.md/.xlsx/.pptx 全部正确无乱码；搜索 `Enter` 触发、空态文案、结果→预览→返回列表保留关键词、清空后恢复 6 tile；更多菜单「下载/移动到…/重命名/删除」点击外部可关。
+- **新发现 6 项缺陷（均未修复，需 alpha.5）**：①名称超长省略且无 `title`（1440 容器 140 / 名称 278；结果名 1020 vs 767）；②会话筛选 7 条中 6 条同为「会话 session-…」不可区分（`DrivePanel.tsx` L23 `slice(0,8)` 截在 `session-` 前缀上）；③移动抽屉无遮罩/`role`/`aria-modal`/关闭按钮，Esc 与点击外部均不关闭，三层内嵌滚动区裁切（类型 6 见 3、来源 3 见 2、会话 7 见 4）；④390 预览元信息标签压成 19px 竖排、MIME 硬断（`flex` 缺 `nowrap`/`flex-shrink:0`）；⑤「更多操作」弹层 Esc 不关闭，键盘用户无法退出；⑥390 单列 icon 区 277×64 失衡、抽屉与 mobilebar 标题重复「网盘」。另有搜索结果全局语义与面包屑作用域提示不一致（低）。
+- **未执行**：上传全链路（`input[type=file]` 无 ref，无法注入文件）、`>25MB` 与 `.bin` 分支、Tab 完整序列走查、SSH 容器侧复验（`192.168.11.205` 不可达）。截图存 `/tmp/drive-*.png`（未入库）。
+- 证据：[drive-plugin-alpha4 第八节](evidence/drive-plugin-alpha4.md#八浏览器逐页人工交互实测2026-10-25)。未提交、未推送。
+- **下一步**：~~按 6 项缺陷开 `0.1.0-alpha.5`~~ → **已由续六十三完成**（代码与仓库门禁完成，未部署、未浏览器复测）。
+
 ## 2026-10-25（续六十）：Gate A/B/C/E/H 补齐 + 白屏报错复发核查（未复发）
 
 本机回到 `192.168.11.0/24`（en0 = `192.168.11.243`）后 SSH 恢复（`ping` 0% 丢包），补齐上一轮因断网阻塞的计数项；并核查用户再次贴出的白屏报错。

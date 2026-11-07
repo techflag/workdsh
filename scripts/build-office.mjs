@@ -12,14 +12,15 @@ const font=await readFile(new URL("src/pdf/fonts/NotoSansSC.ttf",root));
 const fontSource=JSON.parse(await readFile(new URL("src/pdf/fonts/source.json",root),"utf8"));
 if(font.length!==fontSource.bytes||createHash("sha256").update(font).digest("hex")!==fontSource.sha256)throw Error("Bundled PDF font integrity mismatch");
 
-// Word-only packages omit both the spreadsheet UI and its XLSX dependency.
+// Word-only packages omit both the spreadsheet UI, its XLSX dependency and the
+// drive spreadsheet editor, so ExcelJS/Univer never enter that artifact.
 const spreadsheetScope = {
   name: "spreadsheet-release-scope",
   setup(builder) {
     if (!wordOnly) return;
-    builder.onResolve({filter: /spreadsheet\/(Page|xlsx)\.js$/}, args => ({path: args.path, namespace: "spreadsheet-disabled"}));
+    builder.onResolve({filter: /spreadsheet\/(Page|xlsx|DriveEditor)\.js$/}, args => ({path: args.path, namespace: "spreadsheet-disabled"}));
     builder.onLoad({filter: /.*/, namespace: "spreadsheet-disabled"}, () => ({
-      contents: 'function unavailable(){throw new Error("Spreadsheet is unavailable in this release");} export {unavailable as LiveSpreadsheet, unavailable as spreadsheetXlsx, unavailable as downloadSpreadsheet};', loader: "js"
+      contents: 'function unavailable(){throw new Error("Spreadsheet is unavailable in this release");} export {unavailable as LiveSpreadsheet, unavailable as spreadsheetXlsx, unavailable as downloadSpreadsheet, unavailable as mountSpreadsheetEditor};', loader: "js"
     }));
   }
 };
@@ -76,6 +77,7 @@ const runtime = await build({
   platform: "browser",
   external: ["react", "react-dom", "react/jsx-runtime"],
   loader:{".css":"text"},
+  minify: true,
   define: { "process.env.NODE_ENV": '"production"', __WORKDSH_WORD_ONLY__: String(wordOnly) },
   plugins: [
     {name:"pdf-worker-source",setup(builder){builder.onLoad({filter:/pdf\.worker\.min\.mjs$/},async args=>({contents:await readFile(args.path,"utf8"),loader:"text"}));}},

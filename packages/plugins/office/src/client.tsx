@@ -9,6 +9,7 @@ import type { ISessions } from "@deepseek-ai/dsh-api-session-controller/client";
 import type {} from "@deepseek-ai/dsh-client-ui-session/client";
 import type { OfficeContentSnapshot } from "workdsh-contracts/office";
 import type { LibraryOriginalPreviewRegistry } from "workdsh-contracts/library";
+import type { DriveEditorRegistry } from "workdsh-contracts/drive";
 import { loadOfficeRuntime, type OfficeRuntime } from "./runtime-loader.js";
 import type { OfficeClient, Rpc } from "./live/model.js";
 declare module "@deepseek-ai/dsh-client-ui-sidebar-right/client" {
@@ -16,7 +17,7 @@ declare module "@deepseek-ai/dsh-client-ui-sidebar-right/client" {
     "workdsh-office-live": { documentId?: string; requestId?: string };
   }
 }
-declare module "@deepseek-ai/cordis" { interface Context { workdshLibraryPreview: LibraryOriginalPreviewRegistry; } }
+declare module "@deepseek-ai/cordis" { interface Context { workdshLibraryPreview: LibraryOriginalPreviewRegistry; workdshDriveEditors: DriveEditorRegistry; } }
 /** Slot registrations take `(props: never) => ReactNode`; the shell forwards whatever the owner passes. */
 type OfficeSlotComponent = (props: any) => ReactElement | null;
 /**
@@ -78,6 +79,8 @@ export function apply(ctx: Context): void {
     return DeferredOfficeComponent as OfficeSlotComponent;
   };
   ctx.inject(["workdshLibraryPreview"], scope => scope.effect(() => scope.workdshLibraryPreview.register(["docx", "pptx"], async (target, input) => (await runtime()).mountOriginalPreview(target, input))));
+  // 网盘在线编辑：贡献 docx/xlsx/pptx 编辑能力，字节读取与写回由网盘按自己的授权和修订冲突检测执行。
+  ctx.inject(["workdshDriveEditors"], scope => scope.effect(() => scope.workdshDriveEditors.register(wordOnlyRelease ? ["docx"] : ["docx", "xlsx", "pptx"], async (target, input) => (await runtime()).mountDriveEditor(target, input))));
   // The registry ranks `extension` (default) above `builtin` and keeps every
   // matching implementation as a candidate. Declaring `builtin` leaves the
   // official native preview (sidebar-right's Office and Excel renderers) as the

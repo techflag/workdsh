@@ -56,3 +56,11 @@
 实际客户任务30页、修订22的1750695字节PPTX在单命令参数写入时复现 errno 7 Argument list too long。原逻辑仅PDF分块，PPTX虽允许8MiB但无法通过系统参数上限。所有格式超过96KiB改用分块官方bash调用，继续透传 parent/rootCallId/signal/deferred contexts 与审批/沙箱；最终SHA校验、原子链接、同修订重试与目标冲突保护保持。失败不得present，模板媒体不转换。复用依据为锁定 Harness tools.zh.md 的 ctx.tools.execute 公开嵌套调用流水线。
 
 连续新增正文时，原始页面的 backgroundImage 为每次 load 产生的新 blob URL，脏页比较误判并重新打包背景，实际4页模板每次新增约1MiB素材。修复从包基线公开解析结果重绑定已知图片临时句柄，再比较与序列化；无跨文档引用、私有API或图片格式转换。回归覆盖旧Host失效句柄、连续插页、素材字节不变及普通文本 blob: 不被当成图片。
+
+## 网盘 XLSX / PPTX 在线编辑写回（2026-10-25）
+
+官方能力复用记录：Office-DRIVE-XLSX-PPTX（证据见 [drive-plugin-alpha7 第八节](../../evidence/drive-plugin-alpha7.md#八xlsx--pptx-写回补齐ack-语义修复与真机复测2026-10-25用户指令xlsx-与-pptx-都补继续)）。官方文档路径：本版不新增官方文档引用，编辑器桥是 WorkDSH 自有业务契约，未改动 Harness 扩展面。锁定发布包/公开入口：沿用 `@deepseek-ai/dsh-client-ui-sidebar-documentpreview@0.2.1-rc.3` 的预览注册与 `ctx.slots.inject`，不新增依赖、不升级基线。已有探针：第七节已确认 xlsx/pptx 无网盘写回入口，`mountPptx` 不返回导出方法；本版补探针确认 `pptx-react-viewer` 的 `getContent()` 可导出真实 OOXML（2 页 17109 B，含 `slide1.xml`/`slide2.xml`）。业务差异：① xlsx 只有导出器，需新增 ExcelJS 导入器（`sheets 20 / rows 1000 / columns 100 / cells 10000 / 2 MiB` 上限，超限拒绝）；② pptx 会话编辑器需补 sessionless 字节写回；③ 网盘写回成功与否不回传编辑器，需要 `acknowledge()` 在提交成功后推进基线。
+
+实现：`mountDriveEditor` 按扩展名分派到 `mountSpreadsheetEditor`（Univer + `stateFromUniver` + `spreadsheetXlsx`）、`mountDrivePresentation`（`mountPptx` + 每页签名判脏 + `getContent()`）或原 `mountDriveDocument`；`client.tsx` 注册 `['docx','xlsx','pptx']`，`--word-only` 仍只注册 `['docx']`，`build-office.mjs` 对 word-only stub 覆盖 `spreadsheet/DriveEditor.js`。三个编辑器改为「已保存 / 待确认」两段基线，`DriveEditorHandle.acknowledge?()` 只在 `appendRevision` 成功后推进。
+
+验收：仓库 drive `typecheck` 0、`test` 7/7、office `typecheck`/`build` 0；线上真机 xlsx 保存得 rev4（6440 B，sha256 `c9660077…`，A1=`r4ack`）与 pptx 保存得 rev2（17109 B，sha256 `7c714c3b…`，新增 `slide2.xml`），保存后退出均不再重复写，未改内容退出不产生空修订。缺口：xlsx 格式/公式/合并单元格与 pptx 文本/图片级编辑的自动化断言、只读账号拒绝、编辑器桥自动化断言、> 25 MiB、1440/390 视口与触屏真机、word-only 打包（许可证门禁缺件）、npm 发布均未执行。

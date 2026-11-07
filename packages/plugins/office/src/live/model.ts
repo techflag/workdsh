@@ -44,6 +44,295 @@ export interface OfficeClient {
   ): ReturnType<typeof createDocumentModel>;
 }
 const ref = <T>(current: T) => ({ current });
+
+/** 工具栏需要显示的光标处格式状态；实时编辑器与网盘无会话编辑器共用。 */
+export interface DocumentControls {
+  fontFamily: string;
+  fontSize: number;
+  color: string;
+  backgroundColor: string;
+  level: number;
+  alignment: string;
+  lineHeight: number;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  strike: boolean;
+  bullet: boolean;
+  ordered: boolean;
+  undo: boolean;
+  redo: boolean;
+  characters: number;
+}
+
+/** 从编辑器当前选区读取工具栏状态。 */
+export function readControls(e: Editor): DocumentControls {
+  const text = e.getAttributes("textStyle"),
+    block = e.state.selection.$from.parent.attrs;
+  return {
+    fontFamily: text.fontFamily ?? "",
+    fontSize:
+      parseFloat(text.fontSize) *
+        (String(text.fontSize).endsWith("px") ? 0.75 : 1) || 12,
+    color: normalizedColor(text.color) ?? "#222222",
+    backgroundColor: normalizedColor(text.backgroundColor) ?? "#fff2a8",
+    level: e.isActive("heading") ? e.getAttributes("heading").level : 0,
+    alignment: block.textAlign ?? "left",
+    lineHeight: block.lineHeight ?? 1.85,
+    bold: e.isActive("bold"),
+    italic: e.isActive("italic"),
+    underline: e.isActive("underline"),
+    strike: e.isActive("strike"),
+    bullet: e.isActive("bulletList"),
+    ordered: e.isActive("orderedList"),
+    undo: e.can().undo(),
+    redo: e.can().redo(),
+    characters: e.state.doc.textContent.length,
+  };
+}
+export type DocumentTableAction =
+  | "insertTable"
+  | "addRowBefore"
+  | "addRowAfter"
+  | "deleteRow"
+  | "addColumnBefore"
+  | "addColumnAfter"
+  | "deleteColumn"
+  | "mergeCells"
+  | "splitCell"
+  | "toggleHeaderRow"
+  | "deleteTable";
+
+export interface EditingGuards {
+  /** 当前是否允许修改正文；网盘无会话编辑器在挂载期间恒为真。 */
+  canEdit: () => boolean;
+  /** 输入法组合期间不执行替换。 */
+  composing: () => boolean;
+  /** 命令被拒绝时的用户提示。 */
+  problem: (message: string) => void;
+}
+
+/** 工具栏编辑命令；实时编辑器与网盘无会话编辑器共用同一实现。 */
+export function createEditingCommands(
+  editor: { current: Editor | null },
+  guards: EditingGuards,
+) {
+  const command = (run: (e: Editor) => void) => {
+    if (editor.current && guards.canEdit()) {
+      run(editor.current);
+      editor.current.commands.focus();
+    }
+  };
+  function matches(query: string) {
+    const found: { from: number; to: number }[] = [];
+    if (!editor.current || !query || query.length > 2000) return found;
+    editor.current.state.doc.descendants((node, pos) => {
+      if (!node.isTextblock) return;
+      const text = node.textBetween(0, node.content.size, "", "\n");
+      let index = 0;
+      while ((index = text.indexOf(query, index)) >= 0) {
+        found.push({
+          from: pos + 1 + index,
+          to: pos + 1 + index + query.length,
+        });
+        index += query.length;
+      }
+      return false;
+    });
+    return found;
+  }
+  function find(query: string) {
+    const found = matches(query),
+      e = editor.current;
+    if (e && found.length) {
+      const match =
+        found.find((m) => m.from >= e.state.selection.to) ?? found[0];
+      e.commands.setTextSelection(match);
+      e.commands.scrollIntoView();
+    }
+    return found.length;
+  }
+  return {
+    canTableAction: (action: DocumentTableAction) => {
+      const e = editor.current;
+      if (!e) return false;
+      return action === "insertTable"
+        ? !e.isActive("table") && e.can().insertTable({ rows: 3, cols: 3 })
+        : e.can()[action]();
+    },
+    canAlignImage: () => editor.current?.isActive("image") ?? false,
+    tableAction: (action: DocumentTableAction) =>
+      command((e) => {
+        if (action === "insertTable") {
+          if (!e.isActive("table"))
+            e.commands.insertTable({ rows: 3, cols: 3, withHeaderRow: true });
+        } else e.commands[action]();
+      }),
+    imageAlignment: (alignment: "left" | "center" | "right") =>
+      command((e) => e.commands.updateAttributes("image", { alignment })),
+    insertImage: async (file: File) => {
+      if (!["image/png", "image/jpeg"].includes(file.type) || file.size > 524288)
+        throw new Error("请选择不超过512 KiB的PNG或JPEG图片。");
+      const src = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("图片读取失败。"));
+        reader.readAsDataURL(file);
+      });
+      const image = new window.Image();
+      image.src = src;
+      await image.decode();
+      const scale = Math.min(1, 600 / image.naturalWidth, 4096 / image.naturalHeight);
+      if (image.naturalWidth * scale < 24 || image.naturalHeight * scale < 24)
+        throw new Error("图片显示尺寸至少24像素。");
+      command((e) => {
+        if (e.isActive("table")) throw new Error("请将光标移到表格外，再插入图片。");
+        e.commands.setImage({
+          src,
+          alt: file.name,
+          width: Math.round(image.naturalWidth * scale),
+          height: Math.round(image.naturalHeight * scale),
+        });
+      });
+    },
+    find,
+    replace: (query: string, replacement: string, all: boolean) => {
+      if (guards.composing() || !guards.canEdit() || replacement.length > 20000)
+        return 0;
+      const e = editor.current!,
+        found = matches(query);
+      const selected = found.find(
+        (m) =>
+          m.from === e.state.selection.from && m.to === e.state.selection.to,
+      );
+      const targets = all
+        ? found
+        : [
+            selected ??
+              found.find((m) => m.from >= e.state.selection.to) ??
+              found[0],
+          ].filter(Boolean);
+      const tr = e.state.tr;
+      for (const range of [...targets].reverse())
+        tr.insertText(replacement, range.from, range.to);
+      if (tr.docChanged) e.view.dispatch(tr);
+      e.commands.focus();
+      return targets.length;
+    },
+    action: (
+      action:
+        | "undo"
+        | "redo"
+        | "bullet"
+        | "ordered"
+        | "indent"
+        | "outdent"
+        | "clear"
+        | "selectAll",
+    ) =>
+      command((e) => {
+        if (action === "undo") e.commands.undo();
+        if (action === "redo") e.commands.redo();
+        if (action === "bullet") e.commands.toggleBulletList();
+        if (action === "ordered") e.commands.toggleOrderedList();
+        if (action === "selectAll") e.commands.selectAll();
+        if (action === "clear")
+          e.chain()
+            .unsetAllMarks()
+            .updateAttributes("paragraph", {
+              textAlign: null,
+              lineHeight: null,
+              indent: 0,
+            })
+            .updateAttributes("heading", {
+              textAlign: null,
+              lineHeight: null,
+              indent: 0,
+            })
+            .run();
+        if (action === "indent" || action === "outdent") {
+          if (e.isActive("listItem")) {
+            let levels = 0;
+            for (let depth = 1; depth <= e.state.selection.$from.depth; depth++)
+              if (
+                ["bulletList", "orderedList"].includes(
+                  e.state.selection.$from.node(depth).type.name,
+                )
+              )
+                levels++;
+            if (action === "indent") {
+              if (levels < 6) e.commands.sinkListItem("listItem");
+              else guards.problem("列表最多支持 6 级。");
+            }
+            if (action === "outdent") e.commands.liftListItem("listItem");
+          } else {
+            const tr = e.state.tr;
+            e.state.doc.nodesBetween(
+              e.state.selection.from,
+              e.state.selection.to,
+              (node, pos) => {
+                if (
+                  ["paragraph", "heading", "table", "image", "officeChart"].includes(
+                    node.type.name,
+                  )
+                )
+                  tr.setNodeMarkup(pos, undefined, {
+                    ...node.attrs,
+                    indent: Math.max(
+                      0,
+                      Math.min(
+                        6,
+                        Number(node.attrs.indent ?? 0) +
+                          (action === "indent" ? 1 : -1),
+                      ),
+                    ),
+                  });
+              },
+            );
+            e.view.dispatch(tr);
+          }
+        }
+      }),
+    textStyle: (
+      property: "fontFamily" | "fontSize" | "color" | "backgroundColor",
+      value: string,
+    ) =>
+      command((e) => {
+        if (property === "fontFamily")
+          value
+            ? e.commands.setFontFamily(value)
+            : e.commands.unsetFontFamily();
+        if (property === "fontSize") e.commands.setFontSize(`${value}pt`);
+        if (property === "color") e.commands.setColor(value);
+        if (property === "backgroundColor")
+          e.commands.setBackgroundColor(value);
+      }),
+    alignment: (value: string) =>
+      command((e) => e.commands.setTextAlign(value)),
+    lineHeight: (value: number) =>
+      command((e) =>
+        e
+          .chain()
+          .updateAttributes("paragraph", { lineHeight: value })
+          .updateAttributes("heading", { lineHeight: value })
+          .run(),
+      ),
+    format: (action: "bold" | "italic" | "underline" | "strike") =>
+      command((e) => {
+        if (action === "bold") e.commands.toggleBold();
+        if (action === "italic") e.commands.toggleItalic();
+        if (action === "underline") e.commands.toggleUnderline();
+        if (action === "strike") e.commands.toggleStrike();
+      }),
+    paragraph: (level: 0 | 1 | 2 | 3 | 4 | 5 | 6) =>
+      command((e) =>
+        level === 0
+          ? e.commands.setParagraph()
+          : e.commands.setHeading({ level }),
+      ),
+  };
+}
+
 /** Client mirror + local editing transaction. Host owns committed content and revisions. */
 export function createDocumentModel(
   { documentId, sessionId, visible, signal, requestId }: DocumentOptions,
@@ -114,30 +403,7 @@ export function createDocumentModel(
   }
   function refreshControls(e: Editor) {
     if (disposed.current) return;
-    const text = e.getAttributes("textStyle"),
-      block = e.state.selection.$from.parent.attrs;
-    update({
-      controls: {
-        fontFamily: text.fontFamily ?? "",
-        fontSize:
-          parseFloat(text.fontSize) *
-            (String(text.fontSize).endsWith("px") ? 0.75 : 1) || 12,
-        color: normalizedColor(text.color) ?? "#222222",
-        backgroundColor: normalizedColor(text.backgroundColor) ?? "#fff2a8",
-        level: e.isActive("heading") ? e.getAttributes("heading").level : 0,
-        alignment: block.textAlign ?? "left",
-        lineHeight: block.lineHeight ?? 1.85,
-        bold: e.isActive("bold"),
-        italic: e.isActive("italic"),
-        underline: e.isActive("underline"),
-        strike: e.isActive("strike"),
-        bullet: e.isActive("bulletList"),
-        ordered: e.isActive("orderedList"),
-        undo: e.can().undo(),
-        redo: e.can().redo(),
-        characters: e.state.doc.textContent.length,
-      },
-    });
+    update({ controls: readControls(e) });
   }
   function mountEditor(snapshot: OfficeSnapshot, editable: boolean) {
     editor.current?.destroy();
@@ -382,183 +648,13 @@ export function createDocumentModel(
       editor.current = null;
     };
   }
-  const command = (run: (e: Editor) => void) => {
-    if (editor.current && lease.current && !failed.current) {
-      run(editor.current);
-      editor.current.commands.focus();
-    }
-  };
-  function matches(query: string) {
-    const found: { from: number; to: number }[] = [];
-    if (!editor.current || !query || query.length > 2000) return found;
-    editor.current.state.doc.descendants((node, pos) => {
-      if (!node.isTextblock) return;
-      const text = node.textBetween(0, node.content.size, "", "\n");
-      let index = 0;
-      while ((index = text.indexOf(query, index)) >= 0) {
-        found.push({
-          from: pos + 1 + index,
-          to: pos + 1 + index + query.length,
-        });
-        index += query.length;
-      }
-      return false;
-    });
-    return found;
-  }
-  function find(query: string) {
-    const found = matches(query),
-      e = editor.current;
-    if (e && found.length) {
-      const match =
-        found.find((m) => m.from >= e.state.selection.to) ?? found[0];
-      e.commands.setTextSelection(match);
-      e.commands.scrollIntoView();
-    }
-    return found.length;
-  }
+  const editing = createEditingCommands(editor, {
+    canEdit: () => !!lease.current && !failed.current,
+    composing: () => composing.current,
+    problem: setProblem,
+  });
   return {
-    canTableAction: (action:"insertTable"|"addRowBefore"|"addRowAfter"|"deleteRow"|"addColumnBefore"|"addColumnAfter"|"deleteColumn"|"mergeCells"|"splitCell"|"toggleHeaderRow"|"deleteTable")=>{
-      const e=editor.current;if(!e)return false;
-      return action==="insertTable" ? !e.isActive("table") && e.can().insertTable({rows:3,cols:3}) : e.can()[action]();
-    },
-    canAlignImage: ()=>editor.current?.isActive("image") ?? false,
-    tableAction: (action:"insertTable"|"addRowBefore"|"addRowAfter"|"deleteRow"|"addColumnBefore"|"addColumnAfter"|"deleteColumn"|"mergeCells"|"splitCell"|"toggleHeaderRow"|"deleteTable") => command(e=>{
-      if(action==="insertTable") {if(!e.isActive("table")) e.commands.insertTable({rows:3,cols:3,withHeaderRow:true});}
-      else e.commands[action]();
-    }),
-    imageAlignment: (alignment:"left"|"center"|"right")=>command(e=>e.commands.updateAttributes("image",{alignment})),
-    insertImage: async(file:File)=>{
-      if(!["image/png","image/jpeg"].includes(file.type) || file.size>524288) throw new Error("请选择不超过512 KiB的PNG或JPEG图片。");
-      const src=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(new Error("图片读取失败。"));reader.readAsDataURL(file);});
-      const image=new window.Image(); image.src=src; await image.decode();
-      const scale=Math.min(1,600/image.naturalWidth,4096/image.naturalHeight);
-      if(image.naturalWidth*scale<24 || image.naturalHeight*scale<24) throw new Error("图片显示尺寸至少24像素。");
-      command(e=>{if(e.isActive("table")) throw new Error("请将光标移到表格外，再插入图片。");e.commands.setImage({src,alt:file.name,width:Math.round(image.naturalWidth*scale),height:Math.round(image.naturalHeight*scale)});});
-    },
-    find,
-    replace: (query: string, replacement: string, all: boolean) => {
-      if (
-        !lease.current ||
-        failed.current ||
-        composing.current ||
-        replacement.length > 20000
-      )
-        return 0;
-      const e = editor.current!,
-        found = matches(query);
-      const selected = found.find(
-        (m) =>
-          m.from === e.state.selection.from && m.to === e.state.selection.to,
-      );
-      const targets = all
-        ? found
-        : [
-            selected ??
-              found.find((m) => m.from >= e.state.selection.to) ??
-              found[0],
-          ].filter(Boolean);
-      const tr = e.state.tr;
-      for (const range of [...targets].reverse())
-        tr.insertText(replacement, range.from, range.to);
-      if (tr.docChanged) e.view.dispatch(tr);
-      e.commands.focus();
-      return targets.length;
-    },
-    action: (
-      action:
-        | "undo"
-        | "redo"
-        | "bullet"
-        | "ordered"
-        | "indent"
-        | "outdent"
-        | "clear"
-        | "selectAll",
-    ) =>
-      command((e) => {
-        if (action === "undo") e.commands.undo();
-        if (action === "redo") e.commands.redo();
-        if (action === "bullet") e.commands.toggleBulletList();
-        if (action === "ordered") e.commands.toggleOrderedList();
-        if (action === "selectAll") e.commands.selectAll();
-        if (action === "clear")
-          e.chain()
-            .unsetAllMarks()
-            .updateAttributes("paragraph", {
-              textAlign: null,
-              lineHeight: null,
-              indent: 0,
-            })
-            .updateAttributes("heading", {
-              textAlign: null,
-              lineHeight: null,
-              indent: 0,
-            })
-            .run();
-        if (action === "indent" || action === "outdent") {
-          if (e.isActive("listItem")) {
-            let levels = 0;
-            for (let depth = 1; depth <= e.state.selection.$from.depth; depth++)
-              if (
-                ["bulletList", "orderedList"].includes(
-                  e.state.selection.$from.node(depth).type.name,
-                )
-              )
-                levels++;
-            if (action === "indent") {
-              if (levels < 6) e.commands.sinkListItem("listItem");
-              else setProblem("列表最多支持 6 级。");
-            }
-            if (action === "outdent") e.commands.liftListItem("listItem");
-          } else {
-            const tr = e.state.tr;
-            e.state.doc.nodesBetween(
-              e.state.selection.from,
-              e.state.selection.to,
-              (node, pos) => {
-                if (["paragraph", "heading", "table", "image", "officeChart"].includes(node.type.name))
-                  tr.setNodeMarkup(pos, undefined, {
-                    ...node.attrs,
-                    indent: Math.max(
-                      0,
-                      Math.min(
-                        6,
-                        Number(node.attrs.indent ?? 0) +
-                          (action === "indent" ? 1 : -1),
-                      ),
-                    ),
-                  });
-              },
-            );
-            e.view.dispatch(tr);
-          }
-        }
-      }),
-    textStyle: (
-      property: "fontFamily" | "fontSize" | "color" | "backgroundColor",
-      value: string,
-    ) =>
-      command((e) => {
-        if (property === "fontFamily")
-          value
-            ? e.commands.setFontFamily(value)
-            : e.commands.unsetFontFamily();
-        if (property === "fontSize") e.commands.setFontSize(`${value}pt`);
-        if (property === "color") e.commands.setColor(value);
-        if (property === "backgroundColor")
-          e.commands.setBackgroundColor(value);
-      }),
-    alignment: (value: string) =>
-      command((e) => e.commands.setTextAlign(value)),
-    lineHeight: (value: number) =>
-      command((e) =>
-        e
-          .chain()
-          .updateAttributes("paragraph", { lineHeight: value })
-          .updateAttributes("heading", { lineHeight: value })
-          .run(),
-      ),
+    ...editing,
     getSnapshot: () => view,
     subscribe: (fn: () => void) => {
       listeners.add(fn);
@@ -586,18 +682,5 @@ export function createDocumentModel(
     setRequest: (value: string | undefined) => {
       requested.current = value;
     },
-    format: (action: "bold" | "italic" | "underline" | "strike") =>
-      command((e) => {
-        if (action === "bold") e.commands.toggleBold();
-        if (action === "italic") e.commands.toggleItalic();
-        if (action === "underline") e.commands.toggleUnderline();
-        if (action === "strike") e.commands.toggleStrike();
-      }),
-    paragraph: (level: 0 | 1 | 2 | 3 | 4 | 5 | 6) =>
-      command((e) =>
-        level === 0
-          ? e.commands.setParagraph()
-          : e.commands.setHeading({ level }),
-      ),
   };
 }

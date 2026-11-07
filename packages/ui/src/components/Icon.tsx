@@ -20,6 +20,18 @@ const paths = {
   folder: 'M3 5h6l2 3h10v12H3z',
   drive: 'M17.5 19a4.5 4.5 0 00.4-8.98A6 6 0 006.7 9.5 5 5 0 005 19h12.5zM7.5 14.5h9',
   close: 'M6 6l12 12M18 6L6 18',
+  menu: 'M4 7h16M4 12h16M4 17h16',
+  ellipsis: 'M5 12h.01M12 12h.01M19 12h.01',
+  trash: 'M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6',
+  image: 'M3 5h18v14H3zM8.5 11a1.5 1.5 0 100-3 1.5 1.5 0 000 3M4 17l5-5 4 4 3-3 4 4',
+  document: 'M6 3h8l4 4v14H6zM14 3v5h4M9 12h6M9 16h6',
+  video: 'M3 6h13v12H3zM16 10l5-3v10l-5-3',
+  audio: 'M9 18V6l10-2v12M9 18a3 3 0 11-6 0 3 3 0 016 0M19 16a3 3 0 11-6 0 3 3 0 016 0',
+  archive: 'M3 4h18v5H3zM5 9v11h14V9M10 13h4',
+  file: 'M6 3h8l4 4v14H6zM14 3v5h4',
+  chat: 'M4 5h16v11H9l-5 4z',
+  tag: 'M3 12l9-9h8v8l-9 9zM16 8h.01',
+  download: 'M12 4v11M7 10l5 5 5-5M4 20h16',
 } as const;
 
 export type IconName = keyof typeof paths;

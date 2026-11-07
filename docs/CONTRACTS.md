@@ -44,7 +44,9 @@ Office已导出`workdsh-contracts/office`的 U1 文档类型，并注册`ctx.wor
 | assets | import/read/search/createRevision/registerDeliverable/listByTask | 资料页面、Agent 工具、成果面板 |
 | automations | createRule/updateRule/enable/disable/acceptDelivery/listRuns/reconcileRun | 自动化页面、Schedule/Webhook 适配器、运行恢复 |
 | workbench | registerNavigation/registerView/registerObjectLink | 功能 Client 插件 |
-| drive | list/search/read/rename/move/archive/upload/save | 网盘页面、Agent 工具、对话产物归档捕获 |
+| drive | list/search/read/rename/move/archive/upload/save/appendRevision/stat | 网盘页面、Agent 工具、对话产物归档捕获、编辑器桥写回 |
+
+跨插件编辑复用官方 `DocumentPreviewRegistry` 以外的形态：官方注册表只有 `id/extensions/priority/title/loading/wrap` 与 `register/candidates/getSnapshot/subscribe`，没有编辑与保存回写钩子，因此网盘在 `workdsh-contracts/drive` 暴露 `DriveEditorRegistry`（`register(extensions, mount)` 返回 disposer / `canEdit` / `mount` / `subscribe` / `getRevision`），由 `ctx.provide('workdshDriveEditors')` 提供、编辑能力方用 `ctx.inject` + `ctx.effect` 注册。`DriveEditorHandle.save()` 只返回字节，`undefined` 表示无改动；写回、授权、修订冲突检测全部由网盘按 `appendRevision` 执行，编辑方不读写网盘存储，也不共享会话工作副本。同一形态的既有先例是 library 的 `LibraryOriginalPreviewRegistry`。
 
 这些名称是意图级草案，不预先锁死 Remote wire 格式。正式 API 必须与选定 Harness Client/Remote 公开接口一致，避免自建传输。
 

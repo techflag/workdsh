@@ -14,7 +14,8 @@ const owner = z.object({
 const space = z.object({ id, title: id, owner, createdAt: iso, updatedAt: iso });
 const node = z.object({
   id, spaceId: id, parentId: id.optional(), kind: z.enum(['folder', 'file']), name: id,
-  fileId: id.optional(), createdAt: iso, updatedAt: iso,
+  fileId: id.optional(), status: z.enum(['active', 'archived']).default('active'), archivedAt: iso.optional(),
+  createdAt: iso, updatedAt: iso,
 });
 const file = z.object({
   id, spaceId: id, nodeId: id, kind: z.enum(['document', 'image', 'video', 'audio', 'archive', 'other']),
