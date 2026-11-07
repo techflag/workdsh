@@ -17,11 +17,18 @@ for (const path of [join(root, 'lib', 'workdsh-main.js'), profile, node, primary
 
 const require = createRequire(import.meta.url)
 const electron = require('electron')
+// The single-instance lock is keyed by userData. Keep development data apart
+// from an installed WorkDSH so both can run side by side, and so a development
+// Profile install never rewrites the installed application's Home.
+const userData = process.env.WORKDSH_DESKTOP_USER_DATA ?? join(root, 'build', 'dev-user-data')
+console.log(`WorkDSH development data: ${userData}`)
+const startedAt = Date.now()
 const child = spawn(electron, [root], {
   cwd: root,
   env: {
     ...process.env,
     ELECTRON_RUN_AS_NODE: undefined,
+    WORKDSH_DESKTOP_USER_DATA: userData,
     WORKDSH_BUNDLED_PROFILE: profile,
     WORKDSH_NODE_EXECUTABLE: node,
     WORKDSH_PRIMARY_RUNTIME: primary,
@@ -33,4 +40,9 @@ child.on('error', error => {
   console.error(error)
   process.exitCode = 1
 })
-child.on('exit', code => { process.exitCode = code ?? 1 })
+child.on('exit', code => {
+  process.exitCode = code ?? 1
+  if (code === 0 && Date.now() - startedAt < 5000) {
+    console.error(`WorkDSH exited immediately: another instance already owns ${userData}. Close it before running yarn dev again.`)
+  }
+})
